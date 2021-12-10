@@ -667,6 +667,7 @@ private:
   template <class C> friend struct query_result_traits;
   template <class C> friend class SaveDbAction;
   template <class C> friend class LoadDbAction;
+  template <class C> friend class UpdateBaseAction;
   template <class C> friend class PtrRef;
   friend class SetReciproceAction;
   friend class ToAnysAction;

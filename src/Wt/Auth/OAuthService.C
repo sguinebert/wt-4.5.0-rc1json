@@ -7,7 +7,7 @@
 #include "Wt/Auth/OAuthService.h"
 
 #include "Wt/Json/Parser.h"
-#include "Wt/Json/Object.h"
+#include "Wt/Json/json.hpp"
 
 #include "Wt/Http/Client.h"
 #include "Wt/Http/Request.h"

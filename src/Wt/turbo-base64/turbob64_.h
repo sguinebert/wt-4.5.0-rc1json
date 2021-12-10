@@ -105,7 +105,10 @@ static ALWAYS_INLINE size_t _tb64xd(const unsigned char *in, size_t inlen, unsig
 }
   #endif
 //--------------------------- sse -----------------------------------------------------------------
+#if!(__SSSE3__)
 #define __SSSE3__
+#endif
+
 #if defined(__SSSE3__)
 #include <tmmintrin.h>
 #define MM_PACK8TO6(v, cpv) {\

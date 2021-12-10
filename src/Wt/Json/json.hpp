@@ -43,4 +43,10 @@
 // Intentionally excluded
 //#include "json/basic_parser_impl.hpp"
 
+namespace Wt {
+namespace Json {
+  typedef Wt::Json::kind Type;
+}
+}
+
 #endif

@@ -2,7 +2,7 @@
 
 #include "Wt/WApplication.h"
 #include "Wt/WLogger.h"
-#include "Wt/Json/Object.h"
+#include "Wt/Json/json.hpp"
 #include "Wt/Json/Parser.h"
 #include "Wt/Http/Client.h"
 

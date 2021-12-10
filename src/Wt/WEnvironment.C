@@ -11,8 +11,7 @@
 #include "Wt/WSslInfo.h"
 #include "Wt/Http/Request.h"
 #include "Wt/Json/Parser.h"
-#include "Wt/Json/Object.h"
-#include "Wt/Json/Array.h"
+#include "Wt/Json/json.hpp"
 #include "Wt/WString.h"
 
 #include "WebController.h"

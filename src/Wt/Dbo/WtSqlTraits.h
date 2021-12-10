@@ -17,8 +17,7 @@
 #include <Wt/WString.h>
 #include <Wt/cpp17/any.hpp>
 
-#include <Wt/Json/Object.h>
-#include <Wt/Json/Array.h>
+#include <Wt/Json/json.hpp>
 #include <Wt/Json/Parser.h>
 #include <Wt/Json/Serializer.h>
 

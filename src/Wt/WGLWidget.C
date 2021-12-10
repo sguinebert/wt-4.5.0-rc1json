@@ -31,8 +31,7 @@
 #include "DomElement.h"
 #include "WebUtils.h"
 
-#include "Wt/Json/Array.h"
-#include "Wt/Json/Object.h"
+#include "Wt/Json/json.hpp"
 #include "Wt/Json/Parser.h"
 
 #ifndef WT_DEBUG_JS

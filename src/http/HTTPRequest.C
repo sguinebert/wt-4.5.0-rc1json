@@ -13,8 +13,7 @@
 #include "Wt/WLogger.h"
 #include "Wt/WSslInfo.h"
 #include "Wt/Http/Message.h"
-#include "Wt/Json/Array.h"
-#include "Wt/Json/Object.h"
+#include "Wt/Json/json.hpp"
 #include "Wt/Json/Parser.h"
 
 #include "web/SslUtils.h"
