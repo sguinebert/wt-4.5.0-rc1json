@@ -42,6 +42,7 @@
 
 // Intentionally excluded
 //#include "json/basic_parser_impl.hpp"
+<<<<<<< Updated upstream
 
 namespace Wt {
 namespace Json {
@@ -49,4 +50,11 @@ namespace Json {
 }
 }
 
+=======
+namespace Wt {
+namespace Json {
+typedef Wt::Json::kind Type;
+}
+}
+>>>>>>> Stashed changes
 #endif
