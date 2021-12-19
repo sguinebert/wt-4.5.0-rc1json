@@ -514,7 +514,7 @@ void tb64ini(unsigned id, unsigned isshort) {
 }
 
 size_t tb64enc(const unsigned char *in, size_t inlen, unsigned char *out) {
-  printf ("%s\n", "a");
+  //printf ("%s\n", "a");
   if(!tb64set) tb64ini(0,0);
   return _tb64e(in,inlen,out);
 }

@@ -2875,6 +2875,13 @@ public:
         BOOST_ASSERT(is_object());
         return obj_;
     }
+    // Object const&
+    // get_object(const Object& ifnull) noexcept
+    // {
+    //         if(!is_object())
+    //             return std::move(ifnull);
+    //         return obj_;
+    // }
 
     /** Return a reference to the underlying `array`, without checking.
 
