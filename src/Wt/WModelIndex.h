@@ -215,7 +215,8 @@ enum class ItemFlag {
   Tristate = 0x20,
   XHTMLText = 0x40,        //!< Item's text (ItemDataRole::Display, ItemDataRole::ToolTip) is HTML
   Dirty = 0x80,            //!< Item's value has been modified
-  DeferredToolTip = 0x100 //!< Item's tooltip is deferred
+  DeferredToolTip = 0x100, //!< Item's tooltip is deferred
+  Anonymous = 0x200
 };
 
 W_DECLARE_OPERATORS_FOR_FLAGS(ItemFlag)
