@@ -18,473 +18,495 @@
 
 #include "StringUtils.h"
 
-namespace Wt {
+namespace Wt
+{
 
 #ifdef WT_DBO_LOGGER
-namespace Dbo {
+  namespace Dbo
+  {
 #endif
 
-  namespace {
-    WLogger defaultLogger;
-  }
-
-LOGGER("WLogger");
-
-WLogEntry::WLogEntry(WLogEntry&& other)
-  : impl_(std::move(other.impl_))
-{ }
-
-WLogEntry::~WLogEntry()
-{
-  if (impl_) {
-    impl_->finish();
-    if (impl_->logger_)
-      impl_->logger_->addLine(impl_->type_, impl_->scope_, impl_->line_);
-    else if (impl_->customLogger_)
-      impl_->customLogger_->log(impl_->type_, impl_->scope_, impl_->line_.str());
-  }
-}
-
-WLogEntry& WLogEntry::operator<< (const WLogger::Sep&)
-{
-  if(mute_)
-    return *this;
-  if (impl_)
-    impl_->nextField();
-
-  return *this;
-}
-
-#ifndef WT_DBO_LOGGER
-WLogEntry &WLogEntry::operator<<(const WLogger::TimeStamp &)
-{
-  if (mute_)
-    return *this;
-  std::string dt = WLocalDateTime::currentServerDateTime()
-                       .toString("yyyy-MMM-dd hh:mm:ss.zzz")
-                       .toUTF8();
-
-  return *this << '[' << dt << ']';
-}
-#endif // WT_DBO_LOGGER
-
-WLogEntry& WLogEntry::operator<< (const char *s)
-{
-  if(mute_)
-    return *this;
-  return *this << std::string(s);
-}
-
-#ifndef WT_DBO_LOGGER
-WLogEntry& WLogEntry::operator<< (const WString& s)
-{
-  if(mute_)
-    return *this;
-  return *this << s.toUTF8();
-}
-#endif // WT_DBO_LOGGER
-
-WLogEntry &WLogEntry::operator<<(const std::string &s)
-{
-  if (mute_)
-    return *this;
-  if (impl_)
-  {
-    if (impl_->quote())
+    namespace
     {
-      startField();
-
-      std::string ss(s);
-      Utils::replace(ss, '"', "\"\"");
-
-      impl_->line_ << ss;
+      WLogger defaultLogger;
     }
-    else
+
+    LOGGER("WLogger");
+
+    WLogEntry::WLogEntry(WLogEntry &&other)
+        : impl_(std::move(other.impl_))
     {
-      if (!s.empty())
+    }
+
+    WLogEntry::~WLogEntry()
+    {
+      if (impl_)
       {
-        startField();
-        impl_->line_ << s;
+        impl_->finish();
+        if (impl_->logger_)
+          impl_->logger_->addLine(impl_->type_, impl_->scope_, impl_->line_);
+        else if (impl_->customLogger_)
+          impl_->customLogger_->log(impl_->type_, impl_->scope_, impl_->line_.str());
       }
     }
 
-    if ((impl_->customLogger_ ||
-         impl_->field_ == (int)impl_->logger_->fields().size() - 1) &&
-        impl_->scope_.empty())
-      impl_->scope_ = s;
-  }
+    WLogEntry &WLogEntry::operator<<(const WLogger::Sep &)
+    {
+      if (mute_)
+        return *this;
+      if (impl_)
+        impl_->nextField();
 
-  return *this;
-}
+      return *this;
+    }
 
-WLogEntry& WLogEntry::operator<< (char v)
-{
-  if(mute_)
-    return *this;
-  startField();
+#ifndef WT_DBO_LOGGER
+    WLogEntry &WLogEntry::operator<<(const WLogger::TimeStamp &)
+    {
+      if (mute_)
+        return *this;
+      std::string dt = WLocalDateTime::currentServerDateTime()
+                           .toString("yyyy-MMM-dd hh:mm:ss.zzz")
+                           .toUTF8();
 
-  if (impl_)
-    impl_->line_ << v;
+      return *this << '[' << dt << ']';
+    }
+#endif // WT_DBO_LOGGER
 
-  return *this;
-}
+    WLogEntry &WLogEntry::operator<<(const char *s)
+    {
+      if (mute_)
+        return *this;
+      return *this << std::string(s);
+    }
 
-WLogEntry& WLogEntry::operator<< (int v)
-{
-  if(mute_)
-    return *this;
-  startField();
+#ifndef WT_DBO_LOGGER
+    WLogEntry &WLogEntry::operator<<(const WString &s)
+    {
+      if (mute_)
+        return *this;
+      return *this << s.toUTF8();
+    }
+#endif // WT_DBO_LOGGER
 
-  if (impl_)
-    impl_->line_ << v;
+    WLogEntry &WLogEntry::operator<<(const std::string &s)
+    {
+      if (mute_)
+        return *this;
+      if (impl_)
+      {
+        if (impl_->quote())
+        {
+          startField();
 
-  return *this;
-}
+          std::string ss(s);
+          Utils::replace(ss, '"', "\"\"");
 
-WLogEntry& WLogEntry::operator<< (long long v)
-{
-  if(mute_)
-    return *this;
-  startField();
+          impl_->line_ << ss;
+        }
+        else
+        {
+          if (!s.empty())
+          {
+            startField();
+            impl_->line_ << s;
+          }
+        }
 
-  if (impl_)
-    impl_->line_ << v;
+        if ((impl_->customLogger_ ||
+             impl_->field_ == (int)impl_->logger_->fields().size() - 1) &&
+            impl_->scope_.empty())
+          impl_->scope_ = s;
+      }
 
-  return *this;
-}
+      return *this;
+    }
 
-WLogEntry& WLogEntry::operator<< (double v)
-{
-  if(mute_)
-    return *this;
-  startField();
+    WLogEntry &WLogEntry::operator<<(char v)
+    {
+      if (mute_)
+        return *this;
+      startField();
 
-  if (impl_)
-    impl_->line_ << v;
+      if (impl_)
+        impl_->line_ << v;
 
-  return *this;
-}
+      return *this;
+    }
 
-WLogEntry::WLogEntry(const WLogger& logger, const std::string& type, bool mute) : mute_(mute)
-{
-  if (!mute && !type.empty())
-    impl_.reset(new Impl(logger, type));
-}
+    WLogEntry &WLogEntry::operator<<(int v)
+    {
+      if (mute_)
+        return *this;
+      startField();
 
-WLogEntry::WLogEntry(const WLogSink& customLogger,
-                     const std::string& type)
-{
-  impl_.reset(new Impl(customLogger, type));
-}
+      if (impl_)
+        impl_->line_ << v;
 
-void WLogEntry::startField()
-{
-  if (impl_)
-    impl_->startField();
-}
+      return *this;
+    }
 
-WLogEntry::Impl::Impl(const WLogger& logger, const std::string& type)
-  : logger_(&logger),
-    customLogger_(nullptr),
-    type_(type),
-    field_(0),
-    fieldStarted_(false)
-{ }
+    WLogEntry &WLogEntry::operator<<(long long v)
+    {
+      if (mute_)
+        return *this;
+      startField();
 
-WLogEntry::Impl::Impl(const WLogSink& customLogger,
-                      const std::string& type)
-  : logger_(nullptr),
-    customLogger_(&customLogger),
-    type_(type),
-    field_(0),
-    fieldStarted_(false)
-{ }
+      if (impl_)
+        impl_->line_ << v;
 
-void WLogEntry::Impl::startField()
-{
-  if (!fieldStarted_) {
-    if (quote())
-      line_ << '"';
-    fieldStarted_ = true;
-  }
-}
+      //fmt::format_to(std::back_inserter(impl_->line_), "{}", v);
 
-void WLogEntry::Impl::finishField()
-{
-  if (fieldStarted_) {
-    if (quote())
-      line_ << '"';
-  } else
-    line_ << '-';
-}
+      return *this;
+    }
 
-void WLogEntry::Impl::nextField()
-{
-  finishField();
+    WLogEntry &WLogEntry::operator<<(double v)
+    {
+      if (mute_)
+        return *this;
+      startField();
 
-  line_ << ' ';
-  fieldStarted_ = false;
-  ++field_;
-}
+      if (impl_)
+        impl_->line_ << v;
 
-void WLogEntry::Impl::finish()
-{
-  if (!customLogger_) {
-    while (field_ < (int)logger_->fields().size() - 1)
-      nextField();
-  }
+      return *this;
+    }
 
-  finishField();
-}
+    WLogEntry::WLogEntry(const WLogger &logger, const std::string &type, bool mute) : mute_(mute)
+    {
+      if (!mute && !type.empty())
+        impl_.reset(new Impl(logger, type));
+    }
 
-bool WLogEntry::Impl::quote() const
-{
-  if (customLogger_)
-    return false;
-  else if (field_ < (int)logger_->fields().size())
-    return logger_->fields()[field_].isString();
-  else
-    return false;
-}
+    WLogEntry::WLogEntry(const WLogSink &customLogger,
+                         const std::string &type)
+    {
+      impl_.reset(new Impl(customLogger, type));
+    }
 
-const WLogger::Sep WLogger::sep = WLogger::Sep();
-const WLogger::TimeStamp WLogger::timestamp = WLogger::TimeStamp();
+    void WLogEntry::startField()
+    {
+      if (impl_)
+        impl_->startField();
+    }
 
-WLogger::Field::Field(const std::string& name, bool isString)
-  : name_(name),
-    string_(isString)
-{ }
+    WLogEntry::Impl::Impl(const WLogger &logger, const std::string &type)
+        : logger_(&logger),
+          customLogger_(nullptr),
+          type_(type),
+          field_(0),
+          fieldStarted_(false)
+    {
+    }
 
-WLogger::WLogger()
-  : o_(&std::cerr),
-    ownStream_(false)
-{
-  Rule r;
-  r.type = "*";
-  r.scope = "*";
-  r.include = true;
-  rules_.push_back(r);
-  r.type = "debug";
-  r.include = false;
-  rules_.push_back(r);
-}
+    WLogEntry::Impl::Impl(const WLogSink &customLogger,
+                          const std::string &type)
+        : logger_(nullptr),
+          customLogger_(&customLogger),
+          type_(type),
+          field_(0),
+          fieldStarted_(false)
+    {
+    }
 
-WLogger::~WLogger()
-{ 
-  if (ownStream_)
-    delete o_;
-}
+    void WLogEntry::Impl::startField()
+    {
+      if (!fieldStarted_)
+      {
+        if (quote())
+          line_ << '"';
+        fieldStarted_ = true;
+      }
+    }
 
-void WLogger::setStream(std::ostream& o)
-{
-  if (ownStream_)
-    delete o_;
+    void WLogEntry::Impl::finishField()
+    {
+      if (fieldStarted_)
+      {
+        if (quote())
+          line_ << '"';
+      }
+      else
+        line_ << '-';
+    }
 
-  o_ = &o;
-  ownStream_ = false;
-}
+    void WLogEntry::Impl::nextField()
+    {
+      finishField();
 
-void WLogger::setFile(const std::string& path)
-{
-  if (ownStream_) {
-    delete o_;
-    o_ = &std::cerr;
-    ownStream_ = false;
-  }
+      line_ << ' ';
+      fieldStarted_ = false;
+      ++field_;
+    }
 
-  std::ofstream *ofs;
-#ifdef _MSC_VER
-  FILE *file = _fsopen(path.c_str(), "at", _SH_DENYNO);
-  if (file) {
-    ofs = new std::ofstream(file);
-  } else {
-    ofs = new std::ofstream(path.c_str(), std::ios_base::out | std::ios_base::ate | std::ios_base::app);
-  }
-#else
-  ofs = new std::ofstream(path.c_str(), 
-			  std::ios_base::out | std::ios_base::ate | std::ios_base::app);
-  if (!ofs->is_open()) {
-    // maybe a special file (pipe, /dev/null) that does not support ate?
-    delete ofs;
-    ofs = new std::ofstream(path.c_str(), std::ios_base::out);
-  }
-#endif
-  
-  if (ofs->is_open()) {
-    LOG_INFO("Opened log file (" << path << ").");
-    o_ = ofs;
-    ownStream_ = true;
-  } else {
-    delete ofs;
+    void WLogEntry::Impl::finish()
+    {
+      if (!customLogger_)
+      {
+        while (field_ < (int)logger_->fields().size() - 1)
+          nextField();
+      }
 
-    LOG_ERROR("Could not open log file (" << path << "). "
-              "We will be logging to std::cerr again.");
-    o_ = &std::cerr;
-    ownStream_ = false;
-  }
-}
+      finishField();
+    }
 
-void WLogger::addField(const std::string& name, bool isString)
-{
-  fields_.push_back(Field(name, isString));
-}
+    bool WLogEntry::Impl::quote() const
+    {
+      if (customLogger_)
+        return false;
+      else if (field_ < (int)logger_->fields().size())
+        return logger_->fields()[field_].isString();
+      else
+        return false;
+    }
 
-WLogEntry WLogger::entry(const std::string& type) const
-{
-  return WLogEntry(*this, type, !logging(type)); //!logging(type)
-}
+    const WLogger::Sep WLogger::sep = WLogger::Sep();
+    const WLogger::TimeStamp WLogger::timestamp = WLogger::TimeStamp();
 
-void WLogger::addLine(const std::string &type,
-                      const std::string &scope, const WStringStream &s) const
-{
-  if (logging(type, scope))
-    if (o_)
-      *o_ << s.str() << std::endl;
-}
+    WLogger::Field::Field(const std::string &name, bool isString)
+        : name_(name),
+          string_(isString)
+    {
+    }
 
-void WLogger::configure(const std::string &config)
-{
-  rules_.clear();
-
-  Wt::Utils::SplitVector rules;
-  boost::split(rules, config, boost::algorithm::is_space(),
-               boost::algorithm::token_compress_on);
-
-  for (unsigned i = 0; i < rules.size(); ++i)
-  {
-    Wt::Utils::SplitVector type_scope;
-    boost::split(type_scope, rules[i], boost::is_any_of(":"));
-
-    Rule r;
-    r.type = std::string(type_scope[0].begin(), type_scope[0].end());
-
-    if (type_scope.size() == 1)
+    WLogger::WLogger()
+        : o_(&std::cerr),
+          ownStream_(false)
+    {
+      Rule r;
+      r.type = "*";
       r.scope = "*";
-    else
-      r.scope = std::string(type_scope[1].begin(), type_scope[1].end());
-
-    r.include = true;
-
-    if (r.type[0] == '-')
-    {
+      r.include = true;
+      rules_.push_back(r);
+      r.type = "debug";
       r.include = false;
-      r.type = r.type.substr(1);
+      rules_.push_back(r);
     }
-    else if (r.type[0] == '+')
-      r.type = r.type.substr(1);
 
-    rules_.push_back(r);
-  }
-}
-
-bool WLogger::logging(const std::string& type) const
-{
-  return logging(type.c_str());
-}
-
-bool WLogger::logging(const char *type) const
-{
-  bool result = false;
-
-  for (unsigned i = 0; i < rules_.size(); ++i)
-    if (rules_[i].type == "*" || rules_[i].type == type)
+    WLogger::~WLogger()
     {
-      if (rules_[i].scope == "*")
-        result = rules_[i].include;
-      else if (rules_[i].include)
-        result = true;
+      if (ownStream_)
+        delete o_;
     }
 
-  return result;
-}
+    void WLogger::setStream(std::ostream &o)
+    {
+      if (ownStream_)
+        delete o_;
 
-bool WLogger::logging(const std::string &type, const std::string &scope) const
-{
-  bool result = false;
+      o_ = &o;
+      ownStream_ = false;
+    }
 
-  for (unsigned i = 0; i < rules_.size(); ++i)
-    if (rules_[i].type == "*" || rules_[i].type == type)
-      if (rules_[i].scope == "*" || rules_[i].scope == scope)
-        result = rules_[i].include;
+    void WLogger::setFile(const std::string &path)
+    {
+      if (ownStream_)
+      {
+        delete o_;
+        o_ = &std::cerr;
+        ownStream_ = false;
+      }
 
-  return result;
-}
+      std::ofstream *ofs;
+#ifdef _MSC_VER
+      FILE *file = _fsopen(path.c_str(), "at", _SH_DENYNO);
+      if (file)
+      {
+        ofs = new std::ofstream(file);
+      }
+      else
+      {
+        ofs = new std::ofstream(path.c_str(), std::ios_base::out | std::ios_base::ate | std::ios_base::app);
+      }
+#else
+    ofs = new std::ofstream(path.c_str(),
+                            std::ios_base::out | std::ios_base::ate | std::ios_base::app);
+    if (!ofs->is_open())
+    {
+      // maybe a special file (pipe, /dev/null) that does not support ate?
+      delete ofs;
+      ofs = new std::ofstream(path.c_str(), std::ios_base::out);
+    }
+#endif
 
-WLogger &logInstance()
-{
+      if (ofs->is_open())
+      {
+        LOG_INFO("Opened log file (" << path << ").");
+        o_ = ofs;
+        ownStream_ = true;
+      }
+      else
+      {
+        delete ofs;
+
+        LOG_ERROR("Could not open log file (" << path << "). "
+                                                         "We will be logging to std::cerr again.");
+        o_ = &std::cerr;
+        ownStream_ = false;
+      }
+    }
+
+    void WLogger::addField(const std::string &name, bool isString)
+    {
+      fields_.push_back(Field(name, isString));
+    }
+
+    WLogEntry WLogger::entry(const std::string &type) const
+    {
+      return WLogEntry(*this, type, !logging(type)); //!logging(type)
+    }
+
+    void WLogger::addLine(const std::string &type,
+                          const std::string &scope, const WStringStream &s) const
+    {
+      if (logging(type, scope))
+        if (o_)
+          *o_ << s.str() << std::endl;
+    }
+
+    void WLogger::configure(const std::string &config)
+    {
+      rules_.clear();
+
+      Wt::Utils::SplitVector rules;
+      boost::split(rules, config, boost::algorithm::is_space(),
+                   boost::algorithm::token_compress_on);
+
+      for (unsigned i = 0; i < rules.size(); ++i)
+      {
+        Wt::Utils::SplitVector type_scope;
+        boost::split(type_scope, rules[i], boost::is_any_of(":"));
+
+        Rule r;
+        r.type = std::string(type_scope[0].begin(), type_scope[0].end());
+
+        if (type_scope.size() == 1)
+          r.scope = "*";
+        else
+          r.scope = std::string(type_scope[1].begin(), type_scope[1].end());
+
+        r.include = true;
+
+        if (r.type[0] == '-')
+        {
+          r.include = false;
+          r.type = r.type.substr(1);
+        }
+        else if (r.type[0] == '+')
+          r.type = r.type.substr(1);
+
+        rules_.push_back(r);
+      }
+    }
+
+    bool WLogger::logging(const std::string &type) const
+    {
+      return logging(type.c_str());
+    }
+
+    bool WLogger::logging(const char *type) const
+    {
+      bool result = false;
+
+      for (unsigned i = 0; i < rules_.size(); ++i)
+        if (rules_[i].type == "*" || rules_[i].type == type)
+        {
+          if (rules_[i].scope == "*")
+            result = rules_[i].include;
+          else if (rules_[i].include)
+            result = true;
+        }
+
+      return result;
+    }
+
+    bool WLogger::logging(const std::string &type, const std::string &scope) const
+    {
+      bool result = false;
+
+      for (unsigned i = 0; i < rules_.size(); ++i)
+        if (rules_[i].type == "*" || rules_[i].type == type)
+          if (rules_[i].scope == "*" || rules_[i].scope == scope)
+            result = rules_[i].include;
+
+      return result;
+    }
+
+    WLogger &logInstance()
+    {
 #ifdef WT_DBO_LOGGER
-  return defaultLogger;
-#else  // WT_DBO_LOGGER
-  WebSession *session = WebSession::instance();
-
-  if (session)
-    return session->logInstance();
-  else
-  {
-    WServer *server = WServer::instance();
-
-    if (server)
-      return server->logger();
-    else
       return defaultLogger;
-  }
-#endif // WT_DBO_LOGGER
-}
-
-bool logging(const std::string &type,
-             const std::string &scope) noexcept
-{
-#ifdef WT_DBO_LOGGER
-  if (customLogger_)
-    return customLogger_->logging(type, scope);
-
-  return true;
 #else  // WT_DBO_LOGGER
-  WebSession *session = WebSession::instance();
+    WebSession *session = WebSession::instance();
 
-  Wt::WServer *server = session ? session->controller()->server() : WServer::instance();
-  if (server)
-  {
-    if (server->customLogger())
-      return server->customLogger()->logging(type, scope);
+    if (session)
+      return session->logInstance();
     else
-      return server->logger().logging(type, scope);
-  }
-  else
-  {
-    return defaultLogger.logging(type, scope);
-  }
+    {
+      WServer *server = WServer::instance();
+
+      if (server)
+        return server->logger();
+      else
+        return defaultLogger;
+    }
 #endif // WT_DBO_LOGGER
-}
+    }
 
-WLogEntry log(const std::string &type)
-{
+    bool logging(const std::string &type,
+                 const std::string &scope) noexcept
+    {
 #ifdef WT_DBO_LOGGER
-  if (customLogger_)
-  {
-    return WLogEntry(*customLogger_, type);
-  }
+      if (customLogger_)
+        return customLogger_->logging(type, scope);
 
-  return defaultLogger.entry(type);
+      return true;
 #else  // WT_DBO_LOGGER
-  WebSession *session = WebSession::instance();
+    WebSession *session = WebSession::instance();
 
-  if (session)
-    return session->log(type);
-  else
-  {
-    WServer *server = WServer::instance();
-
+    Wt::WServer *server = session ? session->controller()->server() : WServer::instance();
     if (server)
-      return server->log(type);
+    {
+      if (server->customLogger())
+        return server->customLogger()->logging(type, scope);
+      else
+        return server->logger().logging(type, scope);
+    }
     else
-      return defaultLogger.entry(type);
-  }
+    {
+      return defaultLogger.logging(type, scope);
+    }
 #endif // WT_DBO_LOGGER
-}
+    }
+
+    WLogEntry log(const std::string &type)
+    {
+#ifdef WT_DBO_LOGGER
+      if (customLogger_)
+      {
+        return WLogEntry(*customLogger_, type);
+      }
+
+      return defaultLogger.entry(type);
+#else  // WT_DBO_LOGGER
+    WebSession *session = WebSession::instance();
+
+    if (session)
+      return session->log(type);
+    else
+    {
+      WServer *server = WServer::instance();
+
+      if (server)
+        return server->log(type);
+      else
+        return defaultLogger.entry(type);
+    }
+#endif // WT_DBO_LOGGER
+    }
 
 #ifdef WT_DBO_LOGGER
-} // namespace Dbo
+  } // namespace Dbo
 #endif
 
 }

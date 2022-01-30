@@ -13,36 +13,12 @@
 #define FMT_RANGES_H_
 
 #include <initializer_list>
+#include <tuple>
 #include <type_traits>
 
 #include "format.h"
 
 FMT_BEGIN_NAMESPACE
-
-template <typename Char, typename Enable = void> struct formatting_range {
-#ifdef FMT_DEPRECATED_BRACED_RANGES
-  Char prefix = '{';
-  Char postfix = '}';
-#else
-  Char prefix = '[';
-  Char postfix = ']';
-#endif
-
-  template <typename ParseContext>
-  FMT_CONSTEXPR auto parse(ParseContext& ctx) -> decltype(ctx.begin()) {
-    return ctx.begin();
-  }
-};
-
-template <typename Char, typename Enable = void> struct formatting_tuple {
-  Char prefix = '(';
-  Char postfix = ')';
-
-  template <typename ParseContext>
-  FMT_CONSTEXPR auto parse(ParseContext& ctx) -> decltype(ctx.begin()) {
-    return ctx.begin();
-  }
-};
 
 namespace detail {
 
@@ -71,7 +47,7 @@ OutputIterator copy(wchar_t ch, OutputIterator out) {
   return out;
 }
 
-/// Return true value if T has std::string interface, like std::string_view.
+// Returns true if T has a std::string-like interface, like std::string_view.
 template <typename T> class is_std_string_like {
   template <typename U>
   static auto check(U* p)
@@ -80,11 +56,39 @@ template <typename T> class is_std_string_like {
 
  public:
   static FMT_CONSTEXPR_DECL const bool value =
-      is_string<T>::value || !std::is_void<decltype(check<T>(nullptr))>::value;
+      is_string<T>::value ||
+      std::is_convertible<T, std_string_view<char>>::value ||
+      !std::is_void<decltype(check<T>(nullptr))>::value;
 };
 
 template <typename Char>
 struct is_std_string_like<fmt::basic_string_view<Char>> : std::true_type {};
+
+template <typename T> class is_map {
+  template <typename U> static auto check(U*) -> typename U::mapped_type;
+  template <typename> static void check(...);
+
+ public:
+#ifdef FMT_FORMAT_MAP_AS_LIST
+  static FMT_CONSTEXPR_DECL const bool value = false;
+#else
+  static FMT_CONSTEXPR_DECL const bool value =
+      !std::is_void<decltype(check<T>(nullptr))>::value;
+#endif
+};
+
+template <typename T> class is_set {
+  template <typename U> static auto check(U*) -> typename U::key_type;
+  template <typename> static void check(...);
+
+ public:
+#ifdef FMT_FORMAT_SET_AS_LIST
+  static FMT_CONSTEXPR_DECL const bool value = false;
+#else
+  static FMT_CONSTEXPR_DECL const bool value =
+      !std::is_void<decltype(check<T>(nullptr))>::value && !is_map<T>::value;
+#endif
+};
 
 template <typename... Ts> struct conditional_helper {};
 
@@ -163,7 +167,7 @@ struct is_range_<T, void>
 #  undef FMT_DECLTYPE_RETURN
 #endif
 
-/// tuple_size and tuple_element check.
+// tuple_size and tuple_element check.
 template <typename T> class is_tuple_like_ {
   template <typename U>
   static auto check(U* p) -> decltype(std::tuple_size<U>::value, int());
@@ -199,7 +203,7 @@ using make_index_sequence = make_integer_sequence<size_t, N>;
 #endif
 
 template <class Tuple, class F, size_t... Is>
-void for_each(index_sequence<Is...>, Tuple&& tup, F&& f) FMT_NOEXCEPT {
+void for_each(index_sequence<Is...>, Tuple&& tup, F&& f) noexcept {
   using std::get;
   // using free function get<I>(T) now.
   const int _[] = {0, ((void)f(get<Is>(tup)), 0)...};
@@ -217,9 +221,28 @@ template <class Tuple, class F> void for_each(Tuple&& tup, F&& f) {
   for_each(indexes, std::forward<Tuple>(tup), std::forward<F>(f));
 }
 
+#if FMT_MSC_VER
+// Older MSVC doesn't get the reference type correctly for arrays.
+template <typename R> struct range_reference_type_impl {
+  using type = decltype(*detail::range_begin(std::declval<R&>()));
+};
+
+template <typename T, std::size_t N> struct range_reference_type_impl<T[N]> {
+  using type = T&;
+};
+
+template <typename T>
+using range_reference_type = typename range_reference_type_impl<T>::type;
+#else
 template <typename Range>
-using value_type =
-    remove_cvref_t<decltype(*detail::range_begin(std::declval<Range>()))>;
+using range_reference_type =
+    decltype(*detail::range_begin(std::declval<Range&>()));
+#endif
+
+// We don't use the Range's value_type for anything, but we do need the Range's
+// reference type, with cv-ref stripped.
+template <typename Range>
+using uncvref_type = remove_cvref_t<range_reference_type<Range>>;
 
 template <typename OutputIt> OutputIt write_delimiter(OutputIt out) {
   *out++ = ',';
@@ -509,6 +532,13 @@ auto write_range_entry(OutputIt out, basic_string_view<Char> str) -> OutputIt {
   return out;
 }
 
+template <typename Char, typename OutputIt, typename T,
+          FMT_ENABLE_IF(std::is_convertible<T, std_string_view<char>>::value)>
+inline auto write_range_entry(OutputIt out, const T& str) -> OutputIt {
+  auto sv = std_string_view<Char>(str);
+  return write_range_entry<Char>(out, basic_string_view<Char>(sv));
+}
+
 template <typename Char, typename OutputIt, typename Arg,
           FMT_ENABLE_IF(std::is_same<Arg, Char>::value)>
 OutputIt write_range_entry(OutputIt out, const Arg v) {
@@ -536,63 +566,148 @@ template <typename T> struct is_tuple_like {
 template <typename TupleT, typename Char>
 struct formatter<TupleT, Char, enable_if_t<fmt::is_tuple_like<TupleT>::value>> {
  private:
-  // C++11 generic lambda for format()
+  // C++11 generic lambda for format().
   template <typename FormatContext> struct format_each {
     template <typename T> void operator()(const T& v) {
       if (i > 0) out = detail::write_delimiter(out);
       out = detail::write_range_entry<Char>(out, v);
       ++i;
     }
-    formatting_tuple<Char>& formatting;
-    size_t& i;
-    typename std::add_lvalue_reference<
-        decltype(std::declval<FormatContext>().out())>::type out;
+    int i;
+    typename FormatContext::iterator& out;
   };
 
  public:
-  formatting_tuple<Char> formatting;
-
   template <typename ParseContext>
   FMT_CONSTEXPR auto parse(ParseContext& ctx) -> decltype(ctx.begin()) {
-    return formatting.parse(ctx);
+    return ctx.begin();
   }
 
   template <typename FormatContext = format_context>
   auto format(const TupleT& values, FormatContext& ctx) -> decltype(ctx.out()) {
     auto out = ctx.out();
-    size_t i = 0;
-
-    detail::copy(formatting.prefix, out);
-    detail::for_each(values, format_each<FormatContext>{formatting, i, out});
-    detail::copy(formatting.postfix, out);
-
-    return ctx.out();
+    *out++ = '(';
+    detail::for_each(values, format_each<FormatContext>{0, out});
+    *out++ = ')';
+    return out;
   }
 };
 
 template <typename T, typename Char> struct is_range {
   static FMT_CONSTEXPR_DECL const bool value =
       detail::is_range_<T>::value && !detail::is_std_string_like<T>::value &&
+      !detail::is_map<T>::value &&
       !std::is_convertible<T, std::basic_string<Char>>::value &&
       !std::is_constructible<detail::std_string_view<Char>, T>::value;
+};
+
+namespace detail {
+template <typename Context, typename Element> struct range_mapper {
+  using mapper = arg_mapper<Context>;
+
+  template <typename T,
+            FMT_ENABLE_IF(has_formatter<remove_cvref_t<T>, Context>::value)>
+  static auto map(T&& value) -> T&& {
+    return static_cast<T&&>(value);
+  }
+  template <typename T,
+            FMT_ENABLE_IF(!has_formatter<remove_cvref_t<T>, Context>::value)>
+  static auto map(T&& value)
+      -> decltype(mapper().map(static_cast<T&&>(value))) {
+    return mapper().map(static_cast<T&&>(value));
+  }
+};
+
+template <typename Char, typename Element>
+using range_formatter_type =
+    conditional_t<is_formattable<Element, Char>::value,
+                  formatter<remove_cvref_t<decltype(
+                                range_mapper<buffer_context<Char>, Element>{}
+                                    .map(std::declval<Element>()))>,
+                            Char>,
+                  fallback_formatter<Element, Char>>;
+}  // namespace detail
+
+template <typename R, typename Char>
+struct formatter<
+    R, Char,
+    enable_if_t<fmt::is_range<R, Char>::value
+// Workaround a bug in MSVC 2019 and earlier.
+#if !FMT_MSC_VER
+                && (is_formattable<detail::uncvref_type<R>, Char>::value ||
+                    detail::has_fallback_formatter<detail::uncvref_type<R>,
+                                                   Char>::value)
+#endif
+                >> {
+
+  using formatter_type =
+      detail::range_formatter_type<Char, detail::uncvref_type<R>>;
+  formatter_type underlying_;
+  bool custom_specs_ = false;
+
+  template <typename ParseContext>
+  FMT_CONSTEXPR auto parse(ParseContext& ctx) -> decltype(ctx.begin()) {
+    auto it = ctx.begin();
+    auto end = ctx.end();
+    if (it == end || *it == '}') return it;
+
+    if (*it != ':')
+      FMT_THROW(format_error("no top-level range formatters supported"));
+
+    custom_specs_ = true;
+    ++it;
+    ctx.advance_to(it);
+    return underlying_.parse(ctx);
+  }
+
+  template <
+      typename FormatContext, typename U,
+      FMT_ENABLE_IF(
+          std::is_same<U, conditional_t<detail::has_const_begin_end<R>::value,
+                                        const R, R>>::value)>
+  auto format(U& range, FormatContext& ctx) -> decltype(ctx.out()) {
+#ifdef FMT_DEPRECATED_BRACED_RANGES
+    Char prefix = '{';
+    Char postfix = '}';
+#else
+    Char prefix = detail::is_set<R>::value ? '{' : '[';
+    Char postfix = detail::is_set<R>::value ? '}' : ']';
+#endif
+    detail::range_mapper<buffer_context<Char>, detail::uncvref_type<R>> mapper;
+    auto out = ctx.out();
+    *out++ = prefix;
+    int i = 0;
+    auto it = std::begin(range);
+    auto end = std::end(range);
+    for (; it != end; ++it) {
+      if (i > 0) out = detail::write_delimiter(out);
+      if (custom_specs_) {
+        ctx.advance_to(out);
+        out = underlying_.format(mapper.map(*it), ctx);
+      } else {
+        out = detail::write_range_entry<Char>(out, *it);
+      }
+      ++i;
+    }
+    *out++ = postfix;
+    return out;
+  }
 };
 
 template <typename T, typename Char>
 struct formatter<
     T, Char,
-    enable_if_t<
-        fmt::is_range<T, Char>::value
+    enable_if_t<detail::is_map<T>::value
 // Workaround a bug in MSVC 2019 and earlier.
 #if !FMT_MSC_VER
-        && (is_formattable<detail::value_type<T>, Char>::value ||
-            detail::has_fallback_formatter<detail::value_type<T>, Char>::value)
+                && (is_formattable<detail::uncvref_type<T>, Char>::value ||
+                    detail::has_fallback_formatter<detail::uncvref_type<T>,
+                                                   Char>::value)
 #endif
-        >> {
-  formatting_range<Char> formatting;
-
+                >> {
   template <typename ParseContext>
   FMT_CONSTEXPR auto parse(ParseContext& ctx) -> decltype(ctx.begin()) {
-    return formatting.parse(ctx);
+    return ctx.begin();
   }
 
   template <
@@ -600,17 +715,20 @@ struct formatter<
       FMT_ENABLE_IF(
           std::is_same<U, conditional_t<detail::has_const_begin_end<T>::value,
                                         const T, T>>::value)>
-  auto format(U& values, FormatContext& ctx) -> decltype(ctx.out()) {
-    auto out = detail::copy(formatting.prefix, ctx.out());
-    size_t i = 0;
-    auto it = std::begin(values);
-    auto end = std::end(values);
-    for (; it != end; ++it) {
+  auto format(U& map, FormatContext& ctx) -> decltype(ctx.out()) {
+    auto out = ctx.out();
+    *out++ = '{';
+    int i = 0;
+    for (const auto& item : map) {
       if (i > 0) out = detail::write_delimiter(out);
-      out = detail::write_range_entry<Char>(out, *it);
+      out = detail::write_range_entry<Char>(out, item.first);
+      *out++ = ':';
+      *out++ = ' ';
+      out = detail::write_range_entry<Char>(out, item.second);
       ++i;
     }
-    return detail::copy(formatting.postfix, out);
+    *out++ = '}';
+    return out;
   }
 };
 
@@ -660,8 +778,9 @@ struct formatter<tuple_join_view<Char, T...>, Char> {
   FMT_CONSTEXPR auto do_parse(ParseContext& ctx,
                               std::integral_constant<size_t, N>)
       -> decltype(ctx.begin()) {
-    auto end = std::get<sizeof...(T) - N>(formatters_).parse(ctx);
+    auto end = ctx.begin();
 #if FMT_TUPLE_JOIN_SPECIFIERS
+    end = std::get<sizeof...(T) - N>(formatters_).parse(ctx);
     if (N > 1) {
       auto end1 = do_parse(ctx, std::integral_constant<size_t, N - 1>());
       if (end != end1)

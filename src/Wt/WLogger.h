@@ -22,6 +22,8 @@
 #include <string>
 #include <vector>
 
+#include "fmtlog.h"
+
 #if !defined(WT_DBO_LOGGER) || DOXYGEN_ONLY
 #define WT_LOGGER_API WT_API
 #else
@@ -30,23 +32,26 @@
 
 #ifndef WT_TARGET_JAVA
 
-struct Nullstream: std::ostream {
-    Nullstream(): std::ostream(0){}
+struct Nullstream : std::ostream
+{
+  Nullstream() : std::ostream(0) {}
 };
 
-namespace Wt {
+namespace Wt
+{
 
 #ifndef WT_DBO_LOGGER
-class WString;
+  class WString;
 #endif // WT_DBO_LOGGER
 
 #ifdef WT_DBO_LOGGER
-namespace Dbo {
+  namespace Dbo
+  {
 #endif // WT_DBO_LOGGER
 
-class WLogEntry;
+    class WLogEntry;
 
-/*! \class WLogger Wt/WLogger.h Wt/WLogger.h
+    /*! \class WLogger Wt/WLogger.h Wt/WLogger.h
  *  \brief A simple logging class.
  *
  * This class logs events to a stream in a flexible way. It allows to
@@ -86,79 +91,84 @@ class WLogEntry;
  *
  * \sa WApplication::log()
  */
-class WT_LOGGER_API WLogger
-{
-public:
-  /*! \brief Class that indicates a field separator.
+    class WT_LOGGER_API WLogger
+    {
+    public:
+      /*! \brief Class that indicates a field separator.
    *
    * \sa sep
    */
-  struct Sep { };
+      struct Sep
+      {
+      };
 
-  /*! \brief %Field separator constant.
+      /*! \brief %Field separator constant.
    *
    * \sa WLogEntry::operator<<(const WLogger::Sep&)
    */
-  static const Sep sep;
+      static const Sep sep;
 
-  /*! \brief Class that indicates a time stamp.
+      /*! \brief Class that indicates a time stamp.
    *
    * \sa timestamp
    */
-  struct TimeStamp { };
+      struct TimeStamp
+      {
+      };
 
-  /*! \brief Timestamp field constant.
+      /*! \brief Timestamp field constant.
    *
    * \sa WLogEntry::operator<<(const WLogger::TimeStamp&)
    */
-  static const TimeStamp timestamp;
+      static const TimeStamp timestamp;
 
-  /*! \brief Class that holds the configuration for a single field.
+      /*! \brief Class that holds the configuration for a single field.
    *
    * \sa addField()
    */
-  class Field {
-  public:
-    /*! \brief Returns the field name.
+      class Field
+      {
+      public:
+        /*! \brief Returns the field name.
      */
-    std::string name() const { return name_; }
+        std::string name() const { return name_; }
 
-    /*! \brief Returns if the field is a quoted string.
+        /*! \brief Returns if the field is a quoted string.
      *
      * String fields can contain white-space, and are therefore quoted
      * in the log.
      */
-    bool isString() const { return string_; }
+        bool isString() const { return string_; }
 
-  private:
-    std::string name_;
-    bool string_;
+      private:
+        std::string name_;
+        bool string_;
 
-    Field(const std::string& name, bool isString);
+        Field(const std::string &name, bool isString);
 
-    friend class WLogger;
-  };
+        friend class WLogger;
+      };
 
-  /*! \brief Creates a new logger.
+      /*! \brief Creates a new logger.
    *
    * This creates a new logger, which defaults to logging to stderr.
    */
-  WLogger();
+      WLogger();
 
-  /*! \brief Destructor.
+      /*! \brief Destructor.
    */
-  ~WLogger();
+      ~WLogger();
 
-  void disable(bool disable) { nostream_ = disable; }
-  /*! \brief Sets the output stream.
+      void disable(bool disable) { nostream_ = disable; }
+      /*! \brief Sets the output stream.
    *
    * The default logger outputs to stderr.
    *
    * \sa setFile()
    */
-  void setStream(std::ostream& o);
+      void setStream(std::ostream &o);
 
-  /*! \brief Sets the output file.
+      /*! \brief Sets the output file.
    *
    * Opens a file output stream for \p path.
    * The default logger outputs to stderr.
@@ -179,9 +189,9 @@ public:
    *
    * \sa setStream()
    */
-  void setFile(const std::string& path);
+      void setFile(const std::string &path);
 
-  /*! \brief Configures what things are logged.
+      /*! \brief Configures what things are logged.
    *
    * The configuration is a string that defines rules for enabling or
    * disabling certain logging. It is a white-space delimited list of
@@ -209,20 +219,20 @@ public:
    * \note The standard logging is typically configured in the configuration
    *       file, in the &lt;log-config&gt; block.
    */
-  void configure(const std::string& config);
+      void configure(const std::string &config);
 
-  /*! \brief Adds a field.
+      /*! \brief Adds a field.
    *
    * Add a field to the logger. When \p isString is \p true, values
    * will be quoted.
    */
-  void addField(const std::string& name, bool isString);
+      void addField(const std::string &name, bool isString);
 
-  /*! \brief Returns the field list.
+      /*! \brief Returns the field list.
    */
-  const std::vector<Field>& fields() const { return fields_; }
+      const std::vector<Field> &fields() const { return fields_; }
 
-  /*! \brief Starts a new log entry.
+      /*! \brief Starts a new log entry.
    *
    * Returns a new entry. The entry is logged in the destructor of
    * the entry (i.e. when the entry goes out of scope).
@@ -236,201 +246,206 @@ public:
    * - "error": errors (wrong API use, unexpected protocol messages)
    * - "fatal": fatal errors (terminate the session)
    */
-  WLogEntry entry(const std::string& type) const;
+      WLogEntry entry(const std::string &type) const;
 
-  /*! \brief Returns whether messages of a given type are logged.
+      /*! \brief Returns whether messages of a given type are logged.
    *
    * Returns \c true if messages of the given type are logged. It may be
    * that not messages of all scopes are logged.
    *
    * \sa configure()
    */
-  bool logging(const std::string& type) const;
+      bool logging(const std::string &type) const;
 
-  /*! \brief Returns whether messages of a given type are logged.
+      /*! \brief Returns whether messages of a given type are logged.
    *
    * Returns \c true if messages of the given type are logged. It may be
    * that not messages of all scopes are logged.
    *
    * \sa configure()
    */
-  bool logging(const char *type) const;
+      bool logging(const char *type) const;
 
-  /*! \brief Returns whether messages of a given type and scope are logged.
+      /*! \brief Returns whether messages of a given type and scope are logged.
    *
    * \sa configure()
    */
-  bool logging(const std::string& type, const std::string& scope) const;
+      bool logging(const std::string &type, const std::string &scope) const;
 
-private:
-  std::ostream* o_;
-  Nullstream nullstream_;
-  bool nostream_ = false;
-  bool ownStream_;
-  std::vector<Field> fields_;
+    private:
+      std::ostream *o_;
+      Nullstream nullstream_;
+      bool nostream_ = false;
+      bool ownStream_;
+      std::vector<Field> fields_;
 
-  struct Rule {
-    bool include;
-    std::string type;
-    std::string scope;
-  };
+      struct Rule
+      {
+        bool include;
+        std::string type;
+        std::string scope;
+      };
 
-  std::vector<Rule> rules_;
+      std::vector<Rule> rules_;
 
-  void addLine(const std::string& type, const std::string& scope,
-	       const WStringStream& s) const;
+      void addLine(const std::string &type, const std::string &scope,
+                   const WStringStream &s) const;
 
-  friend class WLogEntry;
-};
+      friend class WLogEntry;
+    };
 
-/*! \class WLogEntry Wt/WLogger.h Wt/WLogger.h
+    /*! \class WLogEntry Wt/WLogger.h Wt/WLogger.h
  *  \brief A stream-like object for creating an entry in a log file.
  *
  * This class is returned by WLogger::entry() and creates a log entry using
  * a stream-like interface.
  */
-class WT_LOGGER_API WLogEntry
-{
-public:
-  /*! \brief Move constructor.
+    class WT_LOGGER_API WLogEntry
+    {
+    public:
+      /*! \brief Move constructor.
    *
    * This is mostly for returning a (newly constructed) %WLogEntry from a function.
    *
    * Appending to the from object after move construction has no effect.
    */
-  WLogEntry(WLogEntry&& from);
+      WLogEntry(WLogEntry &&from);
 
-  WLogEntry(const WLogEntry&) = delete;
-  WLogEntry& operator=(const WLogEntry&) = delete;
-  WLogEntry& operator=(WLogEntry&&) = delete;
+      WLogEntry(const WLogEntry &) = delete;
+      WLogEntry &operator=(const WLogEntry &) = delete;
+      WLogEntry &operator=(WLogEntry &&) = delete;
 
-  /*! \brief Destructor.
+      /*! \brief Destructor.
    */
-  ~WLogEntry();
+      ~WLogEntry();
 
-  /*! \brief Writes a field separator.
+      /*! \brief Writes a field separator.
    *
    * You must separate fields in a single entry using the WLogger::sep
    * constant.
    */
-  WLogEntry& operator<< (const WLogger::Sep&);
+      WLogEntry &operator<<(const WLogger::Sep &);
 
 #ifndef WT_DBO_LOGGER
-  /*! \brief Writes a time stamp in the current field.
+      /*! \brief Writes a time stamp in the current field.
    *
    * Formats a timestamp (date+time) to the current field.
    */
-  WLogEntry& operator<< (const WLogger::TimeStamp&);
+      WLogEntry &operator<<(const WLogger::TimeStamp &);
 #endif // WT_DBO_LOGGER
 
-  /*! \brief Writes a string in the current field.
+      /*! \brief Writes a string in the current field.
    */
-  WLogEntry& operator<< (const char *);
+      WLogEntry &operator<<(const char *);
 
-  /*! \brief Writes a string in the current field.
+      /*! \brief Writes a string in the current field.
    */
-  WLogEntry& operator<< (const std::string&);
+      WLogEntry &operator<<(const std::string &);
 
 #ifndef WT_DBO_LOGGER
-  /*! \brief Writes a string in the current field.
+      /*! \brief Writes a string in the current field.
    */
-  WLogEntry& operator<< (const WString&);
+      WLogEntry &operator<<(const WString &);
 #endif // WT_DBO_LOGGER
 
-  /*! \brief Writes a char value in the current field.
+      /*! \brief Writes a char value in the current field.
    */
-  WLogEntry& operator<< (char);
+      WLogEntry &operator<<(char);
 
-  /*! \brief Writes a number value in the current field.
+      /*! \brief Writes a number value in the current field.
    */
-  WLogEntry& operator<< (int);
+      WLogEntry &operator<<(int);
 
-  /*! \brief Writes a number value in the current field.
+      /*! \brief Writes a number value in the current field.
    */
-  WLogEntry& operator<< (long long);
+      WLogEntry &operator<<(long long);
 
-  /*! \brief Writes a number value in the current field.
+      /*! \brief Writes a number value in the current field.
    */
-  WLogEntry& operator<< (double);
+      WLogEntry &operator<<(double);
 
-  /*! \brief Writes a pointer value in the current field.
+      /*! \brief Writes a pointer value in the current field.
    */
-  template <typename T>
-  WLogEntry& operator<< (T *t) {
-    startField();
-    if (impl_) {
-      char buf[100];
-      std::sprintf(buf, "%p", t);
-      impl_->line_ << buf;
-    }
-    return *this;
-  }
+      template <typename T>
+      WLogEntry &operator<<(T *t)
+      {
+        startField();
+        if (impl_)
+        {
+          char buf[100];
+          std::sprintf(buf, "%p", t);
+          impl_->line_ << buf;
+        }
+        return *this;
+      }
 
-  /*! \brief Writes a value in the current field.
+      /*! \brief Writes a value in the current field.
    */
-  template <typename T>
-  WLogEntry& operator<< (T t) {
-    startField();
-    if (impl_)
-    {
-      using std::to_string;
-      impl_->line_ << to_string(t);
-    }
-    return *this;
-  }
+      template <typename T>
+      WLogEntry &operator<<(T t)
+      {
+        startField();
+        if (impl_)
+        {
+          using std::to_string;
+          impl_->line_ << to_string(t);
+        }
+        return *this;
+      }
 
-private:
-  Nullstream nullstream_;
-  bool mute_ = false;
-  struct Impl {
-    const WLogger *logger_;
-    const WLogSink *customLogger_;
-    WStringStream line_;
-    std::string type_, scope_;
-    int field_;
-    bool fieldStarted_;
+    private:
+      Nullstream nullstream_;
+      bool mute_ = false;
+      struct Impl
+      {
+        const WLogger *logger_;
+        const WLogSink *customLogger_;
+        WStringStream line_;
+        std::string type_, scope_;
+        int field_;
+        bool fieldStarted_;
 
-    Impl(const WLogger& logger, const std::string& type);
-    Impl(const WLogSink& customLogger, const std::string& type);
+        Impl(const WLogger &logger, const std::string &type);
+        Impl(const WLogSink &customLogger, const std::string &type);
 
-    bool quote() const;
+        bool quote() const;
 
-    void finish();
-    void finishField();
-    void nextField();
-    void startField();
-  };
+        void finish();
+        void finishField();
+        void nextField();
+        void startField();
+      };
 
-  mutable std::unique_ptr<Impl> impl_;
+      mutable std::unique_ptr<Impl> impl_;
 
-  WLogEntry(const WLogger& logger, const std::string& type, bool mute);
+      WLogEntry(const WLogger &logger, const std::string &type, bool mute);
 
 #ifdef WT_DBO_LOGGER
-public:
+    public:
 #endif // WT_DBO_LOGGER
-  WLogEntry(const WLogSink& customLogger,
-            const std::string& type);
+      WLogEntry(const WLogSink &customLogger,
+                const std::string &type);
 #ifdef WT_DBO_LOGGER
-private:
+    private:
 #endif // WT_DBO_LOGGER
 
-  void startField();
+      void startField();
 
-  friend class WebSession;
-  friend class WLogger;
-  friend class WServer;
-};
+      friend class WebSession;
+      friend class WLogger;
+      friend class WServer;
+    };
 
-WT_LOGGER_API extern WLogger& logInstance();
+    WT_LOGGER_API extern WLogger &logInstance();
 
 #ifdef WT_BUILDING
-WT_LOGGER_API extern bool logging(const std::string &type,
-                                  const std::string &scope) noexcept;
+    WT_LOGGER_API extern bool logging(const std::string &type,
+                                      const std::string &scope) noexcept;
 #endif // WT_BUILDING
 
 #ifdef DOXYGEN_ONLY
-/*! \file */
-/*! \brief Logging function
+    /*! \file */
+    /*! \brief Logging function
  *
  * This creates a new log entry, e.g.:
  *
@@ -440,13 +455,13 @@ WT_LOGGER_API extern bool logging(const std::string &type,
  *
  * \relates WLogger
  */
-extern WLogEntry log(const std::string& type);
+    extern WLogEntry log(const std::string &type);
 #else
-WT_LOGGER_API extern WLogEntry log(const std::string& type);
+  WT_LOGGER_API extern WLogEntry log(const std::string &type);
 #endif
 
 #ifdef WT_DBO_LOGGER
-} // namespace Dbo
+  }    // namespace Dbo
 #endif // WT_DBO_LOGGER
 
 } // namespace Wt
@@ -454,88 +469,102 @@ WT_LOGGER_API extern WLogEntry log(const std::string& type);
 #endif // WT_TARGET_JAVA
 
 #ifdef WT_BUILDING
-# ifndef WT_TARGET_JAVA
-#   ifdef WT_DBO_LOGGER
-#     define WT_LOG Wt::Dbo::log
-#     define WT_LOGGER Wt::Dbo::logger
-#     define WT_LOGGING Wt::Dbo::logging
-#   else // WT_DBO_LOGGER
-#     define WT_LOG Wt::log
-#     define WT_LOGGER Wt::logger
-#     define WT_LOGGING Wt::logging
-#   endif // WT_DBO_LOGGER
+#ifndef WT_TARGET_JAVA
+#ifdef WT_DBO_LOGGER
+#define WT_LOG Wt::Dbo::log
+#define WT_LOGGER Wt::Dbo::logger
+#define WT_LOGGING Wt::Dbo::logging
+#else // WT_DBO_LOGGER
+#define WT_LOG Wt::log
+#define WT_LOGGER Wt::logger
+#define WT_LOGGING Wt::logging
+#endif // WT_DBO_LOGGER
 
-#   define LOGGER(s) static const char *logger = s
+#define LOGGER(s) static const char *logger = s
 
-#   ifdef WT_DEBUG_ENABLED
-#    define LOG_DEBUG_S(s,m) (s)->log("debug") << WT_LOGGER << ": " << m
-#    define LOG_DEBUG(m) do { \
-     if ( WT_LOGGING("debug", WT_LOGGER)) \
-       WT_LOG("debug") << WT_LOGGER << ": " << m; \
-     } while (0)
-#   else
-#    define LOG_DEBUG_S(s,m)
-#    define LOG_DEBUG(m)
-#   endif
+#ifdef WT_DEBUG_ENABLED
+#define LOG_DEBUG_S(s, m) (s)->log("debug") << WT_LOGGER << ": " << m
+#define LOG_DEBUG(m)                             \
+  do                                             \
+  {                                              \
+    if (WT_LOGGING("debug", WT_LOGGER))          \
+      WT_LOG("debug") << WT_LOGGER << ": " << m; \
+  } while (0)
+#else
+#define LOG_DEBUG_S(s, m)
+#define LOG_DEBUG(m)
+#endif
 
-#   define LOG_INFO_S(s,m) (s)->log("info") << WT_LOGGER << ": " << m
-#   define LOG_INFO(m) do { \
-    if ( WT_LOGGING("info", WT_LOGGER))	\
-      WT_LOG("info") << WT_LOGGER << ": " << m;	\
-    }  while(0)
-#   define LOG_WARN_S(s,m) (s)->log("warning") << WT_LOGGER << ": " << m
-#   define LOG_WARN(m) do { \
-    if ( WT_LOGGING("warning", WT_LOGGER)) \
+#define LOG_INFO_S(s, m) (s)->log("info") << WT_LOGGER << ": " << m
+#define LOG_INFO(m)                             \
+  do                                            \
+  {                                             \
+    if (WT_LOGGING("info", WT_LOGGER))          \
+      WT_LOG("info") << WT_LOGGER << ": " << m; \
+  } while (0)
+#define LOG_WARN_S(s, m) (s)->log("warning") << WT_LOGGER << ": " << m
+#define LOG_WARN(m)                                \
+  do                                               \
+  {                                                \
+    if (WT_LOGGING("warning", WT_LOGGER))          \
       WT_LOG("warning") << WT_LOGGER << ": " << m; \
-    } while(0)
-#   define LOG_SECURE_S(s,m) (s)->log("secure") << WT_LOGGER << ": " << m
-#   define LOG_SECURE(m) do { \
-    if ( WT_LOGGING("secure", WT_LOGGER)) \
+  } while (0)
+#define LOG_SECURE_S(s, m) (s)->log("secure") << WT_LOGGER << ": " << m
+#define LOG_SECURE(m)                             \
+  do                                              \
+  {                                               \
+    if (WT_LOGGING("secure", WT_LOGGER))          \
       WT_LOG("secure") << WT_LOGGER << ": " << m; \
-    } while(0)
-#   define LOG_ERROR_S(s,m) (s)->log("error") << WT_LOGGER << ": " << m
-#   define LOG_ERROR(m) do { \
-    if ( WT_LOGGING("error", WT_LOGGER)) \
+  } while (0)
+#define LOG_ERROR_S(s, m) (s)->log("error") << WT_LOGGER << ": " << m
+#define LOG_ERROR(m)                             \
+  do                                             \
+  {                                              \
+    if (WT_LOGGING("error", WT_LOGGER))          \
       WT_LOG("error") << WT_LOGGER << ": " << m; \
-    } while(0)
+  } while (0)
 
-# else // WT_TARGET_JAVA
+#else // WT_TARGET_JAVA
 
-class Logger {
+class Logger
+{
 public:
-  void debug(const std::ostream& s);
-  void info(const std::ostream& s);
-  void warn(const std::ostream& s);
-  void error(const std::ostream& s);
+  void debug(const std::ostream &s);
+  void info(const std::ostream &s);
+  void warn(const std::ostream &s);
+  void error(const std::ostream &s);
 };
 
-# define LOGGER(s) Logger logger;
+#define LOGGER(s) Logger logger;
 
-# define LOG_DEBUG_S(s,m) logger.debug(std::stringstream() << m)
-# define LOG_DEBUG(m) logger.debug(std::stringstream() << m)
-# define LOG_INFO_S(s,m) logger.info(std::stringstream() << m)
-# define LOG_INFO(m) logger.info(std::stringstream() << m)
-# define LOG_WARN_S(s,m) logger.warn(std::stringstream() << m)
-# define LOG_WARN(m) logger.warn(std::stringstream() << m)
-# define LOG_SECURE_S(s,m) logger.warn(std::stringstream() << "secure:" << m)
-# define LOG_SECURE(m) logger.warn(std::stringstream() << "secure:" << m)
-# define LOG_ERROR_S(s,m) logger.error(std::stringstream() << m)
-# define LOG_ERROR(m) logger.error(std::stringstream() << m)
+#define LOG_DEBUG_S(s, m) logger.debug(std::stringstream() << m)
+#define LOG_DEBUG(m) logger.debug(std::stringstream() << m)
+#define LOG_INFO_S(s, m) logger.info(std::stringstream() << m)
+#define LOG_INFO(m) logger.info(std::stringstream() << m)
+#define LOG_WARN_S(s, m) logger.warn(std::stringstream() << m)
+#define LOG_WARN(m) logger.warn(std::stringstream() << m)
+#define LOG_SECURE_S(s, m) logger.warn(std::stringstream() << "secure:" << m)
+#define LOG_SECURE(m) logger.warn(std::stringstream() << "secure:" << m)
+#define LOG_ERROR_S(s, m) logger.error(std::stringstream() << m)
+#define LOG_ERROR(m) logger.error(std::stringstream() << m)
 
-# endif // WT_TARGET_JAVA
+#endif // WT_TARGET_JAVA
 
-# ifdef WT_DEBUG_ENABLED
-#  ifndef WT_TARGET_JAVA
-#   define WT_DEBUG(statement) do { \
-      if (Wt::WApplication::instance()->debug()) statement; } \
-    while(0)
-#  else
-#   define WT_DEBUG(statement)
-#  endif
-# else
-#  define WT_DEBUG(statement)
-# endif
+#ifdef WT_DEBUG_ENABLED
+#ifndef WT_TARGET_JAVA
+#define WT_DEBUG(statement)                    \
+  do                                           \
+  {                                            \
+    if (Wt::WApplication::instance()->debug()) \
+      statement;                               \
+  } while (0)
+#else
+#define WT_DEBUG(statement)
+#endif
+#else
+#define WT_DEBUG(statement)
+#endif
 
-#endif  // WT_BUILDING
+#endif // WT_BUILDING
 
 #endif // WLOGGER_H_

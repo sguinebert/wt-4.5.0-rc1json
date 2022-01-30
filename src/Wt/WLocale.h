@@ -177,6 +177,13 @@ public:
    */
   std::string name() const { return name_; }
 
+  /*! \brief Returns the locale stl version.
+   *
+   * This is the stl version of the locale that was set through the
+   * constructor.
+   */
+  std::locale stdlocale() { return std::locale(name_ + ".UTF8"); }
+
   /*! \brief Returns the current (user) locale.
    *
    * This returns WApplication::instance()->locale() if the

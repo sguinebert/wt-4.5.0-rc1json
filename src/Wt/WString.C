@@ -22,6 +22,8 @@
 
 #include "WebUtils.h"
 
+using ctx = fmt::format_context;
+
 #ifndef WT_CNOR
 namespace Wt {
 
@@ -374,6 +376,11 @@ std::string WString::resolveKey(TextFormat format) const
 
 //     fmt::vformat_to(out, format, fmt::basic_format_args<ctx>(fmt_args.data(), fmt_args.size()));
 // }
+std::string format_vector(std::string_view format,
+                          std::vector<fmt::basic_format_arg<ctx>> const& fmt_args)
+{
+    return ::fmt::vformat(format, fmt::basic_format_args<ctx>(fmt_args.data(), fmt_args.size()));
+}
 std::string WString::toUTF8() const
 {
   if (impl_) {
@@ -566,6 +573,7 @@ WString& WString::arg(const WString& value)
 
 WString& WString::arg(int value)
 {
+  fmt_args_.push_back(fmt::internal::make_arg<ctx>(2));
   return arg(WLocale::currentLocale().toString(value));
 }
 

@@ -35,6 +35,7 @@
 
 #include <cmath>         // std::signbit
 #include <cstdint>       // uint32_t
+#include <cstring>       // std::memcpy
 #include <limits>        // std::numeric_limits
 #include <memory>        // std::uninitialized_copy
 #include <stdexcept>     // std::runtime_error
@@ -110,20 +111,6 @@ FMT_END_NAMESPACE
 #  define FMT_CATCH(x) if (false)
 #endif
 
-#ifndef FMT_DEPRECATED
-#  if FMT_HAS_CPP14_ATTRIBUTE(deprecated) || FMT_MSC_VER >= 1900
-#    define FMT_DEPRECATED [[deprecated]]
-#  else
-#    if (defined(__GNUC__) && !defined(__LCC__)) || defined(__clang__)
-#      define FMT_DEPRECATED __attribute__((deprecated))
-#    elif FMT_MSC_VER
-#      define FMT_DEPRECATED __declspec(deprecated)
-#    else
-#      define FMT_DEPRECATED /* deprecated */
-#    endif
-#  endif
-#endif
-
 #ifndef FMT_MAYBE_UNUSED
 #  if FMT_HAS_CPP17_ATTRIBUTE(maybe_unused)
 #    define FMT_MAYBE_UNUSED [[maybe_unused]]
@@ -172,10 +159,12 @@ FMT_END_NAMESPACE
 // __builtin_ctz is broken in Intel Compiler Classic on Windows:
 // https://github.com/fmtlib/fmt/issues/2510.
 #ifndef __ICL
-#  if FMT_HAS_BUILTIN(__builtin_ctz) || FMT_GCC_VERSION || FMT_ICC_VERSION
+#  if FMT_HAS_BUILTIN(__builtin_ctz) || FMT_GCC_VERSION || \
+      FMT_ICC_VERSION || FMT_NVCOMPILER_VERSION
 #    define FMT_BUILTIN_CTZ(n) __builtin_ctz(n)
 #  endif
-#  if FMT_HAS_BUILTIN(__builtin_ctzll) || FMT_GCC_VERSION || FMT_ICC_VERSION
+#  if FMT_HAS_BUILTIN(__builtin_ctzll) || FMT_GCC_VERSION || \
+      FMT_ICC_VERSION || FMT_NVCOMPILER_VERSION
 #    define FMT_BUILTIN_CTZLL(n) __builtin_ctzll(n)
 #  endif
 #endif
@@ -265,28 +254,63 @@ FMT_END_NAMESPACE
 
 FMT_BEGIN_NAMESPACE
 namespace detail {
-// An equivalent of `*reinterpret_cast<Dest*>(&source)` that doesn't have
-// undefined behavior (e.g. due to type aliasing).
-// Example: uint64_t d = bit_cast<uint64_t>(2.718);
-template <typename Dest, typename Source>
-FMT_CONSTEXPR20 auto bit_cast(const Source& source) -> Dest {
-  static_assert(sizeof(Dest) == sizeof(Source), "size mismatch");
-#ifdef __cpp_lib_bit_cast
-  if (is_constant_evaluated()) {
-    return std::bit_cast<Dest>(source);
+
+template <typename Streambuf> class formatbuf : public Streambuf {
+ private:
+  using char_type = typename Streambuf::char_type;
+  using streamsize = decltype(std::declval<Streambuf>().sputn(nullptr, 0));
+  using int_type = typename Streambuf::int_type;
+  using traits_type = typename Streambuf::traits_type;
+
+  buffer<char_type>& buffer_;
+
+ public:
+  explicit formatbuf(buffer<char_type>& buf) : buffer_(buf) {}
+
+ protected:
+  // The put area is always empty. This makes the implementation simpler and has
+  // the advantage that the streambuf and the buffer are always in sync and
+  // sputc never writes into uninitialized memory. A disadvantage is that each
+  // call to sputc always results in a (virtual) call to overflow. There is no
+  // disadvantage here for sputn since this always results in a call to xsputn.
+
+  auto overflow(int_type ch) -> int_type override {
+    if (!traits_type::eq_int_type(ch, traits_type::eof()))
+      buffer_.push_back(static_cast<char_type>(ch));
+    return ch;
   }
+
+  auto xsputn(const char_type* s, streamsize count) -> streamsize override {
+    buffer_.append(s, s + count);
+    return count;
+  }
+};
+
+// Implementation of std::bit_cast for pre-C++20.
+template <typename To, typename From>
+FMT_CONSTEXPR20 auto bit_cast(const From& from) -> To {
+  static_assert(sizeof(To) == sizeof(From), "size mismatch");
+#ifdef __cpp_lib_bit_cast
+  if (is_constant_evaluated()) return std::bit_cast<To>(from);
 #endif
-  Dest dest;
-  std::memcpy(&dest, &source, sizeof(dest));
-  return dest;
+  auto to = To();
+  std::memcpy(&to, &from, sizeof(to));
+  return to;
 }
 
 inline auto is_big_endian() -> bool {
-  const auto u = 1u;
+#ifdef _WIN32
+  return false;
+#elif defined(__BIG_ENDIAN__)
+  return true;
+#elif defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__)
+  return __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__;
+#else
   struct bytes {
-    char data[sizeof(u)];
+    char data[sizeof(int)];
   };
-  return bit_cast<bytes>(u).data[0] == 0;
+  return bit_cast<bytes>(1).data[0] == 0;
+#endif
 }
 
 // A fallback implementation of uintptr_t for systems that lack it.
@@ -296,7 +320,7 @@ struct fallback_uintptr {
   fallback_uintptr() = default;
   explicit fallback_uintptr(const void* p) {
     *this = bit_cast<fallback_uintptr>(p);
-    if (is_big_endian()) {
+    if (const_check(is_big_endian())) {
       for (size_t i = 0, j = sizeof(void*) - 1; i < j; ++i, --j)
         std::swap(value[i], value[j]);
     }
@@ -332,7 +356,7 @@ template <> constexpr auto num_bits<fallback_uintptr>() -> int {
 
 FMT_INLINE void assume(bool condition) {
   (void)condition;
-#if FMT_HAS_BUILTIN(__builtin_assume)
+#if FMT_HAS_BUILTIN(__builtin_assume) && !FMT_ICC_VERSION
   __builtin_assume(condition);
 #endif
 }
@@ -499,7 +523,7 @@ FMT_CONSTEXPR inline auto utf8_decode(const char* s, uint32_t* c, int* e)
   return next;
 }
 
-enum { invalid_code_point = ~uint32_t() };
+constexpr uint32_t invalid_code_point = ~uint32_t();
 
 // Invokes f(cp, sv) for every code point cp in s with sv being the string view
 // corresponding to the code point. cp is invalid_code_point on error.
@@ -667,7 +691,7 @@ class basic_memory_buffer final : public detail::buffer<T> {
   }
 
  protected:
-  void grow(size_t size) override;
+  FMT_CONSTEXPR20 void grow(size_t size) override;
 
  public:
   using value_type = T;
@@ -714,8 +738,7 @@ class basic_memory_buffer final : public detail::buffer<T> {
     of the other object to it.
     \endrst
    */
-  FMT_CONSTEXPR20 basic_memory_buffer(basic_memory_buffer&& other)
-      FMT_NOEXCEPT {
+  FMT_CONSTEXPR20 basic_memory_buffer(basic_memory_buffer&& other) noexcept {
     move(other);
   }
 
@@ -724,8 +747,7 @@ class basic_memory_buffer final : public detail::buffer<T> {
     Moves the content of the other ``basic_memory_buffer`` object to this one.
     \endrst
    */
-  auto operator=(basic_memory_buffer&& other) FMT_NOEXCEPT
-      -> basic_memory_buffer& {
+  auto operator=(basic_memory_buffer&& other) noexcept -> basic_memory_buffer& {
     FMT_ASSERT(this != &other, "");
     deallocate();
     move(other);
@@ -753,7 +775,8 @@ class basic_memory_buffer final : public detail::buffer<T> {
 };
 
 template <typename T, size_t SIZE, typename Allocator>
-void basic_memory_buffer<T, SIZE, Allocator>::grow(size_t size) {
+FMT_CONSTEXPR20 void basic_memory_buffer<T, SIZE, Allocator>::grow(
+    size_t size) {
 #ifdef FMT_FUZZ
   if (size > 5000) throw std::runtime_error("fuzz mode - won't grow that much");
 #endif
@@ -798,7 +821,7 @@ class FMT_API format_error : public std::runtime_error {
   format_error& operator=(const format_error&) = default;
   format_error(format_error&&) = default;
   format_error& operator=(format_error&&) = default;
-  ~format_error() FMT_NOEXCEPT override FMT_MSC_DEFAULT;
+  ~format_error() noexcept override FMT_MSC_DEFAULT;
 };
 
 /**
@@ -905,7 +928,7 @@ constexpr const char* digits2(size_t value) {
 
 // Sign is a template parameter to workaround a bug in gcc 4.8.
 template <typename Char, typename Sign> constexpr Char sign(Sign s) {
-#if !FMT_GCC_VERSION || FMT_GCC_VERSION > 408
+#if !FMT_GCC_VERSION || FMT_GCC_VERSION >= 604
   static_assert(std::is_same<Sign, sign_t>::value, "");
 #endif
   return static_cast<Char>("\0-+ "[s]);
@@ -1017,15 +1040,11 @@ FMT_CONSTEXPR20 inline auto count_digits(uint32_t n) -> int {
   return count_digits_fallback(n);
 }
 
-template <typename Int> constexpr auto digits10() FMT_NOEXCEPT -> int {
+template <typename Int> constexpr auto digits10() noexcept -> int {
   return std::numeric_limits<Int>::digits10;
 }
-template <> constexpr auto digits10<int128_t>() FMT_NOEXCEPT -> int {
-  return 38;
-}
-template <> constexpr auto digits10<uint128_t>() FMT_NOEXCEPT -> int {
-  return 38;
-}
+template <> constexpr auto digits10<int128_t>() noexcept -> int { return 38; }
+template <> constexpr auto digits10<uint128_t>() noexcept -> int { return 38; }
 
 template <typename Char> struct thousands_sep_result {
   std::string grouping;
@@ -1196,9 +1215,6 @@ template <> struct float_info<float> {
   static const int cache_bits = 64;
   static const int divisibility_check_by_5_threshold = 39;
   static const int case_fc_pm_half_lower_threshold = -1;
-  static const int case_fc_pm_half_upper_threshold = 6;
-  static const int case_fc_lower_threshold = -2;
-  static const int case_fc_upper_threshold = 6;
   static const int case_shorter_interval_left_endpoint_lower_threshold = 2;
   static const int case_shorter_interval_left_endpoint_upper_threshold = 3;
   static const int shorter_interval_tie_lower_threshold = -35;
@@ -1222,9 +1238,6 @@ template <> struct float_info<double> {
   static const int cache_bits = 128;
   static const int divisibility_check_by_5_threshold = 86;
   static const int case_fc_pm_half_lower_threshold = -2;
-  static const int case_fc_pm_half_upper_threshold = 9;
-  static const int case_fc_lower_threshold = -4;
-  static const int case_fc_upper_threshold = 9;
   static const int case_shorter_interval_left_endpoint_lower_threshold = 2;
   static const int case_shorter_interval_left_endpoint_upper_threshold = 3;
   static const int shorter_interval_tie_lower_threshold = -77;
@@ -1238,8 +1251,7 @@ template <typename T> struct decimal_fp {
   int exponent;
 };
 
-template <typename T>
-FMT_API auto to_decimal(T x) FMT_NOEXCEPT -> decimal_fp<T>;
+template <typename T> FMT_API auto to_decimal(T x) noexcept -> decimal_fp<T>;
 }  // namespace dragonbox
 
 template <typename T>
@@ -2419,10 +2431,10 @@ auto vformat(const Locale& loc, basic_string_view<Char> format_str,
 using format_func = void (*)(detail::buffer<char>&, int, const char*);
 
 FMT_API void format_error_code(buffer<char>& out, int error_code,
-                               string_view message) FMT_NOEXCEPT;
+                               string_view message) noexcept;
 
 FMT_API void report_error(format_func func, int error_code,
-                          const char* message) FMT_NOEXCEPT;
+                          const char* message) noexcept;
 FMT_END_DETAIL_NAMESPACE
 
 FMT_API auto vsystem_error(int error_code, string_view format_str,
@@ -2468,12 +2480,11 @@ auto system_error(int error_code, format_string<T...> fmt, T&&... args)
   \endrst
  */
 FMT_API void format_system_error(detail::buffer<char>& out, int error_code,
-                                 const char* message) FMT_NOEXCEPT;
+                                 const char* message) noexcept;
 
 // Reports a system error without throwing an exception.
 // Can be used to report errors from destructors.
-FMT_API void report_system_error(int error_code,
-                                 const char* message) FMT_NOEXCEPT;
+FMT_API void report_system_error(int error_code, const char* message) noexcept;
 
 /** Fast integer formatter. */
 class format_int {
@@ -2574,6 +2585,7 @@ FMT_FORMAT_AS(unsigned long, unsigned long long);
 FMT_FORMAT_AS(Char*, const Char*);
 FMT_FORMAT_AS(std::basic_string<Char>, basic_string_view<Char>);
 FMT_FORMAT_AS(std::nullptr_t, const void*);
+FMT_FORMAT_AS(detail::byte, unsigned char);
 FMT_FORMAT_AS(detail::std_string_view<Char>, basic_string_view<Char>);
 
 template <typename Char>
@@ -2663,6 +2675,22 @@ template <typename T> auto ptr(const std::unique_ptr<T>& p) -> const void* {
 }
 template <typename T> auto ptr(const std::shared_ptr<T>& p) -> const void* {
   return p.get();
+}
+
+/**
+  \rst
+  Converts ``e`` to the underlying type.
+
+  **Example**::
+
+    enum class color { red, green, blue };
+    auto s = fmt::format("{}", fmt::underlying(color::red));
+  \endrst
+ */
+template <typename Enum>
+constexpr auto underlying(Enum e) noexcept ->
+    typename std::underlying_type<Enum>::type {
+  return static_cast<typename std::underlying_type<Enum>::type>(e);
 }
 
 class bytes {
@@ -2795,8 +2823,8 @@ struct formatter<join_view<It, Sentinel, Char>, Char> {
   }
 
   template <typename FormatContext>
-  auto format(const join_view<It, Sentinel, Char>& value, FormatContext& ctx)
-      -> decltype(ctx.out()) {
+  auto format(const join_view<It, Sentinel, Char>& value,
+              FormatContext& ctx) const -> decltype(ctx.out()) {
     auto it = value.begin;
     auto out = ctx.out();
     if (it != value.end) {
@@ -2863,7 +2891,7 @@ inline auto to_string(const T& value) -> std::string {
 }
 
 template <typename T, FMT_ENABLE_IF(std::is_integral<T>::value)>
-inline auto to_string(T value) -> std::string {
+FMT_NODISCARD inline auto to_string(T value) -> std::string {
   // The buffer should be large enough to store the number including the sign
   // or "false" for bool.
   constexpr int max_size = detail::digits10<T>() + 2;
@@ -2873,7 +2901,7 @@ inline auto to_string(T value) -> std::string {
 }
 
 template <typename Char, size_t SIZE>
-auto to_string(const basic_memory_buffer<Char, SIZE>& buf)
+FMT_NODISCARD auto to_string(const basic_memory_buffer<Char, SIZE>& buf)
     -> std::basic_string<Char> {
   auto size = buf.size();
   detail::assume(size < std::basic_string<Char>().max_size());
@@ -3015,17 +3043,9 @@ constexpr auto operator"" _a(const char* s, size_t) -> detail::udl_arg<char> {
 }
 #  endif
 
-/**
-  \rst
-  User-defined literal equivalent of :func:`fmt::format`.
-
-  **Example**::
-
-    using namespace fmt::literals;
-    std::string message = "The answer is {}"_format(42);
-  \endrst
- */
-constexpr auto operator"" _format(const char* s, size_t n)
+// DEPRECATED!
+// User-defined literal equivalent of fmt::format.
+FMT_DEPRECATED constexpr auto operator"" _format(const char* s, size_t n)
     -> detail::udl_formatter<char> {
   return {{s, n}};
 }

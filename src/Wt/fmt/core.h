@@ -8,7 +8,8 @@
 #ifndef FMT_CORE_H_
 #define FMT_CORE_H_
 
-#include <cstdio>  // std::FILE
+#include <cstddef>  // std::byte
+#include <cstdio>   // std::FILE
 #include <cstring>
 #include <iterator>
 #include <limits>
@@ -16,9 +17,9 @@
 #include <type_traits>
 
 // The fmt library version in the form major * 10000 + minor * 100 + patch.
-#define FMT_VERSION 80001
+#define FMT_VERSION 80101
 
-#if defined (__clang__ ) && !defined(__ibmxl__)
+#if defined(__clang__) && !defined(__ibmxl__)
 #  define FMT_CLANG_VERSION (__clang_major__ * 100 + __clang_minor__)
 #else
 #  define FMT_CLANG_VERSION 0
@@ -46,6 +47,13 @@
 #  define FMT_ICC_VERSION __INTEL_COMPILER
 #else
 #  define FMT_ICC_VERSION 0
+#endif
+
+#ifdef __NVCOMPILER
+#  define FMT_NVCOMPILER_VERSION \
+    (__NVCOMPILER_MAJOR__ * 100 + __NVCOMPILER_MINOR__)
+#else
+#  define FMT_NVCOMPILER_VERSION 0
 #endif
 
 #ifdef __NVCC__
@@ -82,11 +90,17 @@
 #  define FMT_HAS_CPP_ATTRIBUTE(x) 0
 #endif
 
+#ifdef _MSVC_LANG
+#  define FMT_CPLUSPLUS _MSVC_LANG
+#else
+#  define FMT_CPLUSPLUS __cplusplus
+#endif
+
 #define FMT_HAS_CPP14_ATTRIBUTE(attribute) \
-  (__cplusplus >= 201402L && FMT_HAS_CPP_ATTRIBUTE(attribute))
+  (FMT_CPLUSPLUS >= 201402L && FMT_HAS_CPP_ATTRIBUTE(attribute))
 
 #define FMT_HAS_CPP17_ATTRIBUTE(attribute) \
-  (__cplusplus >= 201703L && FMT_HAS_CPP_ATTRIBUTE(attribute))
+  (FMT_CPLUSPLUS >= 201703L && FMT_HAS_CPP_ATTRIBUTE(attribute))
 
 // Check if relaxed C++14 constexpr is supported.
 // GCC doesn't allow throw in constexpr until version 6 (bug 67371).
@@ -138,28 +152,6 @@
 #  endif
 #endif
 
-// Define FMT_USE_NOEXCEPT to make fmt use noexcept (C++11 feature).
-#ifndef FMT_USE_NOEXCEPT
-#  define FMT_USE_NOEXCEPT 0
-#endif
-
-#if FMT_USE_NOEXCEPT || FMT_HAS_FEATURE(cxx_noexcept) || \
-    FMT_GCC_VERSION >= 408 || FMT_MSC_VER >= 1900
-#  define FMT_DETECTED_NOEXCEPT noexcept
-#  define FMT_HAS_CXX11_NOEXCEPT 1
-#else
-#  define FMT_DETECTED_NOEXCEPT throw()
-#  define FMT_HAS_CXX11_NOEXCEPT 0
-#endif
-
-#ifndef FMT_NOEXCEPT
-#  if FMT_EXCEPTIONS || FMT_HAS_CXX11_NOEXCEPT
-#    define FMT_NOEXCEPT FMT_DETECTED_NOEXCEPT
-#  else
-#    define FMT_NOEXCEPT
-#  endif
-#endif
-
 // [[noreturn]] is disabled on MSVC and NVCC because of bogus unreachable code
 // warnings.
 #if FMT_EXCEPTIONS && FMT_HAS_CPP_ATTRIBUTE(noreturn) && !FMT_MSC_VER && \
@@ -180,11 +172,18 @@
 #  else
 #    define FMT_FALLTHROUGH
 #  endif
-#elif FMT_HAS_CPP17_ATTRIBUTE(fallthrough) || \
-    (defined(_MSVC_LANG) && _MSVC_LANG >= 201703L)
+#elif FMT_HAS_CPP17_ATTRIBUTE(fallthrough)
 #  define FMT_FALLTHROUGH [[fallthrough]]
 #else
 #  define FMT_FALLTHROUGH
+#endif
+
+#ifndef FMT_NODISCARD
+#  if FMT_HAS_CPP17_ATTRIBUTE(nodiscard)
+#    define FMT_NODISCARD [[nodiscard]]
+#  else
+#    define FMT_NODISCARD
+#  endif
 #endif
 
 #ifndef FMT_USE_FLOAT
@@ -202,6 +201,20 @@
 #    define FMT_INLINE inline __attribute__((always_inline))
 #  else
 #    define FMT_INLINE inline
+#  endif
+#endif
+
+#ifndef FMT_DEPRECATED
+#  if FMT_HAS_CPP14_ATTRIBUTE(deprecated) || FMT_MSC_VER >= 1900
+#    define FMT_DEPRECATED [[deprecated]]
+#  else
+#    if (defined(__GNUC__) && !defined(__LCC__)) || defined(__clang__)
+#      define FMT_DEPRECATED __attribute__((deprecated))
+#    elif FMT_MSC_VER
+#      define FMT_DEPRECATED __declspec(deprecated)
+#    else
+#      define FMT_DEPRECATED /* deprecated */
+#    endif
 #  endif
 #endif
 
@@ -259,8 +272,9 @@
 #ifndef FMT_CONSTEVAL
 #  if ((FMT_GCC_VERSION >= 1000 || FMT_CLANG_VERSION >= 1101) &&      \
        __cplusplus > 201703L && !defined(__apple_build_version__)) || \
-      (defined(__cpp_consteval) && (!FMT_MSC_VER || _MSC_FULL_VER >= 193030704))
-  // consteval is broken in MSVC before VS2022 and Apple clang 13.
+      (defined(__cpp_consteval) &&                                    \
+       (!FMT_MSC_VER || _MSC_FULL_VER >= 193030704))
+// consteval is broken in MSVC before VS2022 and Apple clang 13.
 #    define FMT_CONSTEVAL consteval
 #    define FMT_HAS_CONSTEVAL
 #  else
@@ -280,7 +294,7 @@
 
 // Enable minimal optimizations for more compact code in debug mode.
 FMT_GCC_PRAGMA("GCC push_options")
-#ifndef __OPTIMIZE__
+#if !defined(__OPTIMIZE__) && !FMT_NVCOMPILER_VERSION
 FMT_GCC_PRAGMA("GCC optimize(\"Og\")")
 #endif
 
@@ -322,8 +336,8 @@ FMT_BEGIN_DETAIL_NAMESPACE
 // (void)var does not work on many Intel compilers.
 template <typename... T> FMT_CONSTEXPR void ignore_unused(const T&...) {}
 
-constexpr FMT_INLINE auto is_constant_evaluated(bool default_value = false)
-    FMT_NOEXCEPT -> bool {
+constexpr FMT_INLINE auto is_constant_evaluated(
+    bool default_value = false) noexcept -> bool {
 #ifdef __cpp_lib_is_constant_evaluated
   ignore_unused(default_value);
   return std::is_constant_evaluated();
@@ -351,6 +365,12 @@ FMT_NORETURN FMT_API void assert_fail(const char* file, int line,
            ? (void)0                                                          \
            : ::fmt::detail::assert_fail(__FILE__, __LINE__, (message)))
 #  endif
+#endif
+
+#ifdef __cpp_lib_byte
+using byte = std::byte;
+#else
+enum class byte : unsigned char {};
 #endif
 
 #if defined(FMT_USE_STRING_VIEW)
@@ -419,12 +439,11 @@ template <typename Char> class basic_string_view {
   using value_type = Char;
   using iterator = const Char*;
 
-  constexpr basic_string_view() FMT_NOEXCEPT : data_(nullptr), size_(0) {}
+  constexpr basic_string_view() noexcept : data_(nullptr), size_(0) {}
 
   /** Constructs a string reference object from a C string and a size. */
-  constexpr basic_string_view(const Char* s, size_t count) FMT_NOEXCEPT
-      : data_(s),
-        size_(count) {}
+  constexpr basic_string_view(const Char* s, size_t count) noexcept
+      : data_(s), size_(count) {}
 
   /**
     \rst
@@ -444,29 +463,28 @@ template <typename Char> class basic_string_view {
   /** Constructs a string reference from a ``std::basic_string`` object. */
   template <typename Traits, typename Alloc>
   FMT_CONSTEXPR basic_string_view(
-      const std::basic_string<Char, Traits, Alloc>& s) FMT_NOEXCEPT
-      : data_(s.data()),
-        size_(s.size()) {}
+      const std::basic_string<Char, Traits, Alloc>& s) noexcept
+      : data_(s.data()), size_(s.size()) {}
 
   template <typename S, FMT_ENABLE_IF(std::is_same<
                                       S, detail::std_string_view<Char>>::value)>
-  FMT_CONSTEXPR basic_string_view(S s) FMT_NOEXCEPT : data_(s.data()),
-                                                      size_(s.size()) {}
+  FMT_CONSTEXPR basic_string_view(S s) noexcept
+      : data_(s.data()), size_(s.size()) {}
 
   /** Returns a pointer to the string data. */
-  constexpr auto data() const -> const Char* { return data_; }
+  constexpr auto data() const noexcept -> const Char* { return data_; }
 
   /** Returns the string size. */
-  constexpr auto size() const -> size_t { return size_; }
+  constexpr auto size() const noexcept -> size_t { return size_; }
 
-  constexpr auto begin() const -> iterator { return data_; }
-  constexpr auto end() const -> iterator { return data_ + size_; }
+  constexpr auto begin() const noexcept -> iterator { return data_; }
+  constexpr auto end() const noexcept -> iterator { return data_ + size_; }
 
-  constexpr auto operator[](size_t pos) const -> const Char& {
+  constexpr auto operator[](size_t pos) const noexcept -> const Char& {
     return data_[pos];
   }
 
-  FMT_CONSTEXPR void remove_prefix(size_t n) {
+  FMT_CONSTEXPR void remove_prefix(size_t n) noexcept {
     data_ += n;
     size_ -= n;
   }
@@ -546,7 +564,7 @@ constexpr auto to_string_view(const S& s)
 FMT_BEGIN_DETAIL_NAMESPACE
 
 void to_string_view(...);
-using fmt::v8::to_string_view;
+using fmt::to_string_view;
 
 // Specifies whether S is a string type convertible to fmt::basic_string_view.
 // It should be a constexpr function but MSVC 2017 fails to compile it in
@@ -580,7 +598,7 @@ struct error_handler {
   constexpr error_handler(const error_handler&) = default;
 
   // This function is intentionally not constexpr to give a compile-time error.
-  void on_error(const char* message) { throw_format_error(message); }
+  FMT_NORETURN FMT_API void on_error(const char* message);
 };
 FMT_END_DETAIL_NAMESPACE
 
@@ -613,16 +631,14 @@ class basic_format_parse_context : private ErrorHandler {
     Returns an iterator to the beginning of the format string range being
     parsed.
    */
-  constexpr auto begin() const FMT_NOEXCEPT -> iterator {
+  constexpr auto begin() const noexcept -> iterator {
     return format_str_.begin();
   }
 
   /**
     Returns an iterator past the end of the format string range being parsed.
    */
-  constexpr auto end() const FMT_NOEXCEPT -> iterator {
-    return format_str_.end();
-  }
+  constexpr auto end() const noexcept -> iterator { return format_str_.end(); }
 
   /** Advances the begin iterator to ``it``. */
   FMT_CONSTEXPR void advance_to(iterator it) {
@@ -749,18 +765,16 @@ template <typename T> class buffer {
  protected:
   // Don't initialize ptr_ since it is not accessed to save a few cycles.
   FMT_MSC_WARNING(suppress : 26495)
-  buffer(size_t sz) FMT_NOEXCEPT : size_(sz), capacity_(sz) {}
+  buffer(size_t sz) noexcept : size_(sz), capacity_(sz) {}
 
-  FMT_CONSTEXPR20 buffer(T* p = nullptr, size_t sz = 0,
-                         size_t cap = 0) FMT_NOEXCEPT : ptr_(p),
-                                                        size_(sz),
-                                                        capacity_(cap) {}
+  FMT_CONSTEXPR20 buffer(T* p = nullptr, size_t sz = 0, size_t cap = 0) noexcept
+      : ptr_(p), size_(sz), capacity_(cap) {}
 
   FMT_CONSTEXPR20 ~buffer() = default;
   buffer(buffer&&) = default;
 
   /** Sets the buffer data and capacity. */
-  FMT_CONSTEXPR void set(T* buf_data, size_t buf_capacity) FMT_NOEXCEPT {
+  FMT_CONSTEXPR void set(T* buf_data, size_t buf_capacity) noexcept {
     ptr_ = buf_data;
     capacity_ = buf_capacity;
   }
@@ -775,23 +789,23 @@ template <typename T> class buffer {
   buffer(const buffer&) = delete;
   void operator=(const buffer&) = delete;
 
-  auto begin() FMT_NOEXCEPT -> T* { return ptr_; }
-  auto end() FMT_NOEXCEPT -> T* { return ptr_ + size_; }
+  auto begin() noexcept -> T* { return ptr_; }
+  auto end() noexcept -> T* { return ptr_ + size_; }
 
-  auto begin() const FMT_NOEXCEPT -> const T* { return ptr_; }
-  auto end() const FMT_NOEXCEPT -> const T* { return ptr_ + size_; }
+  auto begin() const noexcept -> const T* { return ptr_; }
+  auto end() const noexcept -> const T* { return ptr_ + size_; }
 
   /** Returns the size of this buffer. */
-  constexpr auto size() const FMT_NOEXCEPT -> size_t { return size_; }
+  constexpr auto size() const noexcept -> size_t { return size_; }
 
   /** Returns the capacity of this buffer. */
-  constexpr auto capacity() const FMT_NOEXCEPT -> size_t { return capacity_; }
+  constexpr auto capacity() const noexcept -> size_t { return capacity_; }
 
   /** Returns a pointer to the buffer data. */
-  FMT_CONSTEXPR auto data() FMT_NOEXCEPT -> T* { return ptr_; }
+  FMT_CONSTEXPR auto data() noexcept -> T* { return ptr_; }
 
   /** Returns a pointer to the buffer data. */
-  FMT_CONSTEXPR auto data() const FMT_NOEXCEPT -> const T* { return ptr_; }
+  FMT_CONSTEXPR auto data() const noexcept -> const T* { return ptr_; }
 
   /** Clears this buffer. */
   void clear() { size_ = 0; }
@@ -858,7 +872,7 @@ class iterator_buffer final : public Traits, public buffer<T> {
   T data_[buffer_size];
 
  protected:
-  void grow(size_t) override {
+  FMT_CONSTEXPR20 void grow(size_t) override {
     if (this->size() == buffer_size) flush();
   }
 
@@ -892,7 +906,7 @@ class iterator_buffer<T*, T, fixed_buffer_traits> final
   T data_[buffer_size];
 
  protected:
-  void grow(size_t) override {
+  FMT_CONSTEXPR20 void grow(size_t) override {
     if (this->size() == this->capacity()) flush();
   }
 
@@ -930,7 +944,7 @@ class iterator_buffer<T*, T, fixed_buffer_traits> final
 
 template <typename T> class iterator_buffer<T*, T> final : public buffer<T> {
  protected:
-  void grow(size_t) override {}
+  FMT_CONSTEXPR20 void grow(size_t) override {}
 
  public:
   explicit iterator_buffer(T* out, size_t = 0) : buffer<T>(out, 0, ~size_t()) {}
@@ -948,7 +962,7 @@ class iterator_buffer<std::back_insert_iterator<Container>,
   Container& container_;
 
  protected:
-  void grow(size_t capacity) override {
+  FMT_CONSTEXPR20 void grow(size_t capacity) override {
     container_.resize(capacity);
     this->set(&container_[0], capacity);
   }
@@ -971,7 +985,7 @@ template <typename T = char> class counting_buffer final : public buffer<T> {
   size_t count_ = 0;
 
  protected:
-  void grow(size_t) override {
+  FMT_CONSTEXPR20 void grow(size_t) override {
     if (this->size() != buffer_size) return;
     count_ += this->size();
     this->clear();
@@ -1086,6 +1100,11 @@ template <bool B1, bool B2, bool... Tail> constexpr auto count() -> size_t {
 
 template <typename... Args> constexpr auto count_named_args() -> size_t {
   return count<is_named_arg<Args>::value...>();
+}
+
+template <typename... Args>
+constexpr auto count_statically_named_args() -> size_t {
+  return count<is_statically_named_arg<Args>::value...>();
 }
 
 enum class type {
@@ -1343,20 +1362,24 @@ template <typename Context> struct arg_mapper {
       -> basic_string_view<char_type> {
     return std_string_view<char_type>(val);
   }
-  FMT_CONSTEXPR FMT_INLINE auto map(const signed char* val)
-      -> decltype(this->map("")) {
+
+  using cstring_result = conditional_t<std::is_same<char_type, char>::value,
+                                       const char*, unformattable_pointer>;
+
+  FMT_DEPRECATED FMT_CONSTEXPR FMT_INLINE auto map(const signed char* val)
+      -> cstring_result {
     return map(reinterpret_cast<const char*>(val));
   }
-  FMT_CONSTEXPR FMT_INLINE auto map(const unsigned char* val)
-      -> decltype(this->map("")) {
+  FMT_DEPRECATED FMT_CONSTEXPR FMT_INLINE auto map(const unsigned char* val)
+      -> cstring_result {
     return map(reinterpret_cast<const char*>(val));
   }
-  FMT_CONSTEXPR FMT_INLINE auto map(signed char* val)
-      -> decltype(this->map("")) {
+  FMT_DEPRECATED FMT_CONSTEXPR FMT_INLINE auto map(signed char* val)
+      -> cstring_result {
     return map(reinterpret_cast<const char*>(val));
   }
-  FMT_CONSTEXPR FMT_INLINE auto map(unsigned char* val)
-      -> decltype(this->map("")) {
+  FMT_DEPRECATED FMT_CONSTEXPR FMT_INLINE auto map(unsigned char* val)
+      -> cstring_result {
     return map(reinterpret_cast<const char*>(val));
   }
 
@@ -1370,8 +1393,15 @@ template <typename Context> struct arg_mapper {
 
   // We use SFINAE instead of a const T* parameter to avoid conflicting with
   // the C array overload.
-  template <typename T, FMT_ENABLE_IF(std::is_pointer<T>::value)>
-  FMT_CONSTEXPR auto map(T) -> unformattable_pointer {
+  template <
+      typename T,
+      FMT_ENABLE_IF(
+          std::is_pointer<T>::value || std::is_member_pointer<T>::value ||
+          std::is_function<typename std::remove_pointer<T>::type>::value ||
+          (std::is_convertible<const T&, const void*>::value &&
+           !std::is_convertible<const T&, const char_type*>::value &&
+           !has_formatter<T, Context>::value))>
+  FMT_CONSTEXPR auto map(const T&) -> unformattable_pointer {
     return {};
   }
 
@@ -1382,13 +1412,25 @@ template <typename Context> struct arg_mapper {
   }
 
   template <typename T,
-            FMT_ENABLE_IF(std::is_enum<T>::value &&
-                          !has_formatter<T, Context>::value &&
-                          !has_fallback_formatter<T, char_type>::value)>
+            FMT_ENABLE_IF(
+                std::is_enum<T>::value&& std::is_convertible<T, int>::value &&
+                !has_formatter<T, Context>::value &&
+                !has_fallback_formatter<T, char_type>::value)>
   FMT_CONSTEXPR FMT_INLINE auto map(const T& val)
       -> decltype(std::declval<arg_mapper>().map(
           static_cast<typename std::underlying_type<T>::type>(val))) {
     return map(static_cast<typename std::underlying_type<T>::type>(val));
+  }
+
+  template <typename T, typename U = decltype(format_as(T())),
+            FMT_ENABLE_IF(std::is_enum<T>::value&& std::is_integral<U>::value)>
+  FMT_CONSTEXPR FMT_INLINE auto map(const T& val)
+      -> decltype(std::declval<arg_mapper>().map(U())) {
+    return map(format_as(val));
+  }
+
+  FMT_CONSTEXPR FMT_INLINE auto map(detail::byte val) -> unsigned {
+    return map(static_cast<unsigned char>(val));
   }
 
   template <typename T, typename U = remove_cvref_t<T>>
@@ -1458,19 +1500,12 @@ class appender : public std::back_insert_iterator<detail::buffer<char>> {
 
  public:
   using std::back_insert_iterator<detail::buffer<char>>::back_insert_iterator;
-  appender(base it) : base(it) {}
+  appender(base it) noexcept : base(it) {}
   using _Unchecked_type = appender;  // Mark iterator as checked.
 
-  auto operator++() -> appender& {
-    base::operator++();
-    return *this;
-  }
+  auto operator++() noexcept -> appender& { return *this; }
 
-  auto operator++(int) -> appender {
-    auto tmp = *this;
-    ++*this;
-    return tmp;
-  }
+  auto operator++(int) noexcept -> appender { return *this; }
 };
 
 // A formatting argument. It is a trivially copyable/constructible type to
@@ -1516,7 +1551,7 @@ template <typename Context> class basic_format_arg {
 
   constexpr basic_format_arg() : type_(detail::type::none_type) {}
 
-  constexpr explicit operator bool() const FMT_NOEXCEPT {
+  constexpr explicit operator bool() const noexcept {
     return type_ != detail::type::none_type;
   }
 
@@ -1626,7 +1661,7 @@ class locale_ref {
   constexpr locale_ref() : locale_(nullptr) {}
   template <typename Locale> explicit locale_ref(const Locale& loc);
 
-  explicit operator bool() const FMT_NOEXCEPT { return locale_ != nullptr; }
+  explicit operator bool() const noexcept { return locale_ != nullptr; }
 
   template <typename Locale> auto get() const -> Locale;
 };
@@ -2452,7 +2487,7 @@ FMT_CONSTEXPR FMT_INLINE auto parse_format_specs(const Char* begin,
                                                  const Char* end,
                                                  SpecHandler&& handler)
     -> const Char* {
-  if (begin + 1 < end && begin[1] == '}' && is_ascii_letter(*begin) &&
+  if (1 < end - begin && begin[1] == '}' && is_ascii_letter(*begin) &&
       *begin != 'L') {
     presentation_type type = parse_presentation_type(*begin++);
     if (type == presentation_type::none)
@@ -3013,7 +3048,8 @@ template <typename Char, typename... Args> class basic_format_string {
              std::is_reference<Args>::value)...>() == 0,
         "passing views as lvalues is disallowed");
 #ifdef FMT_HAS_CONSTEVAL
-    if constexpr (detail::count_named_args<Args...>() == 0) {
+    if constexpr (detail::count_named_args<Args...>() ==
+                  detail::count_statically_named_args<Args...>()) {
       using checker = detail::format_string_checker<Char, detail::error_handler,
                                                     remove_cvref_t<Args>...>;
       detail::parse_format_string<true>(str_, checker(s, {}));
@@ -3065,7 +3101,8 @@ FMT_API auto vformat(string_view fmt, format_args args) -> std::string;
   \endrst
 */
 template <typename... T>
-FMT_INLINE auto format(format_string<T...> fmt, T&&... args) -> std::string {
+FMT_NODISCARD FMT_INLINE auto format(format_string<T...> fmt, T&&... args)
+    -> std::string {
   return vformat(fmt, fmt::make_format_args(args...));
 }
 
@@ -3132,7 +3169,8 @@ FMT_INLINE auto format_to_n(OutputIt out, size_t n, format_string<T...> fmt,
 
 /** Returns the number of chars in the output of ``format(fmt, args...)``. */
 template <typename... T>
-FMT_INLINE auto formatted_size(format_string<T...> fmt, T&&... args) -> size_t {
+FMT_NODISCARD FMT_INLINE auto formatted_size(format_string<T...> fmt,
+                                             T&&... args) -> size_t {
   auto buf = detail::counting_buffer<>();
   detail::vformat_to(buf, string_view(fmt), fmt::make_format_args(args...), {});
   return buf.count();
