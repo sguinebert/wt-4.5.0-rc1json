@@ -15,10 +15,6 @@
 #include <iosfwd>
 #include <locale>
 
-#include <string_view>
-#include "fmt/format.h"
-#include "fmt/core.h"
-
 namespace Wt {
 
 /*! \class WString Wt/WString.h Wt/WString.h
@@ -745,9 +741,6 @@ private:
   WString(const char *key, bool, ::uint64_t n = -1);
 
   std::string utf8_;
-
-  using ctx = fmt::format_context;
-  std::vector<fmt::basic_format_arg<ctx>> fmt_args_;
 
   std::string resolveKey(TextFormat format) const;
 
