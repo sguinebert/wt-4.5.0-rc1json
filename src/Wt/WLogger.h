@@ -32,10 +32,6 @@
 
 #ifndef WT_TARGET_JAVA
 
-struct Nullstream : std::ostream
-{
-  Nullstream() : std::ostream(0) {}
-};
 
 namespace Wt
 {
@@ -274,7 +270,6 @@ namespace Wt
 
     private:
       std::ostream *o_;
-      Nullstream nullstream_;
       bool nostream_ = false;
       bool ownStream_;
       std::vector<Field> fields_;
@@ -372,9 +367,10 @@ namespace Wt
         startField();
         if (impl_)
         {
-          char buf[100];
-          std::sprintf(buf, "%p", t);
-          impl_->line_ << buf;
+          fmt::format_to(std::ostream_iterator<char>(impl_.line_), "{}", static_cast<void*>(t));
+          //char buf[100];
+          //std::sprintf(buf, "%p", t);
+          //impl_->line_ << buf;
         }
         return *this;
       }
@@ -387,20 +383,23 @@ namespace Wt
         startField();
         if (impl_)
         {
-          using std::to_string;
-          impl_->line_ << to_string(t);
+          fmt::format_to(std::ostream_iterator<char>(impl_.line_), "{}", t);
+          //using std::to_string;
+          //impl_->line_ << to_string(t);
         }
         return *this;
       }
 
     private:
-      Nullstream nullstream_;
+      using ctx = fmt::format_context;
+      
       bool mute_ = false;
       struct Impl
       {
         const WLogger *logger_;
         const WLogSink *customLogger_;
         WStringStream line_;
+        std::vector<fmt::basic_format_arg<ctx>> fmt_args_;
         std::string type_, scope_;
         int field_;
         bool fieldStarted_;

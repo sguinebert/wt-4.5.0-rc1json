@@ -69,6 +69,10 @@ namespace Wt
                            .toString("yyyy-MMM-dd hh:mm:ss.zzz")
                            .toUTF8();
 
+      //fmt_args_.push_back(fmt::internal::make_arg<ctx>(dt));
+      fmt::format_to(std::ostream_iterator<char>(impl_.line_), "[{}]", dt);
+      return *this
+
       return *this << '[' << dt << ']';
     }
 #endif // WT_DBO_LOGGER
@@ -77,6 +81,11 @@ namespace Wt
     {
       if (mute_)
         return *this;
+
+      //fmt_args_.push_back(fmt::internal::make_arg<ctx>(s));
+      fmt::format_to(std::ostream_iterator<char>(impl_.line_), "{}", s);
+      return *this
+
       return *this << std::string(s);
     }
 
@@ -85,6 +94,11 @@ namespace Wt
     {
       if (mute_)
         return *this;
+
+      //fmt_args_.push_back(fmt::internal::make_arg<ctx>(s.toUTF8()));
+      fmt::format_to(std::ostream_iterator<char>(impl_.line_), "{}", s.toUTF8());
+      return *this
+
       return *this << s.toUTF8();
     }
 #endif // WT_DBO_LOGGER
@@ -93,6 +107,12 @@ namespace Wt
     {
       if (mute_)
         return *this;
+
+      //fmt_args_.push_back(fmt::internal::make_arg<ctx>(s));
+      fmt::format_to(std::ostream_iterator<char>(impl_.line_), "{}", s);
+      return *this
+
+
       if (impl_)
       {
         if (impl_->quote())
@@ -128,6 +148,10 @@ namespace Wt
         return *this;
       startField();
 
+      //fmt_args_.push_back(fmt::internal::make_arg<ctx>(v));
+      fmt::format_to(std::ostream_iterator<char>(impl_.line_), "{}", v);
+      return *this
+
       if (impl_)
         impl_->line_ << v;
 
@@ -140,6 +164,10 @@ namespace Wt
         return *this;
       startField();
 
+      //fmt_args_.push_back(fmt::internal::make_arg<ctx>(v));
+      fmt::format_to(std::ostream_iterator<char>(impl_.line_), "{}", v);
+      return *this
+
       if (impl_)
         impl_->line_ << v;
 
@@ -151,6 +179,10 @@ namespace Wt
       if (mute_)
         return *this;
       startField();
+
+      //fmt_args_.push_back(fmt::internal::make_arg<ctx>(v));
+      fmt::format_to(std::ostream_iterator<char>(impl_.line_), "{}", v);
+      return *this
 
       if (impl_)
         impl_->line_ << v;
@@ -165,6 +197,10 @@ namespace Wt
       if (mute_)
         return *this;
       startField();
+
+      //fmt_args_.push_back(fmt::internal::make_arg<ctx>(v));
+      fmt::format_to(std::ostream_iterator<char>(impl_.line_), "{}", v);
+      return *this
 
       if (impl_)
         impl_->line_ << v;
