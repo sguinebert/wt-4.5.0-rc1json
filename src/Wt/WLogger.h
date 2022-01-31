@@ -486,8 +486,9 @@ namespace Wt
 #define LOG_DEBUG(m)                             \
   do                                             \
   {                                              \
-    if (WT_LOGGING("debug", WT_LOGGER))          \
-      WT_LOG("debug") << WT_LOGGER << ": " << m; \
+   fmtlog::logd("[debug] {}: {}", WT_LOGGER, m);                \
+   // if (WT_LOGGING("debug", WT_LOGGER))          
+   //   WT_LOG("debug") << WT_LOGGER << ": " << m; 
   } while (0)
 #else
 #define LOG_DEBUG_S(s, m)
@@ -498,29 +499,32 @@ namespace Wt
 #define LOG_INFO(m)                             \
   do                                            \
   {                                             \
-    if (WT_LOGGING("info", WT_LOGGER))          \
-      WT_LOG("info") << WT_LOGGER << ": " << m; \
+    fmtlog::logi("[info] {}: {}", WT_LOGGER, m);               \
+      //WT_LOG("info") << WT_LOGGER << ": " << m; 
   } while (0)
 #define LOG_WARN_S(s, m) (s)->log("warning") << WT_LOGGER << ": " << m
 #define LOG_WARN(m)                                \
   do                                               \
   {                                                \
-    if (WT_LOGGING("warning", WT_LOGGER))          \
-      WT_LOG("warning") << WT_LOGGER << ": " << m; \
+     fmtlog::logw("[warning] {}: {}", WT_LOGGER, m);              \
+    //if (WT_LOGGING("warning", WT_LOGGER))          
+    //  WT_LOG("warning") << WT_LOGGER << ": " << m; 
   } while (0)
 #define LOG_SECURE_S(s, m) (s)->log("secure") << WT_LOGGER << ": " << m
 #define LOG_SECURE(m)                             \
   do                                              \
-  {                                               \
-    if (WT_LOGGING("secure", WT_LOGGER))          \
-      WT_LOG("secure") << WT_LOGGER << ": " << m; \
+  {                          
+   fmtlog::logw("[secure] {}: {}", WT_LOGGER, m);
+   // if (WT_LOGGING("secure", WT_LOGGER))          
+   //   WT_LOG("secure") << WT_LOGGER << ": " << m; 
   } while (0)
 #define LOG_ERROR_S(s, m) (s)->log("error") << WT_LOGGER << ": " << m
 #define LOG_ERROR(m)                             \
   do                                             \
   {                                              \
-    if (WT_LOGGING("error", WT_LOGGER))          \
-      WT_LOG("error") << WT_LOGGER << ": " << m; \
+   fmtlog::loge("[error] {}: {}", WT_LOGGER, m);                \
+   // if (WT_LOGGING("error", WT_LOGGER))          
+   //   WT_LOG("error") << WT_LOGGER << ": " << m; 
   } while (0)
 
 #else // WT_TARGET_JAVA
