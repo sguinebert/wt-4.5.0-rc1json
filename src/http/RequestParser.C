@@ -458,7 +458,7 @@ RequestParser::parseWebSocketMessage(Request& req, ReplyPtr reply,
 
 	return Request::Complete;
       } else {
-	LOG_INFO("ws: connect with protocol version " << req.webSocketVersion);
+	LOG_INFO("ws: connect with protocol version {}", req.webSocketVersion);
 	std::string accept = doWebSocketHandshake13(req);
 
 	if (accept.empty()) {
