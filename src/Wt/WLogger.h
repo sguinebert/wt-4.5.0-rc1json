@@ -542,14 +542,19 @@ public:
 
 #define LOG_DEBUG_S(s, m) logger.debug(std::stringstream() << m)
 #define LOG_DEBUG(m) logger.debug(std::stringstream() << m)
+#define LOG_DEBUG(m, args...) LOG_DEBUG(fmt::format(m, args)
 #define LOG_INFO_S(s, m) logger.info(std::stringstream() << m)
 #define LOG_INFO(m) logger.info(std::stringstream() << m)
+#define LOG_INFO(m, args...) LOG_INFO(fmt::format(m, args))
 #define LOG_WARN_S(s, m) logger.warn(std::stringstream() << m)
 #define LOG_WARN(m) logger.warn(std::stringstream() << m)
+#define LOG_WARN(m, args...) LOG_WARN(fmt::format(m, args))
 #define LOG_SECURE_S(s, m) logger.warn(std::stringstream() << "secure:" << m)
 #define LOG_SECURE(m) logger.warn(std::stringstream() << "secure:" << m)
+#define LOG_SECURE(m, args...) LOG_SECURE(fmt::format("secure:" + m, args))
 #define LOG_ERROR_S(s, m) logger.error(std::stringstream() << m)
 #define LOG_ERROR(m) logger.error(std::stringstream() << m)
+#define LOG_ERROR(m, args...) LOG_ERROR(fmt::format(m, args))
 
 #endif // WT_TARGET_JAVA
 
