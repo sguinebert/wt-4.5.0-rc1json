@@ -160,7 +160,7 @@ FontSupport::FontMatch FontSupport::matchFont(const WFont& font,
 {
   if (!FileUtils::exists(directory)
       || !FileUtils::isDirectory(directory)) {
-    LOG_ERROR("cannot read directory '" << directory << "'");
+    LOG_ERROR("cannot read directory '{}'", directory);
     return FontMatch();
   }
 

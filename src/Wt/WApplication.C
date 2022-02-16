@@ -682,7 +682,7 @@ void WApplication::useStyleSheet(const WLinkedCssStyleSheet& styleSheet,
 	    if (invert)
 	      display = !display;
 	  } catch (std::exception& e) {
-	    LOG_ERROR("Could not parse condition: '" << condition << "'");
+	    LOG_ERROR("Could not parse condition: '{}'", condition);
 	  }
 	  r.clear();
 	}
@@ -804,13 +804,13 @@ void WApplication::doIdleTimeout()
 void WApplication::idleTimeout()
 {
   const Configuration& conf = environment().server()->configuration();
-  LOG_INFO("User idle for " << conf.idleTimeout() << " seconds, quitting due to idle timeout");
+  LOG_INFO("User idle for {} seconds, quitting due to idle timeout", conf.idleTimeout());
   quit();
 }
 
 void WApplication::handleJavaScriptError(const std::string& errorText)
 {
-  LOG_ERROR("JavaScript error: " << errorText);
+  LOG_ERROR("JavaScript error: {}", errorText);
   quit();
 }
 

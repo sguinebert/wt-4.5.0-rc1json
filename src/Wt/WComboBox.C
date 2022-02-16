@@ -346,7 +346,7 @@ void WComboBox::setFormData(const FormData& formData)
       try {
 	currentIndex_ = Utils::stoi(value);
       } catch (std::exception& e) {
-	LOG_ERROR("received illegal form value: '" << value << "'");
+	LOG_ERROR("received illegal form value: '{}'", value);
       }
     } else
       currentIndex_ = -1;

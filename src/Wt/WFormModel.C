@@ -59,7 +59,7 @@ void WFormModel::setReadOnly(Field field, bool readOnly)
   if (i != fields_.end())
     i->second.readOnly = readOnly;
   else
-    LOG_ERROR("setReadOnly(): " << field << " not in model");
+    LOG_ERROR("setReadOnly(): {} not in model", field);
 }
 
 bool WFormModel::isReadOnly(Field field) const
@@ -79,7 +79,7 @@ void WFormModel::setVisible(Field field, bool visible)
   if (i != fields_.end())
     i->second.visible = visible;
   else
-    LOG_ERROR("setVisible(): " << field << " not in model");
+    LOG_ERROR("setVisible(): {} not in model", field);
 }
 
 bool WFormModel::isVisible(Field field) const
@@ -128,7 +128,7 @@ void WFormModel::setValidator(Field field,
     FieldData& d = i->second;
     d.validator = validator;
   } else
-    LOG_ERROR("setValidator(): " << field << " not in model");
+    LOG_ERROR("setValidator(): {} not in model", field);
 }
 
 std::shared_ptr<WValidator> WFormModel::validator(Field field) const
@@ -217,7 +217,7 @@ void WFormModel::setValidated(Field field, bool validated)
   if (i != fields_.end())
     i->second.validated = validated;
   else
-    LOG_ERROR("setValidated(): " << field << " not in model");
+    LOG_ERROR("setValidated(): {} not in model", field);
 }
 
 void WFormModel::setValidation(Field field,
@@ -229,7 +229,7 @@ void WFormModel::setValidation(Field field,
     i->second.validation = result;
     setValidated(field, true);
   } else
-    LOG_ERROR("setValidation(): " << field << " not in model");
+    LOG_ERROR("setValidation(): {} not in model", field);
 }
 
 const WValidator::Result& WFormModel::validation(Field field) const

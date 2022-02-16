@@ -141,7 +141,7 @@ void Server::execChild(bool debug, const std::string& extraArg)
   for (unsigned i = 0; ; ++i) {
     if (argv[i] == 0)
       break;
-    LOG_DEBUG("argv[" << i << "]: " << argv[i]);
+    LOG_DEBUG("argv[{}]: ", argv[i]);
   }
 
 #ifdef WT_THREADED

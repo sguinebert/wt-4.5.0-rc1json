@@ -128,7 +128,7 @@ void WPointF::assignFromJSON(const Json::Value &value)
       LOG_ERROR("Couldn't convert JSON to WPointF");
     }
   } catch (std::exception &e) {
-    LOG_ERROR("Couldn't convert JSON to WPointF: " + std::string(e.what()));
+    LOG_ERROR("Couldn't convert JSON to WPointF: {}", e.what());
   }
 }
 

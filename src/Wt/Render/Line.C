@@ -236,7 +236,7 @@ void Line::finish(AlignmentFlag textAlign,
     }
     break;
   default:
-    LOG_ERROR("unsupported text-align attribute: " << (int)textAlign);
+    LOG_ERROR("unsupported text-align attribute: {}", (int)textAlign);
   }
 
   double x = rangeX.start;

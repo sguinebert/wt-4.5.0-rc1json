@@ -800,8 +800,7 @@ bool WebRenderer::checkResponsePuzzle(const WebRequest& request)
       fail = true;
    
     if (fail) {
-      LOG_SECURE("Ajax puzzle fail: '" << ackPuzzle << "' vs '"
-		 << solution_ << '\'');
+      LOG_SECURE("Ajax puzzle fail: '{}' vs '{}'", ackPuzzle, solution_);
 
       solution_.clear();
 

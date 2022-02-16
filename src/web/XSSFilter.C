@@ -28,7 +28,7 @@ void XSSSanitize(xml_node<> *x_node)
     std::string const value(x_attr->value(), x_attr->value_size());
     if (Wt::XSS::isBadAttribute(x_attr->name())
 	|| Wt::XSS::isBadAttributeValue(x_attr->name(), x_attr->value())) {
-      LOG_SECURE("discarding invalid attribute: " << name << ": " << value);
+      LOG_SECURE("discarding invalid attribute: {}: {}", name, value);
       x_node->remove_attribute(x_attr);
     }
 
@@ -40,7 +40,7 @@ void XSSSanitize(xml_node<> *x_node)
 
     std::string const name(x_child->name(), x_child->name_size());
     if (Wt::XSS::isBadTag(name)) {
-      LOG_SECURE("discarding invalid tag: " << name);
+      LOG_SECURE("discarding invalid tag: {}", name);
       x_node->remove_node(x_child);
     } else
       XSSSanitize(x_child);
@@ -84,7 +84,7 @@ bool XSSFilterRemoveScript(WString& text)
     print(out.back_inserter(), *doc.first_node(), print_no_indenting);
     result = out.str();
   } catch (parse_error& e) {
-    LOG_ERROR("Error reading XHTML string: " << e.what());
+    LOG_ERROR("Error reading XHTML string: {}", e.what());
     return false;
   }
 

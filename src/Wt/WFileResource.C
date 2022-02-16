@@ -42,7 +42,7 @@ void WFileResource::handleRequest(const Http::Request& request,
 {
   std::ifstream r(fileName_.c_str(), std::ios::in | std::ios::binary);
   if (!r) {
-    LOG_ERROR("Could not open file for reading: " << fileName_);
+    LOG_ERROR("Could not open file for reading: {}", fileName_);
   }
   handleRequestPiecewise(request, response, r);
 }

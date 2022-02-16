@@ -168,7 +168,7 @@ std::vector<Wt::Http::Message::Header> WebSocketMessage::headers() const
 
 void WebSocketMessage::error(const std::string& msg) const
 {
-  LOG_ERROR("WebSocketMessage error: " + msg);
+  LOG_ERROR("WebSocketMessage error: {}", msg);
 }
 
 WebRequest *WebSocketMessage::webSocket() const

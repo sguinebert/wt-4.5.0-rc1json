@@ -132,7 +132,7 @@ namespace Wt
         if (error)
         {
           close();
-          LOG_ERROR("could not connect to: " << host << ":" << port);
+          LOG_ERROR("could not connect to: {}: {}", host, port);
           return;
         }
 
@@ -511,11 +511,10 @@ namespace Wt
         WApplication::readConfigurationProperty("smtp-self-host", configuration_.selfHost_);
 
         if (!logged)
-          LOG_INFO("using '" << configuration_.selfHost_ << "' (from smtp-self-host property) "
-                                                            "as self host");
+          LOG_INFO("using '{}' (from smtp-self-host property) as self host", configuration_.selfHost_);
       }
       else if (!logged)
-        LOG_INFO("using '" << configuration_.selfHost_ << "' as self host");
+        LOG_INFO("using '{}' as self host", configuration_.selfHost_);
 
       {
         std::string authMethod = "none";
@@ -610,8 +609,7 @@ namespace Wt
       int smtpPort = Utils::stoi(smtpPortStr);
 
       if (!logged)
-        LOG_INFO("using '" << smtpHost << ":" << smtpPortStr
-                           << "' (from smtp-host and smtp-port properties) as SMTP host");
+        LOG_INFO("using '{}:{}' (from smtp-host and smtp-port properties) as SMTP host", smtpHost, smtpPortStr);
 
       return connect(smtpHost, smtpPort);
     }
@@ -620,7 +618,7 @@ namespace Wt
     {
       if (!logged)
       {
-        LOG_INFO("connecting to '" << smtpHost << ':' << smtpPort << '\'');
+        LOG_INFO("connecting to '{}:{}'", smtpHost, smtpPort);
         logged = true;
       }
 

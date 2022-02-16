@@ -89,7 +89,7 @@ double WPdfRenderer::margin(Side side) const
   case Side::Left:
     return margin_[3] / CmPerInch * dpi_;
   default:
-    LOG_ERROR("margin(Side) with invalid side" << (int)side);
+    LOG_ERROR("margin(Side) with invalid side {}", (int)side);
     return 0;
   }
 }

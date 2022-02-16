@@ -64,7 +64,7 @@ bool PasswordVerifier::verify(const WString& password,
       return f.verify(password.toUTF8(), hash.salt(), hash.value());
   }
 
-  LOG_ERROR("verify() no hash configured for " << hash.function());
+  LOG_ERROR("verify() no hash configured for {}", hash.function());
 
   return false;
 }

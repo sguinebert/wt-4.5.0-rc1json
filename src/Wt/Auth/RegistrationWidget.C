@@ -169,16 +169,14 @@ void RegistrationWidget::oAuthDone(OAuthProcess *oauth,
 				   const Identity& identity)
 {
   if (identity.isValid()) {
-    LOG_SECURE(oauth->service().name() << ": identified: as "
-	       << identity.id() << ", " << identity.name() << ", "
-	       << identity.email());
+    LOG_SECURE("{}: identified: as {}, {}, {}", oauth->service().name(), identity.id(), identity.name(), identity.email());
 
     if (!model_->registerIdentified(identity))
       update();
   } else {
     if (authWidget_)
       authWidget_->displayError(oauth->error());
-    LOG_SECURE(oauth->service().name() << ": error: " << oauth->error());
+    LOG_SECURE("{}: error: {}", oauth->service().name(), oauth->error());
   }
 }
 

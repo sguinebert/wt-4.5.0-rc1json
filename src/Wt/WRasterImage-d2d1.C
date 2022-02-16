@@ -184,9 +184,9 @@ public:
       HRESULT hr = rt_->EndDraw(&tag1, &tag2);
       if (!SUCCEEDED(hr)) {
 #ifdef DEBUG_D2D
-        LOG_ERROR("D2D error during drawing: HRESULT " << hr << ", active tags: tag1: " << tag1 << ", tag2: " << tag2);
+        LOG_ERROR("D2D error during drawing: HRESULT {}, active tags: tag1: {}, tage2: {}", hr, tag1, tag2);
 #else
-        LOG_ERROR("D2D error during drawing: HRESULT " << hr);
+        LOG_ERROR("D2D error during drawing: HRESULT {}", hr);
 #endif
       }
     }
@@ -213,9 +213,9 @@ public:
     HRESULT hr = rt_->EndDraw(&tag1, &tag2);
     if (!SUCCEEDED(hr)) {
 #ifdef DEBUG_D2D
-      LOG_ERROR("D2D error during drawing: HRESULT " << hr << ", active tags: tag1: " << tag1 << ", tag2: " << tag2);
+      LOG_ERROR("D2D error during drawing: HRESULT {}, active tags: tag1: {}, tage2: {}", hr, tag1, tag2);
 #else
-      LOG_ERROR("D2D error during drawing: HRESULT " << hr);
+      LOG_ERROR("D2D error during drawing: HRESULT {}", hr);
 #endif
     }
   }
@@ -465,7 +465,7 @@ void WRasterImage::setChanged(WFlags<PainterChangeFlag> flags)
       impl_->setTransform(painter()->combinedTransform());
     }
     if (!SUCCEEDED(hr)) {
-      LOG_ERROR("D2D error when creating clip path: HRESULT " << hr);
+      LOG_ERROR("D2D error when creating clip path: HRESULT {}", hr);
     }
   }
 
@@ -807,7 +807,7 @@ void WRasterImage::getPixels(void *data)
   impl_->suspendDraw();
   HRESULT hr = impl_->bitmap_->CopyPixels(NULL, impl_->w_ * 4, impl_->w_ * impl_->h_ * 4, (BYTE *)data);
   if (!SUCCEEDED(hr)) {
-    LOG_ERROR("D2D error when getting pixels: HRESULT " << hr);
+    LOG_ERROR("D2D error when getting pixels: HRESULT {}", hr);
   }
   impl_->resumeDraw();
 }
@@ -819,7 +819,7 @@ WColor WRasterImage::getPixel(int x, int y)
   BYTE data[4] = { 0, 0, 0, 0 };
   HRESULT hr = impl_->bitmap_->CopyPixels(&rect, impl_->w_ * 4, 4, data);
   if (!SUCCEEDED(hr)) {
-    LOG_ERROR("D2D error when getting pixel " << x << "," << y << ": HRESULT " << hr);
+    LOG_ERROR("D2D error when getting pixel {}, {}: HRESULT {}", x , y, hr);
   }
   impl_->resumeDraw();
 
@@ -1159,7 +1159,7 @@ void WRasterImage::handleRequest(const Http::Request& request,
     hr = encoder->Commit();
   }
   if (!SUCCEEDED(hr)) {
-    LOG_ERROR("Error while serving raster image resource: HRESULT " << hr);
+    LOG_ERROR("Error while serving raster image resource: HRESULT {}", hr);
     response.setStatus(500);
   }
 

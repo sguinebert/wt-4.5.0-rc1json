@@ -577,7 +577,7 @@ void WTransform::assignFromJSON(const Json::Value &value)
       LOG_ERROR("Couldn't convert JSON to WTransform");
     }
   } catch (std::exception &e) {
-    LOG_ERROR("Couldn't convert JSON to WTransform: " + std::string(e.what()));
+    LOG_ERROR("Couldn't convert JSON to WTransform: {}", std::string(e.what()));
   }
 }
 

@@ -59,7 +59,7 @@ Transaction::~Transaction() noexcept(false)
       if (impl_->transactionCount_ == 1)
         rollback();
         } catch (std::exception &e) {
-          LOG_ERROR("Unexpected exception during Transaction::rollback(): " << e.what());
+          LOG_ERROR("Unexpected exception during Transaction::rollback(): {}", e.what());
     } catch (...) {
       LOG_ERROR("Unexpected exception during Transaction::rollback()");
     }
@@ -172,7 +172,7 @@ void Transaction::Impl::rollback()
     if (open_)
       connection_->rollbackTransaction();
   } catch (const std::exception& e) {
-    LOG_ERROR("Transaction::rollback(): " << e.what());
+    LOG_ERROR("Transaction::rollback(): {}", e.what());
   }
 
   for (unsigned i = 0; i < objects_.size(); ++i) {

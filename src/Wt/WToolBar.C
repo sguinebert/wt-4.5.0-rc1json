@@ -94,24 +94,30 @@ void WToolBar::addSeparator()
 
 void WToolBar::setCompact(bool compact)
 {
-  if (compact != compact_) {
+  if (compact != compact_)
+  {
     compact_ = compact;
 
-    if (compact) {
+    if (compact)
+    {
       if (impl_->count() > 0)
-	LOG_INFO("setCompact(true): not implemented");
+        LOG_INFO("setCompact(true): not implemented");
       setStyleClass("btn-group");
-    } else {
+    }
+    else
+    {
       setStyleClass("btn-toolbar");
-      if (impl_->count() > 0) {
-	std::unique_ptr<WContainerWidget> group(new WContainerWidget());
-	group->setStyleClass("btn-group");
-	while (impl_->count() > 0) {
-	  auto w = impl_->removeWidget(impl_->widget(0));
-	  group->addWidget(std::move(w));
-	}
-	lastGroup_ = group.get();
-	impl_->addWidget(std::move(group));
+      if (impl_->count() > 0)
+      {
+        std::unique_ptr<WContainerWidget> group(new WContainerWidget());
+        group->setStyleClass("btn-group");
+        while (impl_->count() > 0)
+        {
+          auto w = impl_->removeWidget(impl_->widget(0));
+          group->addWidget(std::move(w));
+        }
+        lastGroup_ = group.get();
+        impl_->addWidget(std::move(group));
       }
     }
   }

@@ -148,7 +148,7 @@ void WEnvironment::init(const WebRequest& request)
   setUserAgent(str(request.headerValue("User-Agent")));
   updateUrlScheme(request);
 
-  LOG_INFO("UserAgent: " << userAgent_);
+  LOG_INFO("UserAgent: {}", userAgent_);
 
   /*
    * If behind a reverse proxy, use external host, schema as communicated using 'X-Forwarded'

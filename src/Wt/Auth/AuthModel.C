@@ -139,8 +139,7 @@ bool AuthModel::validateField(Field field)
 	setValidated(PasswordField, false);
 
 	throttlingDelay_ = passwordAuth()->delayForNextAttempt(user);
-	LOG_SECURE("throttling: " << throttlingDelay_
-		   << " seconds for " << user.identity(Identity::LoginName));
+	LOG_SECURE("throttling: {} seconds for {}", throttlingDelay_, user.identity(Identity::LoginName));
 
 	return false;
       case PasswordResult::PasswordValid:

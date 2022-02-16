@@ -16,6 +16,8 @@
 #include "WebSession.h"
 #endif // WT_DBO_LOGGER
 
+#include "fmtlog.h"
+
 #include "StringUtils.h"
 
 namespace Wt
@@ -70,8 +72,8 @@ namespace Wt
                            .toUTF8();
 
       //fmt_args_.push_back(fmt::internal::make_arg<ctx>(dt));
-      fmt::format_to(std::ostream_iterator<char>(impl_.line_), "[{}]", dt);
-      return *this
+      // fmt::format_to(std::ostream_iterator<char>(impl_.line_), "[{}]", dt);
+      // return *this;
 
       return *this << '[' << dt << ']';
     }
@@ -83,8 +85,8 @@ namespace Wt
         return *this;
 
       //fmt_args_.push_back(fmt::internal::make_arg<ctx>(s));
-      fmt::format_to(std::ostream_iterator<char>(impl_.line_), "{}", s);
-      return *this
+      // fmt::format_to(std::ostream_iterator<char>(impl_.line_), "{}", s);
+      // return *this;
 
       return *this << std::string(s);
     }
@@ -96,8 +98,8 @@ namespace Wt
         return *this;
 
       //fmt_args_.push_back(fmt::internal::make_arg<ctx>(s.toUTF8()));
-      fmt::format_to(std::ostream_iterator<char>(impl_.line_), "{}", s.toUTF8());
-      return *this
+      // fmt::format_to(std::ostream_iterator<char>(impl_.line_), "{}", s.toUTF8());
+      // return *this;
 
       return *this << s.toUTF8();
     }
@@ -109,8 +111,8 @@ namespace Wt
         return *this;
 
       //fmt_args_.push_back(fmt::internal::make_arg<ctx>(s));
-      fmt::format_to(std::ostream_iterator<char>(impl_.line_), "{}", s);
-      return *this
+      // fmt::format_to(std::ostream_iterator<char>(impl_.line_), "{}", s);
+      // return *this;
 
 
       if (impl_)
@@ -149,8 +151,8 @@ namespace Wt
       startField();
 
       //fmt_args_.push_back(fmt::internal::make_arg<ctx>(v));
-      fmt::format_to(std::ostream_iterator<char>(impl_.line_), "{}", v);
-      return *this
+      // fmt::format_to(std::ostream_iterator<char>(impl_.line_), "{}", v);
+      // return *this;
 
       if (impl_)
         impl_->line_ << v;
@@ -165,8 +167,8 @@ namespace Wt
       startField();
 
       //fmt_args_.push_back(fmt::internal::make_arg<ctx>(v));
-      fmt::format_to(std::ostream_iterator<char>(impl_.line_), "{}", v);
-      return *this
+      // fmt::format_to(std::ostream_iterator<char>(impl_.line_), "{}", v);
+      // return *this;
 
       if (impl_)
         impl_->line_ << v;
@@ -181,8 +183,8 @@ namespace Wt
       startField();
 
       //fmt_args_.push_back(fmt::internal::make_arg<ctx>(v));
-      fmt::format_to(std::ostream_iterator<char>(impl_.line_), "{}", v);
-      return *this
+      // fmt::format_to(std::ostream_iterator<char>(impl_.line_), "{}", v);
+      // return *this;
 
       if (impl_)
         impl_->line_ << v;
@@ -199,8 +201,8 @@ namespace Wt
       startField();
 
       //fmt_args_.push_back(fmt::internal::make_arg<ctx>(v));
-      fmt::format_to(std::ostream_iterator<char>(impl_.line_), "{}", v);
-      return *this
+      // fmt::format_to(std::ostream_iterator<char>(impl_.line_), "{}", v);
+      // return *this;
 
       if (impl_)
         impl_->line_ << v;
@@ -367,7 +369,7 @@ namespace Wt
 
       if (ofs->is_open())
       {
-        LOG_INFO("Opened log file (" << path << ").");
+        LOG_INFO(fmt::format("Opened log file ({}).", path));
         o_ = ofs;
         ownStream_ = true;
       }
@@ -375,8 +377,7 @@ namespace Wt
       {
         delete ofs;
 
-        LOG_ERROR("Could not open log file (" << path << "). "
-                                                         "We will be logging to std::cerr again.");
+        LOG_ERROR("Could not open log file ({}). We will be logging to std::cerr again.", path);
         o_ = &std::cerr;
         ownStream_ = false;
       }

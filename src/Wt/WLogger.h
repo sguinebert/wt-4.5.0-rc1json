@@ -367,10 +367,10 @@ namespace Wt
         startField();
         if (impl_)
         {
-          fmt::format_to(std::ostream_iterator<char>(impl_.line_), "{}", static_cast<void*>(t));
-          //char buf[100];
-          //std::sprintf(buf, "%p", t);
-          //impl_->line_ << buf;
+          //fmt::format_to(std::ostream_iterator<char>(impl_.line_), "{}", static_cast<void*>(t));
+          char buf[100];
+          std::sprintf(buf, "%p", t);
+          impl_->line_ << buf;
         }
         return *this;
       }
@@ -383,9 +383,9 @@ namespace Wt
         startField();
         if (impl_)
         {
-          fmt::format_to(std::ostream_iterator<char>(impl_.line_), "{}", t);
-          //using std::to_string;
-          //impl_->line_ << to_string(t);
+         //  fmt::format_to(std::ostream_iterator<char>(impl_.line_), "{}", t);
+          using std::to_string;
+          impl_->line_ << to_string(t);
         }
         return *this;
       }
@@ -483,49 +483,72 @@ namespace Wt
 
 #ifdef WT_DEBUG_ENABLED
 #define LOG_DEBUG_S(s, m) (s)->log("debug") << WT_LOGGER << ": " << m
-#define LOG_DEBUG(m)                             \
+#define LOG_DEBUG(m, args...)                             \
   do                                             \
   {                                              \
-   fmtlog::logd("[debug] {}: {}", WT_LOGGER, m);                \
-   // if (WT_LOGGING("debug", WT_LOGGER))          
-   //   WT_LOG("debug") << WT_LOGGER << ": " << m; 
   } while (0)
 #else
 #define LOG_DEBUG_S(s, m)
-#define LOG_DEBUG(m)
+#define LOG_DEBUG(m, args...)
 #endif
 
 #define LOG_INFO_S(s, m) (s)->log("info") << WT_LOGGER << ": " << m
-#define LOG_INFO(m)                             \
+#define LOG_INFO(m, ...)                             \
   do                                            \
   {                                             \
-    fmtlog::logi("[info] {}: {}", WT_LOGGER, m);               \
-      //WT_LOG("info") << WT_LOGGER << ": " << m; 
+      logi("[info] {}: {}", WT_LOGGER, fmt::format(m, ##__VA_ARGS__));                   \
   } while (0)
 #define LOG_WARN_S(s, m) (s)->log("warning") << WT_LOGGER << ": " << m
-#define LOG_WARN(m)                                \
-  do                                               \
-  {                                                \
-     fmtlog::logw("[warning] {}: {}", WT_LOGGER, m);              \
-    //if (WT_LOGGING("warning", WT_LOGGER))          
-    //  WT_LOG("warning") << WT_LOGGER << ": " << m; 
-  } while (0)
+#define LOG_WARN(m, args...) //fmtlog::FMTLOG(fmtlog::INF, "[info] ")
 #define LOG_SECURE_S(s, m) (s)->log("secure") << WT_LOGGER << ": " << m
-#define LOG_SECURE(m)                             \
+#define LOG_SECURE(m, ...)                             \
   do                                              \
-  {                          
-   fmtlog::logw("[secure] {}: {}", WT_LOGGER, m);
-   // if (WT_LOGGING("secure", WT_LOGGER))          
-   //   WT_LOG("secure") << WT_LOGGER << ": " << m; 
+  {                                               \
+      logw("[secure] {}: {}", WT_LOGGER, fmt::format(m, ##__VA_ARGS__));                   \
   } while (0)
 #define LOG_ERROR_S(s, m) (s)->log("error") << WT_LOGGER << ": " << m
-#define LOG_ERROR(m)                             \
+#define LOG_ERROR(format, ...)                             \
   do                                             \
   {                                              \
-   fmtlog::loge("[error] {}: {}", WT_LOGGER, m);                \
-   // if (WT_LOGGING("error", WT_LOGGER))          
-   //   WT_LOG("error") << WT_LOGGER << ": " << m; 
+      loge("[error] {}: {}", WT_LOGGER, fmt::format(m, ##__VA_ARGS__));                   \    
   } while (0)
+
+// #ifdef WT_DEBUG_ENABLED
+// #define LOG_DEBUG_S(s, m) (s)->log("debug") << WT_LOGGER << ": " << m
+// #define LOG_DEBUG(m, args...)                             \
+//   do                                             \
+//   {                                              \
+//    logd("[debug] {}: {}", WT_LOGGER, fmt::format(m, args)); \
+//   } while (0)
+// #else
+// #define LOG_DEBUG_S(s, m)
+// #define LOG_DEBUG(m, args...)
+// #endif
+
+// #define LOG_INFO_S(s, m) (s)->log("info") << WT_LOGGER << ": " << m
+// #define LOG_INFO(m, args...)                             \
+//   do                                            \
+//   {                                             \
+//     logi("[info] {}: {}", WT_LOGGER, fmt::format(m, args));               \
+//   } while (0)
+// #define LOG_WARN_S(s, m) (s)->log("warning") << WT_LOGGER << ": " << m
+// #define LOG_WARN(m, args...)                                 \
+//   do                                                \
+//   {                                                 \
+//      logw("[warning] {}: {}", WT_LOGGER, fmt::format(m, args));\
+//   } while (0)
+// #define LOG_SECURE_S(s, m) (s)->log("secure") << WT_LOGGER << ": " << m
+// #define LOG_SECURE(m, args...)                             \
+//   do                                              \
+//   {                                               \
+//    logw("[secure] {}: {}", WT_LOGGER, fmt::format(m, args)); \
+//   } while (0)
+// #define LOG_ERROR_S(s, m) (s)->log("error") << WT_LOGGER << ": " << m
+// #define LOG_ERROR(m, args...)                             \
+//   do                                             \
+//   {                                              \
+//    loge("[error] {}: {}", WT_LOGGER, fmt::format(m, args)); \
+//   } while (0)
 
 #else // WT_TARGET_JAVA
 
@@ -542,7 +565,7 @@ public:
 
 #define LOG_DEBUG_S(s, m) logger.debug(std::stringstream() << m)
 #define LOG_DEBUG(m) logger.debug(std::stringstream() << m)
-#define LOG_DEBUG(m, args...) LOG_DEBUG(fmt::format(m, args)
+#define LOG_DEBUG(m, args...) LOG_DEBUG(fmt::format(m, args))
 #define LOG_INFO_S(s, m) logger.info(std::stringstream() << m)
 #define LOG_INFO(m) logger.info(std::stringstream() << m)
 #define LOG_INFO(m, args...) LOG_INFO(fmt::format(m, args))

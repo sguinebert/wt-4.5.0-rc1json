@@ -64,7 +64,7 @@ void OidcUserInfoEndpoint::handleRequest(const Http::Request& request, Http::Res
   if (!accessToken.checkValid() || WDateTime::currentDateTime() > accessToken.expirationTime()) {
     response.setStatus(401);
     response.addHeader("WWW-Authenticate", "error=\"invalid_token\"");
-    LOG_INFO("error=\"invalid_token\" " << authHeader);
+    LOG_INFO("error=\"invalid_token\" {}", authHeader);
     return;
   }
   response.setMimeType("application/json");
@@ -77,7 +77,7 @@ void OidcUserInfoEndpoint::handleRequest(const Http::Request& request, Http::Res
   try {
 #endif
     response.out() << Json::serialize(generateUserInfo(user, scopeSet)) << std::endl;
-    LOG_INFO("Response sent for " << user.id() << "(" << db_->email(user) << ")");
+    LOG_INFO("Response sent for {}({})", user.id(), db_->email(user));
 #ifdef WT_TARGET_JAVA
   } catch (std::io_exception ioe) {
     LOG_ERROR(ioe.message());

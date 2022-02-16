@@ -146,7 +146,7 @@ void WSelectionBox::setFormData(const FormData& formData)
 	  int i = Utils::stoi(v);
 	  selection_.insert(i);
 	} catch (std::exception& e) {
-	  LOG_ERROR("received illegal form value: '" << v << "'");
+	  LOG_ERROR("received illegal form value: '{}'", v);
 	}
       }
     }

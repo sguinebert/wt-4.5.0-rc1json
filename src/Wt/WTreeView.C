@@ -289,7 +289,7 @@ private:
 void RowSpacer::setRows(int height, bool force)
 {
   if (height < 0) {
-    LOG_ERROR("RowSpacer::setRows() with heigth " << height);
+    LOG_ERROR("RowSpacer::setRows() with heigth {}", height);
     height = 0;
   }
 
@@ -1645,8 +1645,7 @@ WModelIndex WTreeView::calculateModelIndex(std::string nodeAndColumnId)
     try {
       columnId = Utils::stoi(std::string(nodeAndColumnSplit[1]));
     } catch (std::exception& e) {
-      LOG_ERROR("WTreeview::calculateModelIndex: bad value for format 1: "
-		<< nodeAndColumnSplit[1]);
+      LOG_ERROR("WTreeview::calculateModelIndex: bad value for format 1: {}", nodeAndColumnSplit[1]);
     }
 
     int column = (columnId == 0 ? 0 : -1);
@@ -1669,7 +1668,7 @@ WModelIndex WTreeView::calculateModelIndex(std::string nodeAndColumnId)
       if (c0index.isValid())
 	index = model()->index(c0index.row(), column, c0index.parent());
       else
-        LOG_ERROR("WTreeView::calculateModelIndex: illegal node id: " << nodeId);
+        LOG_ERROR("WTreeView::calculateModelIndex: illegal node id: {}", nodeId);
     }
   }
   return index;

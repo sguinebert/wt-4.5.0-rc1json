@@ -158,8 +158,7 @@ void WtReply::consumeRequestBody(const char *begin,
           f_in->open(requestFileName_.c_str(),
             std::ios::out | std::ios::binary | std::ios::app);
           if (!*f_in) {
-            LOG_ERROR("error opening spool file for request that exceeds "
-              "max-memory-request-size: " << requestFileName_);
+            LOG_ERROR("error opening spool file for request that exceeds max-memory-request-size: {}", requestFileName_);
             // Give up
             setStatus(internal_server_error);
             setCloseConnection();
@@ -214,7 +213,7 @@ void WtReply::consumeRequestBody(const char *begin,
           dynamic_cast<std::fstream *>(in_)->open(requestFileName_.c_str(),
             std::ios::in | std::ios::binary );
           if (!*in_) {
-            LOG_ERROR("error opening spooled request " << requestFileName_);
+            LOG_ERROR("error opening spooled request {}", requestFileName_);
             setStatus(internal_server_error);
             setCloseConnection();
             state = Request::Error;
@@ -328,8 +327,7 @@ bool WtReply::consumeWebSocketMessage(ws_opcode opcode,
 {
   if (static_cast< ::int64_t>(in_mem_.tellp()) + static_cast< ::int64_t>(end - begin) >
       configuration().maxMemoryRequestSize()) {
-    LOG_ERROR("Rejecting WebSocket message because it exceeds "
-              "--max-memory-request-size (= " << configuration().maxMemoryRequestSize() << " bytes)");
+    LOG_ERROR("Rejecting WebSocket message because it exceeds --max-memory-request-size (= {} bytes", configuration().maxMemoryRequestSize());
     state = Request::Error;
   } else {
     in_mem_.write(begin, static_cast<std::streamsize>(end - begin));
@@ -659,8 +657,7 @@ void WtReply::formatResponse(std::vector<asio::const_buffer>& result)
       }
       break;
     default:
-      LOG_ERROR("ws: encoding for version " <<
-		request().webSocketVersion << " is not implemented");
+      LOG_ERROR("ws: encoding for version {} is not implemented", request().webSocketVersion);
 
       sending_ = 0;
       // FIXME: set something to close the connection
@@ -674,7 +671,7 @@ bool WtReply::nextContentBuffers(std::vector<asio::const_buffer>& result)
 {
   sending_ = out_buf_.size();
 
-  LOG_DEBUG("avail now: " << sending_);
+  LOG_DEBUG("avail now: {}", sending_);
 
   bool webSocket = request().type == Request::WebSocket;
 

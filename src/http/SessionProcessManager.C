@@ -159,7 +159,7 @@ void SessionProcessManager::processDeadChildren(Wt::AsioWrapper::error_code ec)
 #else
     if (ec != std::errc::operation_canceled) {
 #endif
-      LOG_ERROR("Error processing dead children: " << ec.message());
+      LOG_ERROR("Error processing dead children: {}", ec.message());
     }
     return;
   }
@@ -190,8 +190,7 @@ void SessionProcessManager::processDeadChildren(Wt::AsioWrapper::error_code ec)
 
   for (std::vector<std::string>::iterator it = toErase.begin();
        it != toErase.end(); ++it) {
-    LOG_INFO("Child process " << sessions_[*it]->processInfo().dwProcessId << " died, removing session " << *it
-	<< " (#sessions: " << (sessions_.size() - 1) << ")");
+    LOG_INFO("Child process {} died, removing session {} (#sessions: {})", sessions_[*it]->processInfo().dwProcessId, *it, (sessions_.size() - 1));
     sessions_[*it]->stop();
     sessions_.erase(*it);
     -- numSessions_;
@@ -247,8 +246,7 @@ void SessionProcessManager::logExit(pid_t cpid,
 
   if (status && status.get() == 0) {
     if (signal) {
-      LOG_INFO("Child process " << cpid << " terminated normally after "
-               "receiving signal: " << signal.get());
+      LOG_INFO("Child process {} terminated normally after receiving signal: {}", cpid, signal.get());
     } else {
       LOG_DEBUG("Child process " << cpid << " terminated normally");
     }
@@ -278,8 +276,7 @@ void SessionProcessManager::removeSessionForPid(pid_t cpid)
   for (SessionMap::iterator it = sessions_.begin();
        it != sessions_.end(); ++it) {
     if(it->second->pid() == cpid) {
-      LOG_INFO("Child process " << cpid << " died, removing session " << it->first
-	  << " (#sessions: " << (sessions_.size() - 1) << ")");
+      LOG_INFO("Child process {} died, removing session {} (#sessions: {})", cpid, it->first, (sessions_.size() - 1));
       it->second->stop();
       sessions_.erase(it);
       -- numSessions_;

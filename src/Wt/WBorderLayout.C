@@ -84,7 +84,7 @@ Impl::Grid::Item& WBorderLayout::itemAtPosition(LayoutPosition position)
   case LayoutPosition::West: return grid_.items_[1][0];
   case LayoutPosition::Center: return grid_.items_[1][1];
   default:
-    LOG_ERROR("itemAtPosition(): invalid position:" << (int)position);
+    LOG_ERROR("itemAtPosition(): invalid position:{}", (int)position);
     return grid_.items_[1][1];
   }
 }
@@ -99,7 +99,7 @@ const Impl::Grid::Item& WBorderLayout::itemAtPosition(LayoutPosition position)
   case LayoutPosition::West: return grid_.items_[1][0];
   case LayoutPosition::Center: return grid_.items_[1][1];
   default:
-    LOG_ERROR("itemAtPosition(): invalid position:" << (int)position);
+    LOG_ERROR("itemAtPosition(): invalid position:{}", (int)position);
     return grid_.items_[1][1];
   }
 }

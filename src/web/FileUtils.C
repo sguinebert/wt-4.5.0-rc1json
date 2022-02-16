@@ -56,9 +56,9 @@ namespace Wt {
 #else //WT_HAVE_POSIX_FILEIO
       struct stat sb;
       if (stat(file.c_str(), &sb) == -1) {
-	std::string error 
-	  = "size: stat failed for file \"" + file + "\"";
-	LOG_ERROR(error);
+	// std::string error 
+	//   = "size: stat failed for file \"" + file + "\"";
+	LOG_ERROR("size: stat failed for file \"{}\"", file);
 	throw WException(error);
       }
       return (unsigned long long)sb.st_size;
@@ -82,9 +82,9 @@ namespace Wt {
 #else //WT_HAVE_POSIX_FILEIO
       struct stat sb;
       if (stat(file.c_str(), &sb) == -1) {
-	std::string error 
-	  = "lastWriteTime: stat failed for file \"" + file + "\"";
-	LOG_ERROR(error);
+	// std::string error 
+	//   = "lastWriteTime: stat failed for file \"" + file + "\"";
+	LOG_ERROR("lastWriteTime: stat failed for file \"{}\"", file);
 	throw WException(error);
       }
       return (unsigned long long)sb.st_mtime;
@@ -113,7 +113,7 @@ namespace Wt {
       if (stat(file.c_str(), &sb) == -1) {
 	std::string error 
 	  = "isDirectory: stat failed for file \"" + file + "\"";
-	LOG_ERROR(error);
+	LOG_ERROR("isDirectory: stat failed for file \"{}\"", file);
 	throw WException(error);
       }
       return S_ISDIR(sb.st_mode);
@@ -130,7 +130,7 @@ namespace Wt {
       if (!boost::filesystem::is_directory(path)) {
 	std::string error 
 	  = "listFiles: \"" + directory + "\" is not a directory";
-	LOG_ERROR(error);
+	LOG_ERROR("listFiles: \"{}\" is not a directory", directory);
 	throw WException(error);
       }
       
@@ -144,7 +144,7 @@ namespace Wt {
       if((dp = opendir(directory.c_str())) == NULL) {
 	std::string error 
 	   = "listFiles: opendir failed for file \"" + directory + "\"";
-	LOG_ERROR(error);
+	LOG_ERROR("listFiles: opendir failed for file \"{}\"", directory);
 	throw WException(error);
       }
       

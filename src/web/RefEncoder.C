@@ -181,7 +181,7 @@ WString EncodeRefs(const WString& text, WFlags<RefEncoderOption> options)
 
     result = out.str();
   } catch (parse_error& e) {
-    LOG_ERROR("Error reading XHTML string: " << e.what());
+    LOG_ERROR("Error reading XHTML string: {}", e.what());
     return text;
   }
 

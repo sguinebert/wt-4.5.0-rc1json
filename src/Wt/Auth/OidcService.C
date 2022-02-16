@@ -65,7 +65,7 @@ LOGGER("Auth.OidcService");
 #endif
 
     if (!err && response.status() == 200) {
-      LOG_INFO("user info: " << response.body());
+      LOG_INFO("user info: {}", response.body());
 
       Json::Object userInfo;
 
@@ -81,7 +81,7 @@ LOGGER("Auth.OidcService");
 #endif
 
       if (!ok) {
-        LOG_ERROR("could not parse Json: '" << response.body() << "'");
+        LOG_ERROR("could not parse Json: '{}'", response.body());
 	setError(ERROR_MSG("badjson"));
 	authenticated().emit(Identity::Invalid);
       } else {
@@ -92,8 +92,8 @@ LOGGER("Auth.OidcService");
       setError(ERROR_MSG("badresponse"));
 
       if (!err) {
-        LOG_ERROR("user info request returned: " << response.status());
-        LOG_ERROR("with: " << response.body());
+        LOG_ERROR("user info request returned: {}", response.status());
+        LOG_ERROR("with: {}", response.body());
       }
 
       authenticated().emit(Identity::Invalid);
@@ -105,7 +105,7 @@ Identity OidcProcess::parseIdToken(const std::string& idToken)
   std::vector<std::string> parts;
   boost::split(parts, idToken, boost::is_any_of("."));
   if (parts.size() != 3) {
-    LOG_ERROR("malformed id_token: '" << idToken << "'");
+    LOG_ERROR("malformed id_token: '{}'", idToken);
     return Identity::Invalid;
   }
   Json::Object payloadJson;
@@ -121,7 +121,7 @@ Identity OidcProcess::parseIdToken(const std::string& idToken)
   bool ok = payloadJson.isNull();
 #endif
   if (!ok) {
-    LOG_ERROR("could not parse Json: '" << parts[1] << "'");
+    LOG_ERROR("could not parse Json: '{}'", parts[1]);
     return Identity::Invalid;
   }
   return parseClaims(payloadJson);

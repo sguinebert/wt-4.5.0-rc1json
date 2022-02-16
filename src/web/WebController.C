@@ -229,7 +229,7 @@ void WebController::removeSession(const std::string& sessionId)
   std::unique_lock<std::recursive_mutex> lock(mutex_);
 #endif // WT_THREADED
 
-  LOG_INFO("Removing session " << sessionId);
+  LOG_INFO("Removing session {}", sessionId);
 
   SessionMap::iterator i = sessions_.find(sessionId);
   if (i != sessions_.end()) {

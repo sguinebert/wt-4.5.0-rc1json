@@ -54,7 +54,7 @@ int parseRgbArgument(const std::string& argument)
     else 
       return Utils::stoi(arg);
   } catch (std::exception& e) {
-    LOG_ERROR("invalid color component: " << arg);
+    LOG_ERROR("invalid color component: {}", arg);
     return 0;
   }
 }
@@ -96,13 +96,13 @@ WColor parseCssColor(const std::string &name)
       blue = Utils::hexToInt(n.substr(5,2).c_str());
       alpha = Utils::hexToInt(n.substr(7,2).c_str());
     } else {
-      LOG_ERROR("could not parse rgb format: " << n);
+      LOG_ERROR("could not parse rgb format: {}", n);
       red = green = blue = -1;
       return WColor(red, green, blue, alpha);
     }
   } else if (boost::starts_with(n, "rgb")) { // rgb(r,g,b) or rgba(r,g,b,a)
     if (n.size() < 5) {
-      LOG_ERROR("could not parse rgb format: " << n);
+      LOG_ERROR("could not parse rgb format: {}", n);
       return WColor(red, green, blue, alpha);
     }
 	
@@ -110,7 +110,7 @@ WColor parseCssColor(const std::string &name)
     int start_bracket = 3 + (has_alpha ? 1 : 0);
 	
     if (n[start_bracket] != '(' || n[n.size() - 1] != ')') {
-      LOG_ERROR("could not parse rgb format: " << n);
+      LOG_ERROR("could not parse rgb format: {}", n);
       return WColor(red, green, blue, alpha);
     }
 	
@@ -123,12 +123,12 @@ WColor parseCssColor(const std::string &name)
 		 boost::is_any_of(","));
 	
     if (!has_alpha && arguments.size() != 3) {
-      LOG_ERROR("could not parse rgb format: " << n);
+      LOG_ERROR("could not parse rgb format: {}", n);
       return WColor(red, green, blue, alpha);
     }
 	
     if (has_alpha && arguments.size() != 4) {
-      LOG_ERROR("could not parse rgb format: " << n);
+      LOG_ERROR("could not parse rgb format: {}", n);
       return WColor(red, green, blue, alpha);
     }
 	
@@ -143,7 +143,7 @@ WColor parseCssColor(const std::string &name)
           throw WException("parseCssColor: alpha value out of range 0.0 to 1.0");
         alpha = static_cast<int>(std::round(alpha_d * 255.));
       } catch (std::exception &e) {
-	LOG_ERROR("could not parse rgb format: " << n);
+	LOG_ERROR("could not parse rgb format: {}", n);
 	alpha = 255;
 	return WColor(red, green, blue, alpha);
       }

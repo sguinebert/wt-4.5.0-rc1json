@@ -155,8 +155,7 @@ WPoint ImageUtils::getSvgSize(const std::string& fileName)
     } else
       return WPoint();
   } catch (const boost::interprocess::interprocess_exception &e) {
-    LOG_ERROR("getSvgSize: memory mapping SVG file '" <<
-              fileName << "' failed with exception: " << e.what());
+    LOG_ERROR("getSvgSize: memory mapping SVG file '{}' failed with exception: {}", fileName, e.what());
     return WPoint();
   }
 }
@@ -172,9 +171,7 @@ WPoint ImageUtils::getJpegSize(const std::string& fileName)
     std::size_t pos = 2;
 
     if (pos + 12 > headerSize) {
-      LOG_ERROR("getJpegSize: JPEG file '" <<
-                fileName << "' is too small, size of mapped region: " <<
-                headerSize << " bytes");
+      LOG_ERROR("getJpegSize: JPEG file '{}' is too small, size of mapped region: {} bytes", fileName, headerSize);
       return WPoint();
     }
 
@@ -189,9 +186,7 @@ WPoint ImageUtils::getJpegSize(const std::string& fileName)
         break;
       pos += 2+ (toUnsigned(header[pos + 2])<<8) + toUnsigned(header[pos + 3]);
       if (pos + 12 > headerSize) {
-        LOG_ERROR("getJpegSize: end of mapped region for JPEG file '" <<
-                  fileName << "' reached without finding geometry, size of "
-                  "mapped region: " << headerSize << " bytes");
+        LOG_ERROR("getJpegSize: end of mapped region for JPEG file '{}' reached without finding geometry, size of mapped region: {} bytes", fileName, headerSize);
         return WPoint();
       }
     }
@@ -200,8 +195,7 @@ WPoint ImageUtils::getJpegSize(const std::string& fileName)
     int width = (toUnsigned(header[pos + 7] << 8)) + toUnsigned(header[pos + 8]);
     return WPoint(width, height);
   } catch (const boost::interprocess::interprocess_exception &e) {
-    LOG_ERROR("getJpegSize: memory mapping JPEG file '" <<
-              fileName << "' failed with exception: " << e.what());
+    LOG_ERROR("getJpegSize: memory mapping JPEG file '{}' failed with exception: {}", fileName, e.what());
     return WPoint();
   }
 }

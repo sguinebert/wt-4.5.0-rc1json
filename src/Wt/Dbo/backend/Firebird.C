@@ -229,31 +229,37 @@ LOGGER("Dbo.backend.Firebird");
 
 	virtual void execute() override
 	{
-	  if (conn_.showQueries())
-	    LOG_INFO(sql_);
+		if (conn_.showQueries())
+			LOG_INFO(sql_);
 
-	  try {
-	    m_stmt->Execute();
-	    affectedRows_ = m_stmt->AffectedRows();
-	    
-	    row_ = 0;
-	  } catch(IBPP::LogicException &e) {
-	    throw FirebirdException(e.what());
-	  }
+		try
+		{
+			m_stmt->Execute();
+			affectedRows_ = m_stmt->AffectedRows();
 
-	  if (affectedRows_ == 0) {
-	    const std::string returning = " returning ";
-	    std::size_t j = sql_.rfind(returning);
-	    if (j != std::string::npos && 
-		sql_.find(' ', j + returning.length()) == std::string::npos) {
-	      if (m_stmt->Columns() == 1) {
-		lastId_ = -1;
-		m_stmt->Get(1,  lastId_);
-	      }
-	    }
-	  }
+			row_ = 0;
+		}
+		catch (IBPP::LogicException &e)
+		{
+			throw FirebirdException(e.what());
+		}
+
+		if (affectedRows_ == 0)
+		{
+			const std::string returning = " returning ";
+			std::size_t j = sql_.rfind(returning);
+			if (j != std::string::npos &&
+				sql_.find(' ', j + returning.length()) == std::string::npos)
+			{
+				if (m_stmt->Columns() == 1)
+				{
+					lastId_ = -1;
+					m_stmt->Get(1, lastId_);
+				}
+			}
+		}
 	}
-	
+
 	virtual long long insertedId() override
 	{
 	  return lastId_;

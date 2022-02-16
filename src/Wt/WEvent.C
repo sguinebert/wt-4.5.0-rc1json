@@ -61,8 +61,7 @@ namespace
       }
       catch (const std::exception &ee)
       {
-        LOG_ERROR("Could not cast event property '" << name
-                                                    << ": " << *p << "' to int");
+        LOG_ERROR("Could not cast event property '{}: {}' to int", name, *p);
         return ifMissing;
       }
     }
@@ -93,7 +92,7 @@ namespace
 
     if (s.size() % 9)
     {
-      LOG_ERROR("Could not parse touches array '" << str << "'");
+      LOG_ERROR("Could not parse touches array '{}'", str);
       return;
     }
 
@@ -110,7 +109,7 @@ namespace
     }
     catch (const std::exception &ee)
     {
-      LOG_ERROR("Could not parse touches array '" << str << "'");
+      LOG_ERROR("Could not parse touches array '{}'", str);
       return;
     }
   }
@@ -324,7 +323,7 @@ namespace Wt
       }
       catch (Wt::rapidxml::parse_error &e)
       {
-        LOG_ERROR("charcode: " << e.what());
+        LOG_ERROR("charcode: {}", e.what());
         return WString();
       }
       return WString::fromUTF8(std::string(buf, ptr));

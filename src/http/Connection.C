@@ -76,9 +76,7 @@ asio::ip::tcp::socket::native_type Connection::native()
 void Connection::finishReply()
 { 
   if (!request_.uri.empty()) {
-    LOG_DEBUG("last request: " << request_.method.str()
-	      << " " << request_.uri.str()
-	      << " (ws:" << request_.webSocketVersion << ")");
+    LOG_DEBUG("last request: {} {} (ws:{})", request_.method.str(), request_.uri.str(), request_.webSocketVersion);
   }
 }
 
@@ -90,7 +88,7 @@ void Connection::scheduleStop()
 
 void Connection::start()
 {
-  LOG_DEBUG(native() << ": start()");
+  LOG_DEBUG("{}: start()", native());
 
   request_parser_.reset();
   request_.reset();
@@ -98,7 +96,7 @@ void Connection::start()
     request_.remoteIP = socket().remote_endpoint().address().to_string();
     request_.port = socket().local_endpoint().port();
   } catch (std::exception& e) {
-    LOG_ERROR("remote_endpoint() threw: " << e.what());
+    LOG_ERROR("remote_endpoint() threw: {}", e.what());
   }
 
   Wt::AsioWrapper::error_code ignored_ec;
@@ -118,8 +116,7 @@ void Connection::stop()
 void Connection::setReadTimeout(int seconds)
 {
   if (seconds != 0) {
-    LOG_DEBUG(native() << " setting read timeout (ws: "
-	      << request_.webSocketVersion << ")");
+    LOG_DEBUG("{} setting read timeout (ws: {})", native(), request_.webSocketVersion);
     state_ |= Reading;
 
     readTimer_.expires_from_now(asio_timer_seconds(seconds));
@@ -130,8 +127,7 @@ void Connection::setReadTimeout(int seconds)
 
 void Connection::setWriteTimeout(int seconds)
 {
-  LOG_DEBUG(native() << " setting write timeout (ws: "
-	    << request_.webSocketVersion << ")");
+  LOG_DEBUG("{} setting write timeout (ws: {})", native(), request_.webSocketVersion);
   state_ |= Writing;
 
   writeTimer_.expires_from_now(asio_timer_seconds(seconds));
@@ -141,7 +137,7 @@ void Connection::setWriteTimeout(int seconds)
 
 void Connection::cancelReadTimer()
 {
-  LOG_DEBUG(native() << " cancel read timeout");
+  LOG_DEBUG("{} cancel read timeout", native());
   state_.clear(Reading);
 
   readTimer_.cancel();
@@ -149,7 +145,7 @@ void Connection::cancelReadTimer()
 
 void Connection::cancelWriteTimer()
 {
-  LOG_DEBUG(native() << " cancel write timeout");
+  LOG_DEBUG("{} cancel write timeout", native());
   state_.clear(Writing);
 
   writeTimer_.cancel();
@@ -175,13 +171,11 @@ void Connection::handleReadRequest0()
 
 #ifdef DEBUG
   try {
-    LOG_DEBUG(socket().native_handle() << "incoming request: "
-	      << socket().remote_endpoint().port() << " (avail= "
-	      << (rcv_buffer_size_ - (rcv_remaining_ - buffer.data())) << "): "
-	      << std::string(rcv_remaining_,
-			     std::min((unsigned long)(buffer.data()
-				      - rcv_remaining_ + rcv_buffer_size_),
-				      (long unsigned)1000)));
+    LOG_DEBUG("{}incoming request: {} (avail= {}): {}", socket().native_handle(), socket().remote_endpoint().port(),
+              (rcv_buffer_size_ - (rcv_remaining_ - buffer.data())),
+              std::string(rcv_remaining_,
+                          std::min((unsigned long)(buffer.data() - rcv_remaining_ + rcv_buffer_size_),
+                                   (long unsigned)1000)));
   } catch (...) {
   }
 #endif // DEBUG
@@ -201,7 +195,7 @@ void Connection::handleReadRequest0()
     if (doWebSockets)
       request_.enableWebSocket();
 
-    LOG_DEBUG(native() << "request: " << status);
+    LOG_DEBUG("{}request: {}", native(), status);
 
     if (status >= 300)
       sendStockReply(status);
@@ -221,7 +215,7 @@ void Connection::handleReadRequest0()
 	  (request_, lastWtReply_, lastProxyReply_, lastStaticReply_);
 	reply->setConnection(shared_from_this());
       } catch (Wt::AsioWrapper::system_error& e) {
-	LOG_ERROR("Error in handleRequest0(): " << e.what());
+	LOG_ERROR("Error in handleRequest0(): {}", e.what());
 	handleError(e.code());
 	return;
       }
@@ -254,7 +248,7 @@ void Connection::sendStockReply(StockReply::status_type status)
 void Connection::handleReadRequest(const Wt::AsioWrapper::error_code& e,
 				   std::size_t bytes_transferred)
 {
-  LOG_DEBUG(native() << ": handleReadRequest(): " << e.message());
+  LOG_DEBUG("{}handleReadRequest: {}", native(), e.message());
 
   cancelReadTimer();
 
@@ -273,7 +267,7 @@ void Connection::close()
   cancelReadTimer();
   cancelWriteTimer();
 
-  LOG_DEBUG(native() << ": close()");
+  LOG_DEBUG("{}: close()", native());
 
   ConnectionManager_.stop(shared_from_this());
 }
@@ -286,7 +280,7 @@ bool Connection::closed() const
 
 void Connection::handleError(const Wt::AsioWrapper::error_code& e)
 {
-  LOG_DEBUG(native() << ": error: " << e.message());
+  LOG_DEBUG("{}: error: {}", native(), e.message());
 
   close();
 }
@@ -361,7 +355,7 @@ void Connection::handleReadBody0(ReplyPtr reply,
                                  const Wt::AsioWrapper::error_code& e,
 				 std::size_t bytes_transferred)
 {
-  LOG_DEBUG(native() << ": handleReadBody0(): " << e.message());
+  LOG_DEBUG("{}: handleReadBody0(): {}", native(), e.message());
 
   if (disconnectCallback_) {
     if (e && e != asio::error::operation_aborted) {
@@ -369,9 +363,7 @@ void Connection::handleReadBody0(ReplyPtr reply,
       disconnectCallback_ = boost::function<void()>();
       f();
     } else if (!e) {
-      LOG_ERROR(native()
-		<< ": handleReadBody(): while waiting for disconnect, "
-		"received unexpected data, closing");
+      LOG_ERROR("{}: handleReadBody(): while waiting for disconnect, received unexpected data, closing", native());
       close();
     }
 
@@ -422,8 +414,7 @@ void Connection::startWriteResponse(ReplyPtr reply)
   }
 #endif
 
-  LOG_DEBUG(native() << " sending: " << s << "(buffers: "
-	    << buffers.size() << ")");
+  LOG_DEBUG("{} sending: (buffers: {})", native(), s, buffers.size());
 
   if (!buffers.empty()) {
     startAsyncWriteResponse(reply, buffers, BODY_TIMEOUT);
@@ -435,8 +426,7 @@ void Connection::startWriteResponse(ReplyPtr reply)
 
 void Connection::handleWriteResponse(ReplyPtr reply)
 {
-  LOG_DEBUG(native() << ": handleWriteResponse() " <<
-	    haveResponse_ << " " << responseDone_);
+  LOG_DEBUG("{}: handleWriteResponse() {} {}", native(), haveResponse_, responseDone_);
   if (haveResponse_)
     startWriteResponse(reply);
   else {
@@ -470,8 +460,7 @@ void Connection::handleWriteResponse0(ReplyPtr reply,
                                       const Wt::AsioWrapper::error_code& e,
 				      std::size_t bytes_transferred)
 {
-  LOG_DEBUG(native() << ": handleWriteResponse0(): "
-	    << bytes_transferred << " ; " << e.message());
+  LOG_DEBUG("{}: handleWriteResponse0(): {} ; {}", native(), bytes_transferred, e.message());
 
   cancelWriteTimer();
 

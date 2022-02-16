@@ -158,7 +158,7 @@ void StaticReply::reset(const Wt::EntryPoint *ep)
         contentRange << fileSize_;
       }
 
-      LOG_INFO("sending: " << contentRange.str());
+      LOG_INFO("sending: {}", contentRange.str());
 
       addHeader("Content-Range", contentRange.str());
     }

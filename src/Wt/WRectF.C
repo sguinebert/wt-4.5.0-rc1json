@@ -245,7 +245,7 @@ void WRectF::assignFromJSON(const Json::Value &value)
       LOG_ERROR("Couldn't convert JSON to WRectF");
     }
   } catch (std::exception &e) {
-    LOG_ERROR("Couldn't convert JSON to WRectF: " + std::string(e.what()));
+    LOG_ERROR("Couldn't convert JSON to WRectF: {}", std::string(e.what()));
   }
 }
 

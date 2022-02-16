@@ -915,7 +915,7 @@ namespace Wt
 
       bool Postgres::reconnect()
       {
-        LOG_INFO(this << " reconnecting...");
+        LOG_INFO("{} reconnecting...", this);
 
         if (conn_)
         {

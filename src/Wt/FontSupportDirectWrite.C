@@ -637,7 +637,7 @@ FontSupport::FontMatch FontSupport::matchFont(const WFont &f) const
   if (SUCCEEDED(hr))
     hr = sysFontCollection->FindFamilyName(fontFamilyName.c_str(), &fontIndex, &fontExists);
   if (!fontExists) {
-    LOG_ERROR("Font family with name " << WString(fontFamilyName).toUTF8() << " not found");
+    LOG_ERROR("Font family with name {} not found", WString(fontFamilyName).toUTF8());
     return FontMatch();
   }
   IDWriteFontFamily *fontFamily = NULL;

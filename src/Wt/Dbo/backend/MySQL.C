@@ -877,7 +877,7 @@ class MySQLStatement final : public SqlStatement
 	    //http://dev.mysql.com/doc/refman/5.0/en/mysql-stmt-fetch.html
 	    break;
 	  default:
-            LOG_ERROR("MySQL Backend Programming Error: unknown type " << field->type);
+            LOG_ERROR("MySQL Backend Programming Error: unknown type {}", field->type);
 	  }
 	  out_pars_[i].buffer_type = field->type;
 	  out_pars_[i].length = (unsigned long *) malloc(sizeof(unsigned long));
@@ -1188,7 +1188,7 @@ void MySQL::commitTransaction()
 
   checkConnection();
   if( (status = mysql_commit(impl_->mysql)) != 0 ){
-    LOG_ERROR("error committing transaction: " << mysql_error(impl_->mysql));
+    LOG_ERROR("error committing transaction: {}", mysql_error(impl_->mysql));
     throw MySQLException(std::string("MySQL error committing transaction: ") +
                          mysql_error(impl_->mysql));
   }

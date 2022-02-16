@@ -70,11 +70,10 @@ void SslConnection::handleHandshake(const Wt::AsioWrapper::error_code& error)
   } else {
     long sslState = SSL_get_verify_result(ssl);
     if (sslState != X509_V_OK) {
-      LOG_INFO("OpenSSL error: " 
-	       << X509_verify_cert_error_string(sslState));
+      LOG_INFO("OpenSSL error: {}", X509_verify_cert_error_string(sslState));
     }
 
-    LOG_INFO("SSL handshake error: " << error.message());
+    LOG_INFO("SSL handshake error: {}", error.message());
     ConnectionManager_.stop(shared_from_this());
   }
 }

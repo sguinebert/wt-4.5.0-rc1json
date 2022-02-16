@@ -50,7 +50,7 @@ void WLength::parseCssString(const char *s)
 #endif
 
   if (s == end) {
-    LOG_ERROR("cannot parse CSS length: '" << s << "'");
+    LOG_ERROR("cannot parse CSS length: '{}'", s);
     auto_ = true;
     return;
   }
@@ -85,7 +85,7 @@ void WLength::parseCssString(const char *s)
   else if (unit == "vmax")
     unit_ = LengthUnit::ViewportMax;
   else {
-    LOG_ERROR("unrecognized unit in '" << s << "'");
+    LOG_ERROR("unrecognized unit in '{}'", s);
     auto_ = true;
     value_ = -1;
     unit_ = LengthUnit::Pixel;

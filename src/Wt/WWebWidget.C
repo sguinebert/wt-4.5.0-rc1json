@@ -525,9 +525,7 @@ void WWebWidget::setVerticalAlignment(AlignmentFlag alignment,
 				      const WLength& length)
 {
   if (AlignHorizontalMask.test(alignment))
-    LOG_ERROR("setVerticalAlignment(): alignment " 
-	      << static_cast<int>(alignment)
-	      << " is not vertical");
+    LOG_ERROR("setVerticalAlignment(): alignment {} is not vertical", static_cast<int>(alignment));
 
   if (!layoutImpl_)
     layoutImpl_.reset(new LayoutImpl());
@@ -585,7 +583,7 @@ WLength WWebWidget::offset(Side s) const
   case Side::Left:
     return layoutImpl_->offsets_[3];
   default:
-    LOG_ERROR("offset(Side) with invalid side: " << (int)s);
+    LOG_ERROR("offset(Side) with invalid side: {}", (int)s);
     return WLength();
   }
 }
@@ -741,7 +739,7 @@ WLength WWebWidget::margin(Side side) const
   case Side::Left:
     return layoutImpl_->margin_[3];
   default:
-    LOG_ERROR("margin(Side) with invalid side: " << (int)side);
+    LOG_ERROR("margin(Side) with invalid side: {}", (int)side);
     return WLength();
   }
 }

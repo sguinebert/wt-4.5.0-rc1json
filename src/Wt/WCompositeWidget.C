@@ -331,8 +331,7 @@ void WCompositeWidget::setVerticalAlignment(AlignmentFlag alignment,
 					    const WLength& length)
 {
   if (AlignHorizontalMask.test(alignment)) {
-    LOG_ERROR("setVerticalAlignment(): alignment "
-	      << static_cast<unsigned int>(alignment) << "is not vertical");
+    LOG_ERROR("setVerticalAlignment(): alignment {} is not vertical", static_cast<unsigned int>(alignment));
   }
   impl_->setVerticalAlignment(alignment, length);
 }

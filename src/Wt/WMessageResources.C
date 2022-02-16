@@ -333,7 +333,7 @@ void WMessageResources::load(const WLocale& locale) const
 	l.erase(i);
       else {
 	if (locale.name().empty())
-	  LOG_ERROR("Could not load resource bundle: " << path_ << ".xml");
+	  LOG_ERROR("Could not load resource bundle: {}.xml", path_);
 	break;
       }
     }
@@ -614,9 +614,7 @@ bool WMessageResources::readResourceStream(std::istream &s,
       }
     }
   } catch (parse_error& e) {
-    LOG_ERROR("Error reading " << fileName
-	      << ": at character " << (int)(e.where<char>() - text.get())
-	      << ": " << e.what());
+    LOG_ERROR("Error reading {}: at character {}: {}", fileName, (int)(e.where<char>() - text.get()), e.what());
   }
 
   return true;

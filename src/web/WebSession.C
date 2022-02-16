@@ -160,8 +160,7 @@ WebSession::WebSession(WebController *controller,
   }
 
 #ifndef WT_TARGET_JAVA
-  LOG_INFO("session created (#sessions = " <<
-	   (controller_->sessionCount() + 1) << ")");
+  LOG_INFO("session created (#sessions = {})", (controller_->sessionCount() + 1));
 
   expire_ = Time() + 60*1000;
 #endif // WT_TARGET_JAVA
@@ -276,8 +275,7 @@ WebSession::~WebSession()
   controller_->sessionDeleted();
 
 #ifndef WT_TARGET_JAVA
-  LOG_INFO("session destroyed (#sessions = " << controller_->sessionCount()
-	   << ")");
+  LOG_INFO("session destroyed (#sessions = {})", controller_->sessionCount());
 #endif // WT_TARGET_JAVA
 
 }
@@ -1117,7 +1115,7 @@ EventSignalBase *WebSession::decodeSignal(const std::string &signalId,
   {
     if (app_->justRemovedSignals().find(signalId) ==
         app_->justRemovedSignals().end())
-      LOG_ERROR("decodeSignal(): signal '" << signalId << "' not exposed");
+      LOG_ERROR("decodeSignal(): signal '{}' not exposed", signalId);
   }
 
   return result;
@@ -1295,8 +1293,7 @@ void WebSession::handleRequest(Handler& handler)
     } else {
       // Not OK
       if (origin) {
-        LOG_ERROR("WebSocket request refused: Origin '" << origin <<
-            "' not allowed (trusted origin is '" << trustedOrigin << "')");
+        LOG_ERROR("WebSocket request refused: Origin '{}' not allowed (trusted origin is '{}'", origin, trustedOrigin);
       } else {
         LOG_ERROR("WebSocket request refused: missing Origin");
       }
@@ -1347,10 +1344,9 @@ void WebSession::handleRequest(Handler& handler)
   if (requestE && *requestE == "ws" && !request.isWebSocketRequest()) {
     LOG_ERROR("invalid WebSocket request, ignoring");
 
-    LOG_INFO("Connection: " << str(request.headerValue("Connection")));
-    LOG_INFO("Upgrade: " << str(request.headerValue("Upgrade")));
-    LOG_INFO("Sec-WebSocket-Version: "
-	     << str(request.headerValue("Sec-WebSocket-Version")));
+    LOG_INFO("Connection: {}", request.headerValue("Connection"));
+    LOG_INFO("Upgrade: {}", request.headerValue("Upgrade"));
+    LOG_INFO("Sec-WebSocket-Version: {}", request.headerValue("Sec-WebSocket-Version"));
 
     handler.flushResponse();
     return;
@@ -1454,30 +1450,31 @@ void WebSession::handleRequest(Handler& handler)
 	  //
 	  // In other cases we can simply start
 
-	  if (requestE) {
-	    if (*requestE == "jsupdate" || 
-		*requestE == "jserror" || 
-		*requestE == "script") {
-	      handler.response()->setResponseType
-		(WebResponse::ResponseType::Update);
-	      LOG_INFO("signal from dead session, sending reload.");
-	      renderer_.letReloadJS(*handler.response(), true);
+    if (requestE)
+    {
+      if (*requestE == "jsupdate" ||
+          *requestE == "jserror" ||
+          *requestE == "script")
+      {
+        handler.response()->setResponseType(WebResponse::ResponseType::Update);
+        LOG_INFO("signal from dead session, sending reload.");
+        renderer_.letReloadJS(*handler.response(), true);
 
-	      kill();
-	      break;
-	    } else if (*requestE != "page") {
-              LOG_INFO("Not serving this: request of type '" << *requestE << "' "
-                       "in a brand new session (probably coming from an old session)");
-	      handler.response()->setContentType("text/html");
-	      handler.response()->out()
-		<< "<html><head></head><body></body></html>";
+        kill();
+        break;
+      }
+      else if (*requestE != "page")
+      {
+        LOG_INFO("Not serving this: request of type '{}' in a brand new session (probably coming from an old session)", *requestE);
+        handler.response()->setContentType("text/html");
+        handler.response()->out() << "<html><head></head><body></body></html>";
 
-	      kill();
-	      break;
-	    }
-	  }
+        kill();
+        break;
+      }
+    }
 
-	  /*
+    /*
 	   * We can simply bootstrap.
 	   */
 	  {
@@ -1746,7 +1743,7 @@ void WebSession::handleRequest(Handler& handler)
 	break;
       }
     } catch (WException& e) {
-      LOG_ERROR("fatal error: " << e.what());
+      LOG_ERROR("fatal error: {}", e.what());
 
 #ifdef WT_TARGET_JAVA
       e.printStackTrace();
@@ -1758,7 +1755,7 @@ void WebSession::handleRequest(Handler& handler)
 	serveError(500, handler, e.what());
 
     } catch (std::exception& e) {
-      LOG_ERROR("fatal error: " << e.what());
+      LOG_ERROR("fatal error: {}", e.what());
 
 #ifdef WT_TARGET_JAVA
       e.printStackTrace();
@@ -1966,7 +1963,7 @@ void WebSession::handleWebSocketMessage(std::weak_ptr<WebSession> session,
 	  try {
 	    cgi.parse(*message, CgiParser::ReadDefault);
 	  } catch (std::exception& e) {
-	    LOG_ERROR("could not parse ws message: " << e.what());
+	    LOG_ERROR("could not parse ws message: {}", e.what());
 	    closing = true;
 	  }
         }
@@ -2239,7 +2236,7 @@ void WebSession::notify(const WEvent& event)
     }
     catch (std::exception &e)
     {
-      LOG_ERROR("Exception in WApplication::notify(): " << e.what());
+      LOG_ERROR("Exception in WApplication::notify(): {}", e.what());
 
 #ifdef WT_TARGET_JAVA
       e.printStackTrace();
@@ -2263,7 +2260,7 @@ void WebSession::notify(const WEvent& event)
     }
     catch (std::exception &e)
     {
-      LOG_ERROR("Exception in WApplication::notify(): " << e.what());
+      LOG_ERROR("Exception in WApplication::notify(): {}", e.what());
 
 #ifdef WT_TARGET_JAVA
       e.printStackTrace();
@@ -2369,9 +2366,8 @@ void WebSession::notify(const WEvent& event)
         if (str(handler.request()->headerValue("User-Agent")) != env_->userAgent())
         {
           LOG_SECURE("change of user-agent not allowed.");
-          LOG_INFO("old user agent: " << env_->userAgent());
-          LOG_INFO("new user agent: "
-                   << str(handler.request()->headerValue("User-Agent")));
+          LOG_INFO("old user agent: {}", env_->userAgent());
+          LOG_INFO("new user agent: {}", handler.request()->headerValue("User-Agent"));
           serveError(403, handler, "Forbidden");
           return;
         }
@@ -2391,8 +2387,7 @@ void WebSession::notify(const WEvent& event)
 
         if (isInvalid)
         {
-          LOG_SECURE("change of IP address (" << env_->clientAddress()
-                                              << " -> " << ca << ") not allowed.");
+          LOG_SECURE("change of IP address ({} -> {}) not allowed.", env_->clientAddress(), ca);
           serveError(403, handler, "Forbidden");
           return;
         }
@@ -2447,7 +2442,7 @@ void WebSession::notify(const WEvent& event)
           app_->requestTooLarge().emit(request.postDataExceeded());
       }
       catch (std::exception &e){
-        LOG_ERROR("Exception in WApplication::requestTooLarge" << e.what());
+        LOG_ERROR("Exception in WApplication::requestTooLarge {}", e.what());
         RETHROW(e);
       } 
       catch (...) {
@@ -2496,7 +2491,7 @@ void WebSession::notify(const WEvent& event)
             }
             catch (std::exception &e)
             {
-              LOG_ERROR("Exception while streaming resource" << e.what());
+              LOG_ERROR("Exception while streaming resource {}", e.what());
               RETHROW(e);
             }
             catch (...)
@@ -2507,8 +2502,7 @@ void WebSession::notify(const WEvent& event)
           }
           else
           {
-            LOG_ERROR("decodeResource(): resource '" << *resourceE
-                                                     << "' not exposed");
+            LOG_ERROR("decodeResource(): resource '{}' not exposed", *resourceE);
             handler.response()->setContentType("text/html");
             handler.response()->out() << "<html><body><h1>Nothing to say about that.</h1></body></html>";
             handler.flushResponse();
@@ -2653,7 +2647,7 @@ void WebSession::notify(const WEvent& event)
 
           if (handler.request())
           {
-            LOG_DEBUG("signal: " << *signalE);
+            LOG_DEBUG("signal: {}", *signalE);
 
             /*
 	     * Special signal values:
@@ -2670,7 +2664,7 @@ void WebSession::notify(const WEvent& event)
             }
             catch (std::exception &e)
             {
-              LOG_ERROR("error during event handling: " << e.what());
+              LOG_ERROR("error during event handling: {}", e.what());
               RETHROW(e);
             }
             catch (...)
@@ -2837,7 +2831,7 @@ void WebSession::render(Handler& handler)
       try {
 	checkTimers();
       } catch (std::exception& e) {
-	LOG_ERROR("Exception while triggering timers" << e.what());
+	LOG_ERROR("Exception while triggering timers {}", e.what());
 	RETHROW(e);
       } catch (...) {
 	LOG_ERROR("Exception while triggering timers");
@@ -3157,7 +3151,7 @@ void WebSession::generateNewSessionId()
   sessionId_ = controller_->generateNewSessionId(shared_from_this());
   sessionIdChanged_ = true;
 
-  LOG_INFO("new session id for " << oldId);
+  LOG_INFO("new session id for {}", oldId);
 
   if (!useUrlRewriting()) {
     std::string cookieName = env_->deploymentPath();

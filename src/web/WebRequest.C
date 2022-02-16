@@ -96,7 +96,7 @@ void WebRequest::log()
     double microseconds 
       = std::chrono::duration_cast<std::chrono::microseconds>(end - start_)
       .count();
-    LOG_INFO("took " << (microseconds / 1000) << " ms");
+    LOG_INFO("took {} ms", (microseconds / 1000));
 
     start_ = std::chrono::high_resolution_clock::time_point();
   }
@@ -156,17 +156,24 @@ const char *WebRequest::contentType() const
 
   if (!lenstr || strlen(lenstr) == 0)
     return 0;
-  else {
-    try {
+  else
+  {
+    try
+    {
       ::int64_t len = Utils::stoll(std::string(lenstr));
-      if (len < 0) {
-	LOG_ERROR("Bad content-length: " << lenstr);
-	throw WException("Bad content-length");
-      } else {
-	return len;
+      if (len < 0)
+      {
+        LOG_ERROR("Bad content-length: {}", lenstr);
+        throw WException("Bad content-length");
       }
-    } catch (std::exception& e) {
-      LOG_ERROR("Bad content-length: " << lenstr);
+      else
+      {
+        return len;
+      }
+    }
+    catch (std::exception &e)
+    {
+      LOG_ERROR("Bad content-length: {}", lenstr);
       throw WException("Bad content-length");
     }
   }
@@ -295,8 +302,7 @@ std::string WebRequest::parsePreferredAcceptValue(const char *str) const
     else
       return std::string();
   } else {
-    LOG_ERROR("Could not parse 'Accept-Language: " << str
-	      << "', stopped at: '" << info.stop << '\'');
+    LOG_ERROR("Could not parse 'Accept-Language: {}', stopped at: '{}'", str, info.stop);
     return std::string();
   }
 }

@@ -1292,7 +1292,7 @@ void Configuration::rereadConfiguration()
     readConfiguration(true);
     LOG_INFO("New configuration read.");
   } catch (WException& e) {
-    LOG_ERROR("Error reading configuration: " << e.what());
+    LOG_ERROR("Error reading configuration: {}", e.what());
   }
 }
 
@@ -1355,8 +1355,7 @@ void Configuration::readConfiguration(bool silent)
       server_->initLogger(logFile, logConfig);
 
     if (!silent)
-      LOG_INFO("reading Wt config file: " << configurationFile_
-	       << " (location = '" << applicationPath_ << "')");
+      LOG_INFO("reading Wt config file: {} (location = '{}')", configurationFile_, applicationPath_);
 
     /*
      * Now read application settings.

@@ -468,7 +468,7 @@ public:
       *value += std::chrono::milliseconds(ms);
 	}
       } catch (std::exception& e) {
-        LOG_ERROR("Sqlite3::getResult(ptime): " << e.what());
+        LOG_ERROR("Sqlite3::getResult(ptime): {}", e.what());
 	return false;
       }
 

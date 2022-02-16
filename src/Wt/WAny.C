@@ -232,7 +232,7 @@ std::string asJSLiteral(const cpp17::any& v, TextFormat textFormat)
     if (handler)
       return handler->asString(v, WString::Empty).jsStringLiteral();
     else {
-      LOG_ERROR("unsupported type: '"<< v.type().name() << "'");
+      LOG_ERROR("unsupported type: '{}'", v.type().name());
       return "''";
     }
   }
@@ -290,7 +290,7 @@ cpp17::any updateFromJS(const cpp17::any& v, std::string s)
 #undef ELSE_LEXICAL_ANY
 
   else {
-    LOG_ERROR("unsupported type '" << v.type().name() << "'");
+    LOG_ERROR("unsupported type '{}'", v.type().name());
     return cpp17::any();
   }
 }
@@ -344,7 +344,7 @@ int compare(const cpp17::any& d1, const cpp17::any& d2)
 	  if (handler)
 	    return handler->compare(d1, d2);
 	  else {
-	    LOG_ERROR("unsupported type '" << d1.type().name() << "'");
+	    LOG_ERROR("unsupported type '{}'", d1.type().name());
 	    return 0;
 	  }
 	}
@@ -485,7 +485,7 @@ WString asString(const cpp17::any& v, const WT_USTRING& format)
     if (handler)
       return handler->asString(v, format);
     else {
-      LOG_ERROR("unsupported type '" << v.type().name() << "'");
+      LOG_ERROR("unsupported type '{}'", v.type().name());
       return WString::Empty;
     }
   }
@@ -560,7 +560,7 @@ double asNumber(const cpp17::any& v)
     if (handler)
       return handler->asNumber(v);
     else {
-      LOG_ERROR("unsupported type '" << v.type().name() << "'");
+      LOG_ERROR("unsupported type '{}'", v.type().name());
       return 0;
     }
   }
@@ -646,7 +646,7 @@ extern WT_API cpp17::any convertAnyToAny(const cpp17::any& v,
 
   else {
     // FIXME, add this to the traits.
-    LOG_ERROR("unsupported type '" << v.type().name() << "'");
+    LOG_ERROR("unsupported type '{}'", v.type().name());
     return cpp17::any();
   }
 }

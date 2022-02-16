@@ -183,7 +183,7 @@ void WServer::initLogger(const std::string& logFile,
     logger_.setFile(logFile);
 
   if (!description_.empty())
-    LOG_INFO("initializing " << description_);
+    LOG_INFO("initializing {}", description_);
 }
 
 Configuration& WServer::configuration()

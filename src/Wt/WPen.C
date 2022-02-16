@@ -141,23 +141,29 @@ bool WPen::operator!=(const WPen& other) const
 
 void WPen::assignFromJSON(const Json::Value &value)
 {
-  try {
+  try
+  {
     const Json::Object &o = value.get_object();
     const Json::Array &col = o.at("color").get_array();
     if (col.size() == 4 &&
-	!col[0].is_null() &&
-	!col[1].is_null() &&
-	!col[2].is_null() &&
-	!col[3].is_null()) {
+        !col[0].is_null() &&
+        !col[1].is_null() &&
+        !col[2].is_null() &&
+        !col[3].is_null())
+    {
       color_ = WColor(col[0].get_int64(0),
-		      col[1].get_int64(0),
-		      col[2].get_int64(0),
-		      col[3].get_int64(255));
-    } else {
+                      col[1].get_int64(0),
+                      col[2].get_int64(0),
+                      col[3].get_int64(255));
+    }
+    else
+    {
       LOG_ERROR("Couldn't convert JSON to WPen");
     }
-  } catch (std::exception &e) {
-    LOG_ERROR("Couldn't convert JSON to WPen: " + std::string(e.what()));
+  }
+  catch (std::exception &e)
+  {
+    LOG_ERROR("Couldn't convert JSON to WPen: {}", e.what());
   }
 }
 

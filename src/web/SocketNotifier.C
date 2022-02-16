@@ -62,7 +62,7 @@ public:
 #else
     int error = errno;
 #endif
-    LOG_ERROR(msg << ". Error code " << error);
+    LOG_ERROR("{}. Error code {}", msg, error);
   }
 };
 

@@ -698,7 +698,7 @@ inline typename fmtlogT<_>::LogLevel fmtlogT<_>::getLogLevel() noexcept {
                                                                                                    \
     fmtlogWrapper<>::impl.log(logId, fmtlogWrapper<>::impl.tscns.rdtsc(), __FMTLOG_LOCATION,       \
                               level, format, ##__VA_ARGS__);                                       \
-  } while (0)
+  } while (0)                                                               
 
 #define FMTLOG_LIMIT(min_interval, level, format, ...)                                             \
   do {                                                                                             \

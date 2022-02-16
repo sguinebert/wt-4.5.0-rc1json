@@ -230,8 +230,7 @@ void Request::enableWebSocket()
 	try {
 	  webSocketVersion = Wt::Utils::stoi(k->value.str());
 	} catch (std::exception& e) {
-	  LOG_ERROR("could not parse Sec-WebSocket-Version: "
-		    << k->value.str());
+	  LOG_ERROR("could not parse Sec-WebSocket-Version: {}", k->value.str());
 	}
       }
     }

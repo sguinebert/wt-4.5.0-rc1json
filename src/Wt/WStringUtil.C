@@ -65,7 +65,7 @@ namespace Wt
       }
 
       if (error)
-        LOG_ERROR("widen(): could not widen string: " << s);
+        LOG_ERROR("widen(): could not widen string: {}", s);
 
       return result;
     }
@@ -314,7 +314,7 @@ namespace Wt
         }
         catch (Wt::rapidxml::parse_error &e)
         {
-          LOG_ERROR("toUTF8(): " << e.what());
+          LOG_ERROR("toUTF8(): {}", e.what());
         }
       }
 
