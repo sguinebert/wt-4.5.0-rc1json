@@ -208,7 +208,7 @@ namespace Wt
 
     std::string queryString = request.queryString();
 
-    LOG_DEBUG("queryString (len=" << len << "): " << queryString);
+    LOG_DEBUG("queryString (len={}): {}", len, queryString);
 
     if (!queryString.empty() && request_->parameters_.empty())
     {
@@ -248,7 +248,7 @@ namespace Wt
       // if(request.isWebSocketMessage())
       //   std::cout << "formQueryString (len=" << len << "): " << formQueryString << std::endl;
 
-      LOG_DEBUG("formQueryString (len=" << len << "): " << formQueryString);
+      LOG_DEBUG("formQueryString (len={}): {}", len, formQueryString);
       if (!formQueryString.empty())
       {
         Http::Request::parseFormUrlEncoded(formQueryString, request_->parameters_);
@@ -425,7 +425,7 @@ namespace Wt
       current = i + 2;
     }
 
-    LOG_DEBUG("name: " << name << " ct: " << ctype << " fn: " << fn);
+    LOG_DEBUG("name: {} ct: {} fn: {}", name, ctype, fn);
 
     currentKey_ = name;
 
@@ -444,7 +444,7 @@ namespace Wt
 
         request_->files_.insert(std::make_pair(name, Http::UploadedFile(spool, fn, ctype)));
 
-        LOG_DEBUG("spooling file to " << spool.c_str());
+        LOG_DEBUG("spooling file to {}", spool.c_str());
       }
       else
       {
@@ -478,7 +478,7 @@ namespace Wt
     {
       if (!currentKey_.empty())
       {
-        LOG_DEBUG("value: \"" << value << "\"");
+        LOG_DEBUG("value: \"{}\"", value);
         request_->parameters_[currentKey_].push_back(value);
       }
     }

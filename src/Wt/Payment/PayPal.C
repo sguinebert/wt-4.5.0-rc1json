@@ -200,8 +200,8 @@ Signal<Result>& PayPalExpressCheckout::setup()
   addEditedParameters(map);
   std::string messageText = encodeMessage(map);
 
-  LOG_DEBUG("message: " << messageText);
-  LOG_DEBUG("message: " << Wt::Utils::urlDecode(messageText));
+  LOG_DEBUG("message: {}", messageText);
+  LOG_DEBUG("message: {}", Wt::Utils::urlDecode(messageText));
 
   Http::Message message;
   message.addBodyText(messageText);
@@ -349,8 +349,7 @@ void PayPalExpressCheckout::handleSetup(AsioWrapper::error_code err,
 {
   Result result;
 
-  LOG_DEBUG("handleSetup::Received response: "
-            << Wt::Utils::urlDecode(response.body()));
+  LOG_DEBUG("handleSetup::Received response: {}", Wt::Utils::urlDecode(response.body()));
 
   result = testMessage(err, response);
 
@@ -443,8 +442,8 @@ Signal<Result>& PayPalExpressCheckout::updateCustomerDetails()
   addEditedParameters(map);
   std::string msg = encodeMessage(map);
 
-  LOG_DEBUG("message: " << msg);
-  LOG_DEBUG("message: " << Wt::Utils::urlDecode(msg));
+  LOG_DEBUG("message: {}", msg);
+  LOG_DEBUG("message: {}", Wt::Utils::urlDecode(msg));
 
   Http::Message message;
   message.addBodyText(msg);
@@ -465,8 +464,7 @@ void PayPalExpressCheckout::handleCustomerDetails(
   Http::ParameterMap params;
   Http::Utils::parseFormUrlEncoded(response, params);
 
-  LOG_DEBUG("handleCustomerDetails - Received response: "
-            << Wt::Utils::urlDecode(response.body()));
+  LOG_DEBUG("handleCustomerDetails - Received response: {}", Wt::Utils::urlDecode(response.body()));
 
   result = testMessage(err, response);
   if(!result.error()){
@@ -537,8 +535,8 @@ Signal<Result>& PayPalExpressCheckout::completePayment(const Money& totalAmount)
 
   addEditedParameters(map);
   std::string msg = encodeMessage(map);
-  LOG_DEBUG("message: " << msg);
-  LOG_DEBUG("message: " << Wt::Utils::urlDecode(msg));
+  LOG_DEBUG("message: {}", msg);
+  LOG_DEBUG("message: {}", Wt::Utils::urlDecode(msg));
 
   Http::Message message;
   message.addBodyText(msg);
@@ -555,8 +553,7 @@ void PayPalExpressCheckout::handleCompletePayment(
   AsioWrapper::error_code err, const Http::Message& response)
 {
 
-  LOG_DEBUG("handleCompletePayment ::Received response: "
-            << Wt::Utils::urlDecode(response.body()));
+  LOG_DEBUG("handleCompletePayment ::Received response: {}", Wt::Utils::urlDecode(response.body()));
 
   Http::ParameterMap params;
   Http::Utils::parseFormUrlEncoded(response, params);
@@ -602,7 +599,7 @@ Result PayPalExpressCheckout::testMessage(AsioWrapper::error_code err,
       const std::string *ack = Http::Utils::getParamValue(params, "ACK");
 
       if (ack) {
-        LOG_DEBUG("ACK = " << *ack);
+        LOG_DEBUG("ACK = {}", *ack);
         if (*ack == "Success") {
           const std::string *token 
 	    = Http::Utils::getParamValue(params, "TOKEN");

@@ -23,7 +23,7 @@ WSslInfo::WSslInfo(const WSslCertificate &clientCertificate,
     clientCertificateChain_(clientCertificateChain),
     clientVerificationResult_(clientVerificationResult)
 {
-  LOG_DEBUG("WSslInfo fields: " <<  gdb());
+  LOG_DEBUG("WSslInfo fields: {}",  gdb());
 }
 
 std::string WSslInfo::gdb() const

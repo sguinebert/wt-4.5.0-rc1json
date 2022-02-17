@@ -94,7 +94,7 @@ namespace Wt
           const std::string *errorE = request.getParameter("error");
           if (errorE)
           {
-            LOG_ERROR(ERROR_MSG(+*errorE));
+            LOG_ERROR(ERROR_MSG(+*errorE).toUTF8());
             process_->setError(ERROR_MSG(+*errorE));
             sendError(response);
             return;
@@ -103,7 +103,7 @@ namespace Wt
           const std::string *codeE = request.getParameter("code");
           if (!codeE)
           {
-            LOG_ERROR(ERROR_MSG("missing-code"));
+            LOG_ERROR(ERROR_MSG("missing-code").toUTF8());
             process_->setError(ERROR_MSG("missing-code"));
             sendError(response);
             return;
@@ -631,11 +631,11 @@ namespace Wt
               response.addHeader("Location", redirectUrl);
               return;
             }
-            else
-              LOG_ERROR("RedirectEndpoint: could not decode state {}", *stateE);
+            // else
+            //   LOG_ERROR("RedirectEndpoint: could not decode state {}", *stateE);
           }
-          else
-            LOG_ERROR("RedirectEndpoint: missing state");
+          // else
+          //   LOG_ERROR("RedirectEndpoint: missing state");
 
           response.setStatus(400);
           response.setMimeType("text/html");

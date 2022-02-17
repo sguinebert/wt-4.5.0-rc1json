@@ -507,10 +507,10 @@ namespace Wt
       logw("[secure] {}: {}", WT_LOGGER, fmt::format(m, ##__VA_ARGS__));                   \
   } while (0)
 #define LOG_ERROR_S(s, m) (s)->log("error") << WT_LOGGER << ": " << m
-#define LOG_ERROR(format, ...)                             \
+#define LOG_ERROR(m, ...)                             \
   do                                             \
   {                                              \
-      loge("[error] {}: {}", WT_LOGGER, fmt::format(m, ##__VA_ARGS__));                   \    
+      loge("[error] {}: {}", WT_LOGGER, fmt::format(m, ##__VA_ARGS__));\
   } while (0)
 
 // #ifdef WT_DEBUG_ENABLED

@@ -87,8 +87,7 @@ WSslCertificate::WSslCertificate(const std::vector<DnAttribute> &subjectDn,
   validityEnd_(validityEnd),
   pemCert_(pemCert)
 {
-  LOG_DEBUG("WSslCertificate fields: " 
-	    <<  gdb());
+  LOG_DEBUG("WSslCertificate fields: {}",  gdb());
 }
 
 std::string WSslCertificate::DnAttribute::shortName() const

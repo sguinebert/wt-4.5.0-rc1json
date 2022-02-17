@@ -270,7 +270,7 @@ namespace Wt
 
       void send(const std::string &s)
       {
-        LOG_DEBUG("C " << s);
+        LOG_DEBUG("C {}", s);
         // asio::const_buffer request = asio::buffer(s);
         write(asio::buffer(s));
 
@@ -304,7 +304,7 @@ namespace Wt
           std::string msg;
           std::getline(in, msg);
 
-          LOG_DEBUG("S " << code << msg);
+          LOG_DEBUG("S {}{}", code, msg);
 
           if (replyCode == -1)
             replyCode = code;
@@ -446,7 +446,7 @@ namespace Wt
       if (config.certificateVerificationEnabled_)
       {
         data_.stream_.set_verify_mode(ssl::verify_peer);
-        LOG_DEBUG("verifying that peer is " << hostName);
+        LOG_DEBUG("verifying that peer is {}", hostName);
         data_.stream_.set_verify_callback(ssl::rfc2818_verification(hostName));
       }
       data_.stream_.handshake(ssl::stream_base::client);

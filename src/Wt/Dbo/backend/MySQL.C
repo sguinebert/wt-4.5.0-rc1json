@@ -144,14 +144,14 @@ class MySQLStatement final : public SqlStatement
         in_pars_ = nullptr;
       }
 
-      LOG_DEBUG("new SQLStatement for: " << sql_);
+      LOG_DEBUG("new SQLStatement for: {}", sql_);
 
       state_ = Done;
     }
 
     virtual ~MySQLStatement()
     {
-      LOG_DEBUG("closing prepared stmt " << sql_);
+      LOG_DEBUG("closing prepared stmt {}", sql_);
       for(unsigned int i = 0;   i < mysql_stmt_param_count(stmt_) ; ++i)
           freeColumn(i);
       if (in_pars_) free(in_pars_);

@@ -819,7 +819,7 @@ void WApplication::addExposedSignal(Wt::EventSignalBase *signal)
   std::string s = signal->encodeCmd();
   Utils::insert(exposedSignals_, s, signal);
 
-  LOG_DEBUG("addExposedSignal: " << s);
+  LOG_DEBUG("addExposedSignal: {}", s);
 }
 
 void WApplication::removeExposedSignal(Wt::EventSignalBase *signal)
@@ -828,9 +828,9 @@ void WApplication::removeExposedSignal(Wt::EventSignalBase *signal)
 
   if (exposedSignals_.erase(s)) {
     justRemovedSignals_.insert(s);
-    LOG_DEBUG("removeExposedSignal: " << s);
+    LOG_DEBUG("removeExposedSignal: {}", s);
   } else {
-    LOG_DEBUG("removeExposedSignal of non-exposed " << s << "??");
+    LOG_DEBUG("removeExposedSignal of non-exposed {}??", s);
   }
 }
 

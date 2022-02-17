@@ -116,7 +116,7 @@ void SessionProcessManager
   std::unique_lock<std::mutex> lock(sessionsMutex_);
 #endif // WT_THREADED
 
-  LOG_DEBUG("addSessionProcess()" << sessionId);
+  LOG_DEBUG("addSessionProcess(){}", sessionId);
   for (SessionProcessList::iterator it = pendingProcesses_.begin();
        it != pendingProcesses_.end(); ++it) {
     if (process == *it) {
@@ -248,7 +248,7 @@ void SessionProcessManager::logExit(pid_t cpid,
     if (signal) {
       LOG_INFO("Child process {} terminated normally after receiving signal: {}", cpid, signal.get());
     } else {
-      LOG_DEBUG("Child process " << cpid << " terminated normally");
+      LOG_DEBUG("Child process {} terminated normally", cpid);
     }
   } else {
     if (Wt::logInstance().logging("error", Wt::logger)) {

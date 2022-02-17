@@ -31,7 +31,7 @@ void ConnectionManager::start(ConnectionPtr c)
 
   connections_.insert(c);
 
-  LOG_DEBUG("new connection (#" << connections_.size() << ")");
+  LOG_DEBUG("new connection (#{})", connections_.size());
 
 #ifdef WT_THREADED
   lock.unlock();
@@ -64,7 +64,7 @@ void ConnectionManager::stop(ConnectionPtr c)
 #endif // WIN32
   }
 
-  LOG_DEBUG("removed connection (#" << connections_.size() << ")");
+  LOG_DEBUG("removed connection (#{})", connections_.size());
 
 #ifdef WT_THREADED
   lock.unlock();

@@ -1006,4 +1006,12 @@ WString WString::tr(const char *key) { }
 
 }
 
+template <> struct fmt::formatter<Wt::WString>: formatter<std::string> {
+  // parse is inherited from formatter<string_view>.
+  template <typename FormatContext>
+  auto format(Wt::WString wstring, FormatContext& ctx) {
+    return formatter<std::string>::format(wstring.toUTF8(), ctx);
+  }
+};
+
 #endif // WSTRING_H_

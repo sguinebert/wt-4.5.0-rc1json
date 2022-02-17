@@ -443,7 +443,7 @@ void WtReply::writeDone(bool success)
     return;
   }
 
-  LOG_DEBUG("writeDone() success:" << success << ", sent: " << sending_);
+  LOG_DEBUG("writeDone() success:{}, sent: {}", success, sending_);
   out_buf_.consume(sending_);
   sending_ = 0;
 
@@ -457,7 +457,7 @@ void WtReply::writeDone(bool success)
 void WtReply::send(const Wt::WebRequest::WriteCallback& callBack,
 		   bool responseComplete)
 {
-  LOG_DEBUG("WtReply::send(): " << sending_);
+  LOG_DEBUG("WtReply::send(): {}", sending_);
 
   fetchMoreDataCallback_ = callBack;
 
@@ -545,7 +545,7 @@ void WtReply::formatResponse(std::vector<asio::const_buffer>& result)
     std::size_t size = sending_;
 	std::vector<asio::const_buffer> buffers;
 
-    LOG_DEBUG("ws: sending a message, length = " << size);
+    LOG_DEBUG("ws: sending a message, length = {}", size);
 
     switch (request().webSocketVersion) {
     case 0:

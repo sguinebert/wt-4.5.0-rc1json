@@ -979,7 +979,7 @@ std::shared_ptr<ApplicationEvent> WebSession::popQueuedEvent()
 
   std::shared_ptr<ApplicationEvent> result;
 
-  LOG_DEBUG("popQueuedEvent(): " << eventQueue_.size());
+  LOG_DEBUG("popQueuedEvent(): {}", eventQueue_.size());
 
   if (!eventQueue_.empty())
   {
@@ -1006,7 +1006,7 @@ void WebSession::queueEvent(const std::shared_ptr<ApplicationEvent>& event)
 
   eventQueue_.push_back(event);
 
-  LOG_DEBUG("queueEvent(): " << eventQueue_.size());
+  LOG_DEBUG("queueEvent(): {}", eventQueue_.size());
 
 #ifdef WT_TARGET_JAVA
   eventQueueMutex_.unlock();
@@ -1413,8 +1413,7 @@ void WebSession::handleRequest(Handler& handler)
       && (requestE && (*requestE == "jsupdate" ||
 		       *requestE == "jserror" ||
 		       *requestE == "resource"))) {
-    LOG_DEBUG("CSRF: " << (wtdE ? *wtdE : "no wtd") << " != " << sessionId_ <<
-	      ", requestE: " << (requestE ? *requestE : "none"));
+    LOG_DEBUG("CSRF: {} != {}, requestE: {}", (wtdE ? *wtdE : "no wtd"), sessionId_, (requestE ? *requestE : "none"));
     LOG_SECURE("CSRF prevention kicked in.");
     serveError(403, handler, "Forbidden");
   } else
@@ -1910,7 +1909,7 @@ void WebSession::handleWebSocketMessage(Handler& handler)
 void WebSession::handleWebSocketMessage(std::weak_ptr<WebSession> session,
 					WebReadEvent event)
 {
-  LOG_DEBUG("handleWebSocketMessage: " << (int)event);
+  LOG_DEBUG("handleWebSocketMessage: {}", (int)event);
   std::shared_ptr<WebSession> lock = session.lock();
   if (lock) {
     Handler handler(lock, Handler::LockOption::TakeLock);
@@ -2140,9 +2139,7 @@ void WebSession::webSocketReady(std::weak_ptr<WebSession> session,
   if (lock) {
     Handler handler(lock, Handler::LockOption::TakeLock);
 
-    LOG_DEBUG("webSocketReady: webSocket_ = " << (long long)lock->webSocket_
-	      << " updatesPending = " << lock->updatesPending_
-	      << " event = " << (int)event);
+    LOG_DEBUG("webSocketReady: webSocket_ = {} updatesPending = {} event = {}", (long long)lock->webSocket_, lock->updatesPending_, (int)event);
 
     switch (event) {
     case WebWriteEvent::Completed:
@@ -2627,8 +2624,7 @@ void WebSession::notify(const WEvent& event)
         else
         {
           ++pollRequestsIgnored_;
-          LOG_DEBUG("ignored poll request (#" << pollRequestsIgnored_
-                                              << ")");
+          LOG_DEBUG("ignored poll request (#{})", pollRequestsIgnored_);
         }
             }
             else
@@ -3030,7 +3026,7 @@ void WebSession::notifySignal(const WEvent& e)
     if (!signalE)
       return;
 
-    LOG_DEBUG("signal: " << *signalE);
+    LOG_DEBUG("signal: {}", *signalE);
 
     if (type() != EntryPointType::WidgetSet ||
 	(*signalE != "none" && *signalE != "load"))

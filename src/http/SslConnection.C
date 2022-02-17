@@ -80,9 +80,9 @@ void SslConnection::handleHandshake(const Wt::AsioWrapper::error_code& error)
 
 void SslConnection::stop()
 {
-  LOG_DEBUG(native() << ": stop()");
+  LOG_DEBUG("{}: stop()", native());
   finishReply();
-  LOG_DEBUG(native() << ": SSL shutdown");
+  LOG_DEBUG("{}: SSL shutdown", native());
 
   Connection::stop();
   
@@ -107,20 +107,19 @@ void SslConnection::stopNextLayer(const Wt::AsioWrapper::error_code& ec)
   // In case of timeout, we will get here twice.
   sslShutdownTimer_.cancel();
   if (ec) {
-    LOG_DEBUG(native() << ": ssl_shutdown failed:"
-      << ec.message());
+    LOG_DEBUG("{}: ssl_shutdown failed: {}", native(), ec.message());
   }
   try {
     if (socket().is_open()) {
       Wt::AsioWrapper::error_code ignored_ec;
-      LOG_DEBUG(native() << ": socket shutdown");
+      LOG_DEBUG("{}: socket shutdown", native());
       socket().shutdown(asio::ip::tcp::socket::shutdown_both, 
 			ignored_ec);
-      LOG_DEBUG(native() << "closing socket");
+      LOG_DEBUG("{} closing socket", native());
       socket().close();
     }
   } catch (Wt::AsioWrapper::system_error& e) {
-    LOG_DEBUG(native() << ": error " << e.what());
+    LOG_DEBUG("{}: error {}", native(), e.what());
   }
 }
 
@@ -160,9 +159,7 @@ void SslConnection::startAsyncReadBody(ReplyPtr reply,
 				       Buffer& buffer, int timeout)
 {
   if (state_ & Reading) {
-    LOG_DEBUG(native() << ": state_ = "
-	      << (state_ & Reading ? "reading " : "")
-	      << (state_ & Writing ? "writing " : ""));
+    LOG_DEBUG("{}: state_ = {} {}", native(), (state_ & Reading ? "reading " : ""), (state_ & Writing ? "writing " : ""));
     stop();
     return;
   }
@@ -197,9 +194,7 @@ void SslConnection
 			  int timeout)
 {
   if (state_ & Writing) {
-    LOG_DEBUG(native() << ": state_ = "
-	      << (state_ & Reading ? "reading " : "")
-	      << (state_ & Writing ? "writing " : ""));
+    LOG_DEBUG("{}: state_ = {} {}", native(), (state_ & Reading ? "reading " : ""), (state_ & Writing ? "writing " : ""));
     stop();
     return;
   }
