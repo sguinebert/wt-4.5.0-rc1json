@@ -5,7 +5,7 @@ INSTALL_FILES(/include/Wt "^Utils[.]h$")
 INSTALL_FILES(/include/Wt "^cpp17$")
 INSTALL_FILES(/include/Wt "^AsioWrapper$")
 INSTALL_FILES(/include/Wt/fmt "^.*[.]h$")
-INSTALL_FILES(/include/Wt/fmtlog.h)
+INSTALL_FILES(/include/Wt "fmtlog.h")
 #INSTALL(
 #  FILES
 #    "^W.*[^C~]$"
