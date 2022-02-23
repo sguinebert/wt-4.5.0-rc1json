@@ -73,7 +73,7 @@ public:
     : db_(db),
       sql_(sql)
   {
-    LOG_DEBUG(this << " for: " << sql);
+    LOG_DEBUG("{} for: {}", this, sql_);
 
 #if SQLITE_VERSION_NUMBER >= 3003009
     int err = sqlite3_prepare_v2(db_.connection(), sql.c_str(),
@@ -110,7 +110,7 @@ public:
 
   virtual void bind(int column, const std::string& value) override
   {
-    LOG_DEBUG(this << " bind " << column << " " << value);
+    LOG_DEBUG("{} bind {} {}", this, column, value);
 
     int err = sqlite3_bind_text(st_, column + 1, value.c_str(),
 				static_cast<int>(value.length()),
@@ -121,7 +121,7 @@ public:
 
   virtual void bind(int column, short value) override
   {
-    LOG_DEBUG(this << " bind " << column << " " << value);
+    LOG_DEBUG("{} bind {} {}", this, column, value);
 
     int err = sqlite3_bind_int(st_, column + 1, value);
 
@@ -130,7 +130,7 @@ public:
 
   virtual void bind(int column, int value) override
   {
-    LOG_DEBUG(this << " bind " << column << " " << value);
+    LOG_DEBUG("{} bind {} {}", this, column, value);
 
     int err = sqlite3_bind_int(st_, column + 1, value);
 
@@ -139,7 +139,7 @@ public:
 
   virtual void bind(int column, long long value) override
   {
-    LOG_DEBUG(this << " bind " << column << " " << value);
+    LOG_DEBUG("{} bind {} {}", this, column, value);
 
     int err = sqlite3_bind_int64(st_, column + 1, value);
 
@@ -153,7 +153,7 @@ public:
 
   virtual void bind(int column, double value) override
   {
-    LOG_DEBUG(this << " bind " << column << " " << value);
+    LOG_DEBUG("{} bind {} {}", this, column, value);
 
     int err;
     if (isNaN(value))
@@ -166,7 +166,7 @@ public:
 
   virtual void bind(int column, const std::chrono::duration<int, std::milli> & value) override
   {
-    LOG_DEBUG(this << " bind " << column << " " << value.count() << "ms");
+    LOG_DEBUG("{} bind {} {}ms}", this, column, value.count());
 
     long long msec = value.count();
     int err = sqlite3_bind_int64(st_, column + 1, msec);
@@ -240,7 +240,7 @@ public:
 
   virtual void bind(int column, const std::vector<unsigned char>& value) override
   {
-    LOG_DEBUG(this << " bind " << column << " (blob, size=" << value.size() << ")");
+    LOG_DEBUG("{} bind {} (blob, size={})", this, column, value.size());
 
     int err;
 
@@ -255,7 +255,7 @@ public:
 
   virtual void bindNull(int column) override
   {
-    LOG_DEBUG(this << " bind " << column << " null");
+    EBUG("{} bind {} null", this, column);
 
     int err = sqlite3_bind_null(st_, column + 1);
 
@@ -334,7 +334,7 @@ public:
 
     *value = (const char *)sqlite3_column_text(st_, column);
 
-    LOG_DEBUG(this << " result string " << column << " " << *value);
+    LOG_DEBUG("{} result string {} {}", this, column, *value);
 
     return true;
   }
@@ -357,7 +357,7 @@ public:
     *value = 42;
     *value = sqlite3_column_int(st_, column);
 
-    LOG_DEBUG(this << " result int " << column << " " << *value);
+    LOG_DEBUG("{} result int {} {}", this, column, *value);
 
     return true;
   }
@@ -369,7 +369,7 @@ public:
 
     *value = sqlite3_column_int64(st_, column);
 
-    LOG_DEBUG(this << " result long long " << column << " " << *value);
+    LOG_DEBUG("{} result long long {} {}", this, column, *value);
 
     return true;
   }
@@ -387,7 +387,7 @@ public:
       }
     }
 
-    LOG_DEBUG(this << " result float " << column << " " << *value);
+    LOG_DEBUG("{} result float {} {}", this, column, *value);
 
     return true;
   }
@@ -405,7 +405,7 @@ public:
       }
     }
 
-    LOG_DEBUG(this << " result double " << column << " " << *value);
+    LOG_DEBUG("{} result double {} {}", this, column, *value);
 
     return true;
   }
@@ -419,7 +419,8 @@ public:
 
     *value = std::chrono::milliseconds(msec);
 
-    LOG_DEBUG(this << " result time_duration " << column << " " << value->count() << "ms");
+    LOG_DEBUG("{} result time_duration {} {}ms", this, column, value->count());
+    
 
     return true;
   }
@@ -533,7 +534,7 @@ public:
     value->resize(s);
     std::copy(v, v + s, value->begin());
 
-    LOG_DEBUG(this << " result blob " << column << " (blob, size = " << s << ")");
+    LOG_DEBUG("{} result blob {} (blob, size ={})", this, column, s);
 
     return true;
   }

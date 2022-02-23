@@ -638,7 +638,7 @@ bool WAxis::prepareRender(Orientation orientation, double length) const
 	  max = WDateTime::fromTime_t((std::time_t)s.renderMaximum);
 	}
 
-	LOG_DEBUG("Range: " << min.toString() << ", " << max.toString());
+	LOG_DEBUG("Range: {}, {}", min.toString(), max.toString());
 
 	if (daysInterval > 200) {
 	  s.dateTimeRenderUnit = DateTimeUnit::Years;
