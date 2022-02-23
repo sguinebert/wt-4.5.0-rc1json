@@ -255,7 +255,7 @@ public:
 
   virtual void bindNull(int column) override
   {
-    EBUG("{} bind {} null", this, column);
+    LOG_DEBUG("{} bind {} null", this, column);
 
     int err = sqlite3_bind_null(st_, column + 1);
 

@@ -22,7 +22,7 @@
 #include <string>
 #include <vector>
 
-#include "fmtlog.h"
+#include "Wt/fmtlog.h"
 
 #if !defined(WT_DBO_LOGGER) || DOXYGEN_ONLY
 #define WT_LOGGER_API WT_API
