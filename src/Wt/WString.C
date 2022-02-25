@@ -382,20 +382,25 @@ std::string format_vector(std::string_view format,
 }
 std::string WString::toUTF8() const
 {
-  if (impl_) {
-    std::string result = utf8_;
+  if(!fmt_args_.empty()) {
+    return format_vector(utf8_, fmt_args_);
+  }
+  return utf8_;
 
-    if (!impl_->key_.empty())
-      result = resolveKey(TextFormat::Plain);
+  // if (impl_) {
+  //   std::string result = utf8_;
 
-    for (unsigned i = 0; i < impl_->arguments_.size(); ++i) {
-      std::string key = '{' + std::to_string(i+1) + '}';
-      Wt::Utils::replace(result, key, impl_->arguments_[i].toUTF8());
-    }
+  //   if (!impl_->key_.empty())
+  //     result = resolveKey(TextFormat::Plain);
 
-    return result;
-  } else
-    return utf8_;
+  //   for (unsigned i = 0; i < impl_->arguments_.size(); ++i) {
+  //     std::string key = '{' + std::to_string(i+1) + '}';
+  //     Wt::Utils::replace(result, key, impl_->arguments_[i].toUTF8());
+  //   }
+
+  //   return result;
+  // } else
+  //   return utf8_;
 }
 
 std::string WString::toXhtmlUTF8() const

@@ -58,7 +58,7 @@ void SessionProcess::stop()
   closeClientSocket();
 #ifdef WT_WIN32
   if (processInfo_.hProcess != 0) {
-    LOG_DEBUG("Closing handles to process " << processInfo_.dwProcessId);
+    LOG_DEBUG("Closing handles to process {}", processInfo_.dwProcessId);
     CloseHandle(processInfo_.hProcess);
     CloseHandle(processInfo_.hThread);
     ZeroMemory(&processInfo_, sizeof(processInfo_));
@@ -122,7 +122,7 @@ void SessionProcess::readPortHandler(const Wt::AsioWrapper::error_code& err,
     closeClientSocket();
     buf_[transferred] = '\0';
     port_ = atoi(buf_);
-    LOG_DEBUG("Child is listening on port " << port_);
+    LOG_DEBUG("Child is listening on port {}", port_);
     if (onReady) {
       onReady(true);
     }

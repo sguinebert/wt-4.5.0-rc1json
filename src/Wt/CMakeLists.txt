@@ -1,11 +1,11 @@
-SUBDIRS(Auth Core Chart Date Dbo Json Http Mail Payment Render Signals Test)
+SUBDIRS(Auth Core Chart Date Dbo fmt Json Http Mail Payment Render Signals Test)
 
 INSTALL_FILES(/include/Wt "^W.*[.]h$")
 INSTALL_FILES(/include/Wt "^Utils[.]h$")
 INSTALL_FILES(/include/Wt "^cpp17$")
 INSTALL_FILES(/include/Wt "^AsioWrapper$")
-#INSTALL_FILES(/include/Wt/fmt "^.*[.]h$")
 INSTALL_FILES(/include/Wt "fmtlog.h")
+INSTALL_FILES(/include/Wt "fmtlog-inl.h")
 #INSTALL(
 #  FILES
 #    "^W.*[^C~]$"

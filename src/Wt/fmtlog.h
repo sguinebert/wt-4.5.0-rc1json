@@ -39,6 +39,9 @@ SOFTWARE.
 #ifndef FMTLOG_BLOCK
 #define FMTLOG_BLOCK 0
 #endif
+#ifndef FMTLOG_HEADER_ONLY
+#define FMTLOG_HEADER_ONLY
+#endif
 
 #define FMTLOG_LEVEL_DBG 0
 #define FMTLOG_LEVEL_INF 1

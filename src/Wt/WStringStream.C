@@ -136,8 +136,15 @@ WStringStream& WStringStream::operator<< (int v)
   // if(ptr - buf < 20)
   //   *ptr++=0;
 
+  
+
   fmt::format_int conv(v); //best performance
   auto buf = conv.c_str();
+
+  //auto out = fmt::memory_buffer();
+  //format_to(std::back_inserter(out), "The answer is {}.", 42);
+
+  //fmt::format_to(back_inserter(), "{}", v);
 
   // char buf[20];
   // fmt::format_to(buf, "{}", v); //close to best performance

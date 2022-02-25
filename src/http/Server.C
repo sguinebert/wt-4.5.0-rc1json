@@ -612,7 +612,7 @@ void Server::handleTcpAccept(TcpListener *listener, const Wt::AsioWrapper::error
                                                      connection_manager_, request_handler_));
   } else if (!listener->acceptor.is_open()) {
     // server shutdown
-    LOG_DEBUG("handleTcpAccept: async_accept error (acceptor closed, probably server shutdown): " << e.message());
+    LOG_DEBUG("handleTcpAccept: async_accept error (acceptor closed, probably server shutdown): {}", e.message());
     return;
   } else {
     LOG_ERROR("handleTcpAccept: async_accept error: {}", e.message());
@@ -633,7 +633,7 @@ void Server::handleSslAccept(SslListener *listener, const Wt::AsioWrapper::error
                                                      ssl_context_, connection_manager_, request_handler_));
   } else if (!listener->acceptor.is_open()) {
     // server shutdown
-    LOG_DEBUG("handleSslAccept: async_accept error (acceptor closed, probably server shutdown): " << e.message());
+    LOG_DEBUG("handleSslAccept: async_accept error (acceptor closed, probably server shutdown): {}", e.message());
     return;
   } else {
     LOG_ERROR("handleSslAccept: async_accept error: {}", e.message());

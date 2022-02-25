@@ -16,8 +16,9 @@
 #include <locale>
 
 #include <string_view>
-#include "fmt/format.h"
 #include "fmt/core.h"
+#include "fmt/format.h"
+
 
 namespace Wt {
 
@@ -380,6 +381,10 @@ public:
    * \sa fromUTF8(), toXhtmlUTF8()
    */
   std::string toUTF8() const;
+
+  std::string_view view() { if(formatedUtf8_.empty())formatedUtf8_ = toUTF8(); return std::string_view(formatedUtf8_); }
+
+  std::string_view xhtmlView() { if(formatedUtf8_.empty()) formatedUtf8_ = toXhtmlUTF8(); return std::string_view(formatedUtf8_); }
 
   /*! \brief Returns the value as a UTF-8 encoded XHTML string.
    *
@@ -744,7 +749,7 @@ public:
 private:
   WString(const char *key, bool, ::uint64_t n = -1);
 
-  std::string utf8_;
+  std::string utf8_, formatedUtf8_;
 
   using ctx = fmt::format_context;
   std::vector<fmt::basic_format_arg<ctx>> fmt_args_;

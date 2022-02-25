@@ -99,7 +99,7 @@ void ProxyReply::writeDone(bool success)
   }
 
   if (more_ && socket_) {
-    LOG_DEBUG("{}: receive() upstream", this << ": async_read downstream");
+    LOG_DEBUG("{}: async_read downstream", this);
     asio::async_read
       (*socket_, responseBuf_,
        asio::transfer_at_least(1),
@@ -114,7 +114,7 @@ bool ProxyReply::consumeData(const char *begin,
 			     const char *end,
 			     Request::State state)
 {
-  LOG_DEBUG("{}: receive() upstream", this << ": consumeData()");
+  LOG_DEBUG("{}: consumeData()", this);
 
   if (state == Request::Error) {
     return false;
@@ -126,7 +126,7 @@ bool ProxyReply::consumeData(const char *begin,
 
   if (sessionProcess_) {
    if (socket_) {
-      LOG_DEBUG("{}: receive() upstream", this << ": sending to child");
+      LOG_DEBUG("{}: sending to child", this);
       // Connection with child already established, send request data
       asio::async_write
 	(*socket_,
@@ -372,7 +372,7 @@ void ProxyReply::handleDataWritten(const Wt::AsioWrapper::error_code &ec,
   if (!ec) {
     if (state_ == Request::Partial) {
       requestBuf_.consume(transferred);
-      LOG_DEBUG("{}: receive() upstream", this << ": receive() upstream");
+      LOG_DEBUG("{}: receive() upstream", this);
       receive();
     } else {
       asio::async_read_until
@@ -497,7 +497,7 @@ void ProxyReply::handleHeadersRead(const Wt::AsioWrapper::error_code &ec)
 
 void ProxyReply::handleResponseRead(const Wt::AsioWrapper::error_code &ec)
 {
-  LOG_DEBUG("{}: receive() upstream", this << ": async_read done.");
+  LOG_DEBUG("{}: async_read done.", this);
 
   if (!ec) {
     if (responseBuf_.size() > 0) {

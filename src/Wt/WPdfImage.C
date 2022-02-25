@@ -333,7 +333,7 @@ namespace Wt
           ttfFont = match.fileName();
       }
 
-      LOG_DEBUG("font: " << ttfFont);
+      LOG_DEBUG("font: {}", ttfFont);
 
       if (font == currentFont_ &&
           !ttfFont.empty() &&

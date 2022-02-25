@@ -13,6 +13,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=native -mssse3")
 
 add_definitions(-DFMTLOG_HEADER_ONLY)
 add_definitions(-DFMT_HEADER_ONLY)
+add_definitions(-DFMT_EXPORT)
 
 INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_SOURCE_DIR}/web
