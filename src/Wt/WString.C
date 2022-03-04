@@ -383,7 +383,9 @@ std::string format_vector(std::string_view format,
 std::string WString::toUTF8() const
 {
   if(!fmt_args_.empty()) {
-    return format_vector(utf8_, fmt_args_);
+    if(formatedUtf8_.empty())
+      formatedUtf8_ = format_vector(utf8_, fmt_args_);
+    return formatedUtf8_;
   }
   return utf8_;
 
@@ -406,7 +408,9 @@ std::string WString::toUTF8() const
 std::string WString::toXhtmlUTF8() const
 {
   if(!fmt_args_.empty()) {
-    return format_vector(utf8_, fmt_args_);
+    if(xmlformatedUtf8_.empty())
+      xmlformatedUtf8_ = format_vector(utf8_, fmt_args_);
+    return xmlformatedUtf8_;
   }
   return utf8_;
 
@@ -523,7 +527,8 @@ WString &WString::arg(const std::string &value, CharEncoding encoding)
 
 WString& WString::arg(const char *value, CharEncoding encoding)
 {
-  return arg(std::string(value), encoding);
+  fmt_args_.push_back(fmt::detail::make_arg<ctx>(value));
+  return *this;
 }
 
 WString& WString::arg(const std::wstring& value)
@@ -541,7 +546,9 @@ WString& WString::arg(const std::wstring& value)
 
 WString& WString::arg(const wchar_t *value)
 {
-  return arg(std::wstring(value));
+  fmt_args_.push_back(fmt::detail::make_arg<ctx>(Wt::toUTF8(value)));
+  return *this;
+  //return arg(std::wstring(value));
 }
 
 WString& WString::arg(const std::u16string& value)

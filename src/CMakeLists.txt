@@ -15,6 +15,8 @@ add_definitions(-DFMTLOG_HEADER_ONLY)
 add_definitions(-DFMT_HEADER_ONLY)
 add_definitions(-DFMT_EXPORT)
 
+#target_link_libraries(wt PRIVATE fmt::fmt-header-only)
+
 INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_SOURCE_DIR}/web
   ${CMAKE_CURRENT_SOURCE_DIR}

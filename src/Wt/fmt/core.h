@@ -22,6 +22,9 @@
 #ifndef FMT_HEADER_ONLY
 #define FMT_HEADER_ONLY
 #endif
+#ifndef FMT_EXPORT
+#define FMT_EXPORT WT_API
+#endif
 
 
 #if defined(__clang__) && !defined(__ibmxl__)

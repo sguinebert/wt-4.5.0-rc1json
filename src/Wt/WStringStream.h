@@ -213,9 +213,9 @@ private:
   std::ostream *sink_;
 
   char static_buf_[S_LEN + 1];
-  fmt::memory_buffer out;
+  //fmt::memory_buffer out;
   //<typename T, size_t SIZE = inline_buffer_size, typename Allocator = std::allocator<T>>
-  fmt::basic_memory_buffer<char, S_LEN + 1, std::allocator<char>> buffer_;
+  //fmt::basic_memory_buffer<char, S_LEN, std::allocator<char>> buffer_; 
 
   char *buf_;
   int buf_i_;

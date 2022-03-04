@@ -749,7 +749,8 @@ public:
 private:
   WString(const char *key, bool, ::uint64_t n = -1);
 
-  std::string utf8_, formatedUtf8_;
+  std::string utf8_;
+  mutable std::string formatedUtf8_, xmlformatedUtf8_;
 
   using ctx = fmt::format_context;
   std::vector<fmt::basic_format_arg<ctx>> fmt_args_;
