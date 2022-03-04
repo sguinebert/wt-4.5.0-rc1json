@@ -19,6 +19,10 @@
 #include <string_view>
 #include "fmt/format.h"
 #include "fmt/core.h"
+#include "fmt/chrono.h"
+
+#include "Wt/WDateTime.h"
+#include "Wt/WDate.h"
 
 #include "WebUtils.h"
 
@@ -645,6 +649,30 @@ WString& WString::arg(double value)
   fmt_args_.push_back(fmt::detail::make_arg<ctx>(value));
   return *this;
   //return arg(WLocale::currentLocale().toString(value));
+}
+
+WString& WString::arg(const Wt::WDate& value)
+{
+  fmt_args_.push_back(fmt::detail::make_arg<ctx>(value.toTimePoint()));
+  return *this;
+}
+
+WString& WString::arg(const Wt::WDateTime& value)
+{
+  fmt_args_.push_back(fmt::detail::make_arg<ctx>(value.toTimePoint()));
+  return *this;
+}
+
+WString& WString::arg(const std::time_t& value)
+{
+  fmt_args_.push_back(fmt::detail::make_arg<ctx>(value));
+  return *this;
+}
+
+WString& WString::arg(const std::chrono::system_clock::time_point& value)
+{
+  fmt_args_.push_back(fmt::detail::make_arg<ctx>(value));
+  return *this;
 }
 
 bool WString::refresh()

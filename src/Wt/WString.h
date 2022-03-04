@@ -16,8 +16,8 @@
 #include <locale>
 
 #include <string_view>
-#include "fmt/core.h"
 #include "fmt/format.h"
+#include <chrono>
 
 
 namespace Wt {
@@ -382,9 +382,9 @@ public:
    */
   std::string toUTF8() const;
 
-  std::string_view view() { if(formatedUtf8_.empty())formatedUtf8_ = toUTF8(); return std::string_view(formatedUtf8_); }
+  std::string_view view() { if(formatedUtf8_.empty()) toUTF8(); return std::string_view(formatedUtf8_); }
 
-  std::string_view xhtmlView() { if(formatedUtf8_.empty()) formatedUtf8_ = toXhtmlUTF8(); return std::string_view(formatedUtf8_); }
+  std::string_view xhtmlView() { if(formatedUtf8_.empty()) toXhtmlUTF8(); return std::string_view(formatedUtf8_); }
 
   /*! \brief Returns the value as a UTF-8 encoded XHTML string.
    *
@@ -528,6 +528,20 @@ public:
    * When the string is literal, the result is undefined.
    */
   const std::string key() const;
+
+  WString& arg(const Wt::WDate& value);
+
+  WString& arg(const Wt::WDateTime& value);
+
+  WString& arg(const std::time_t& value);
+
+  WString& arg(const std::chrono::system_clock::time_point& value);
+
+  void clear() {
+    fmt_args_.clear();
+    formatedUtf8_.clear();
+    xmlformatedUtf8_.clear();
+  }
 
   /*! \brief Substitutes the next positional argument with a string value.
    *
