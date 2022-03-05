@@ -412,9 +412,9 @@ std::string WString::toUTF8() const
 std::string WString::toXhtmlUTF8() const
 {
   if(!fmt_args_.empty()) {
-    if(xmlformatedUtf8_.empty())
-      xmlformatedUtf8_ = format_vector(utf8_, fmt_args_);
-    return xmlformatedUtf8_;
+    if(formatedUtf8_.empty())
+      formatedUtf8_ = format_vector(utf8_, fmt_args_);
+    return formatedUtf8_;
   }
   return utf8_;
 
@@ -593,7 +593,7 @@ WString& WString::arg(const char32_t *value)
 
 WString& WString::arg(const WString& value)
 {
-  createImpl();
+  //createImpl();
 
   //impl_->arguments_.push_back(value);
 
