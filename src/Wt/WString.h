@@ -540,7 +540,8 @@ public:
   void clear() {
     fmt_args_.clear();
     formatedUtf8_.clear();
-    xmlformatedUtf8_.clear();
+    arguments_.clear();
+    //xmlformatedUtf8_.clear();
   }
 
   /*! \brief Substitutes the next positional argument with a string value.
@@ -628,6 +629,9 @@ public:
    * the shop.</tt>"
    */
   WString& arg(const std::string& value,
+	       CharEncoding encoding = CharEncoding::Default);
+
+  WString& arg(const std::string&& value,
 	       CharEncoding encoding = CharEncoding::Default);
 
   /*! \brief Substitutes the next positional argument with a string value.
@@ -764,7 +768,8 @@ private:
   WString(const char *key, bool, ::uint64_t n = -1);
 
   std::string utf8_;
-  mutable std::string formatedUtf8_, xmlformatedUtf8_;
+  mutable std::string formatedUtf8_;
+  std::vector<std::string> arguments_;
 
   using ctx = fmt::format_context;
   std::vector<fmt::basic_format_arg<ctx>> fmt_args_;
