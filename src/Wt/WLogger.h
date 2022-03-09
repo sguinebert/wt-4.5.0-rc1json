@@ -495,7 +495,7 @@ namespace Wt
 #define LOG_INFO_S(s, m) (s)->log("info") << WT_LOGGER << ": " << m
 #define LOG_INFO(m, ...)                             \
   do                                            \
-  {                                             \
+  {                                            \
       logi("[info] {}: {}", WT_LOGGER, fmt::format(m, ##__VA_ARGS__));                   \
   } while (0)
 #define LOG_WARN_S(s, m) (s)->log("warning") << WT_LOGGER << ": " << m
