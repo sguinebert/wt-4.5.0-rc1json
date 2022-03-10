@@ -113,10 +113,9 @@ namespace {
     virtual void addHeader(const std::string& name, const std::string& value) override
     {
       if (!headersCommitted_)
-	*out_ << name << ": " << value << "\r\n";
+	      *out_ << name << ": " << value << "\r\n";
       else
-	LOG_WARN("addHeader(): " << name << ": " << value
-		 << " ignored because headers already committed.");
+	      LOG_WARN("addHeader(): {}: ignored because headers already committed.", name, value);
     }
 
     virtual void setContentLength(::int64_t length) override

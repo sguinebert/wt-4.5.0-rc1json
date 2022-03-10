@@ -450,30 +450,35 @@ void WMenu::internalPathChanged(const std::string& path)
 {
   WApplication *app = wApp;
 
-  if (app->internalPathMatches(basePath_)) {
+  if (app->internalPathMatches(basePath_))
+  {
     std::string subPath = app->internalSubPath(basePath_);
 
     int bestI = -1, bestMatchLength = -1;
 
-    for (int i = 0; i < count(); ++i) {
+    for (int i = 0; i < count(); ++i)
+    {
       if (!itemAt(i)->isEnabled() || itemAt(i)->isHidden())
-	continue;
+        continue;
 
       int matchLength = match(subPath, itemAt(i)->pathComponent());
 
-      if (matchLength > bestMatchLength) {
-	bestMatchLength = matchLength;
-	bestI = i;
+      if (matchLength > bestMatchLength)
+      {
+        bestMatchLength = matchLength;
+        bestI = i;
       }
     }
 
     if (bestI != -1)
       itemAt(bestI)->setFromInternalPath(path);
-    else {
-      if (!subPath.empty())
-	LOG_WARN("unknown path: '"<< subPath << "'");
+    else
+    {
+      if (!subPath.empty()){
+        LOG_WARN("unknown path: '{}'", subPath);
+      }
       else
-	select(-1, false);
+        select(-1, false);
     }
   }
 }

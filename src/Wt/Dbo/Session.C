@@ -182,7 +182,7 @@ namespace Wt
     {
       if (!dirtyObjects_->empty())
       {
-        LOG_WARN("Session exiting with " << dirtyObjects_->size() << " dirty objects");
+        LOG_WARN("Session exiting with {} dirty objects", dirtyObjects_->size());
       }
 
       while (!dirtyObjects_->empty())

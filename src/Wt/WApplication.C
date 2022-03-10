@@ -1301,9 +1301,7 @@ std::string WApplication::internalSubPath(const std::string& path) const
   std::string current = Utils::append(newInternalPath_, '/');
 
   if (!pathMatches(current, path)) {
-    LOG_WARN("internalPath(): path '"
-	     << path << "' not within current path '" << internalPath()
-	     << "'");
+    LOG_WARN("internalPath(): path '{}' not within current path '{}'", path, internalPath());
     return std::string();
   }
 
@@ -1385,8 +1383,7 @@ void WApplication::enableUpdates(bool enabled)
 {
   if (enabled) {
     if (serverPush_ == 0 && !WebSession::Handler::instance()->request())
-      LOG_WARN("WApplication::enableUpdates(true): "
-	       "should be called from within event loop");
+      LOG_WARN("WApplication::enableUpdates(true): should be called from within event loop");
     ++serverPush_;
   } else
     --serverPush_;

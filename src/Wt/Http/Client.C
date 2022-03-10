@@ -1052,8 +1052,7 @@ void Client::handleRedirect(Http::Method method,
 	get(*newUrl, request.headers());
 	return;
       } else {
-	LOG_WARN("Redirect count of " << maxRedirects_ 
-		 << " exceeded! Redirect URL: " << *newUrl);
+	LOG_WARN("Redirect count of {} exceeded! Redirect URL: {}", maxRedirects_, *newUrl);
       }
     }
   }

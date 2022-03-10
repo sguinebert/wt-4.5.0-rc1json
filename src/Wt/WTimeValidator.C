@@ -153,7 +153,7 @@ WValidator::Result WTimeValidator::validate(const WT_USTRING &input) const
                 return Result(ValidationState::Valid);
             }
         } catch (std::exception &e){
-	  LOG_WARN("validate(): " << e.what());
+	  LOG_WARN("validate(): {}", e.what());
         }
     }
     return Result(ValidationState::Invalid, invalidNotATimeText());

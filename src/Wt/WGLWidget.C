@@ -264,7 +264,7 @@ void WGLWidget::render(WFlags<RenderFlag> flags)
 	  try {
 	    pImpl_.reset(new WServerGLWidget(this));
 	  } catch (WException& e) {
-	    LOG_WARN("Failed to initialize server rendering fallback: " << e.what());
+	    LOG_WARN("Failed to initialize server rendering fallback: {}", e.what());
 	  }
 	} else {
 	  pImpl_.reset();

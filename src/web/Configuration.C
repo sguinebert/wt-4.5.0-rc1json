@@ -1298,10 +1298,9 @@ namespace Wt
         if (name == "approot")
           name = "appRoot";
 
-        if (name == "appRoot" && !appRoot_.empty())
-          LOG_WARN("ignoring configuration property 'appRoot' ("
-                   << value
-                   << ") because was already set to " << appRoot_);
+        if (name == "appRoot" && !appRoot_.empty()) {
+          LOG_WARN("ignoring configuration property 'appRoot' ({}) because was already set to {}", value, appRoot_);
+        }
         else
           properties_[name] = value;
       }

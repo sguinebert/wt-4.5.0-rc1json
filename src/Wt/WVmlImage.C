@@ -758,15 +758,19 @@ void WVmlImage::processClipping()
 	  ok = true;
 	}
 
-	if (ok) {
-	  stopClip();
-	  startClip(WRectF(tlx, tly, brx - tlx, bry - tly));
-	} else
-	  LOG_WARN("VML only supports rectangle clipping "
-		   << "with rectangles aligned to the window");
-      } else
-	LOG_WARN("VML only supports rectangle clipping");
-    } else {
+  if (ok)
+  {
+    stopClip();
+    startClip(WRectF(tlx, tly, brx - tlx, bry - tly));
+  }
+  else
+    LOG_WARN("VML only supports rectangle clipping with rectangles aligned to the window");
+      }
+      else
+        LOG_WARN("VML only supports rectangle clipping");
+    }
+    else
+    {
       stopClip();
       startClip(WRectF(0, 0, width().value(), height().value()));
     }

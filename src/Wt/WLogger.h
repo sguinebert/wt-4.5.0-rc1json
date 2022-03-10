@@ -481,44 +481,11 @@ namespace Wt
 
 #define LOGGER(s) static const char *logger = s
 
-#ifdef WT_DEBUG_ENABLED
-#define LOG_DEBUG_S(s, m) (s)->log("debug") << WT_LOGGER << ": " << m
-#define LOG_DEBUG(m, args...)                             \
-  do                                             \
-  {                                              \
-  } while (0)
-#else
-#define LOG_DEBUG_S(s, m)
-#define LOG_DEBUG(m, args...)
-#endif
-
-#define LOG_INFO_S(s, m) (s)->log("info") << WT_LOGGER << ": " << m
-#define LOG_INFO(m, ...)                             \
-  do                                            \
-  {                                            \
-      logi("[info] {}: {}", WT_LOGGER, fmt::format(m, ##__VA_ARGS__));                   \
-  } while (0)
-#define LOG_WARN_S(s, m) (s)->log("warning") << WT_LOGGER << ": " << m
-#define LOG_WARN(m, args...) //fmtlog::FMTLOG(fmtlog::INF, "[info] ")
-#define LOG_SECURE_S(s, m) (s)->log("secure") << WT_LOGGER << ": " << m
-#define LOG_SECURE(m, ...)                             \
-  do                                              \
-  {                                               \
-      logw("[secure] {}: {}", WT_LOGGER, fmt::format(m, ##__VA_ARGS__));                   \
-  } while (0)
-#define LOG_ERROR_S(s, m) (s)->log("error") << WT_LOGGER << ": " << m
-#define LOG_ERROR(m, ...)                             \
-  do                                             \
-  {                                              \
-      loge("[error] {}: {}", WT_LOGGER, fmt::format(m, ##__VA_ARGS__));\
-  } while (0)
-
 // #ifdef WT_DEBUG_ENABLED
 // #define LOG_DEBUG_S(s, m) (s)->log("debug") << WT_LOGGER << ": " << m
 // #define LOG_DEBUG(m, args...)                             \
 //   do                                             \
 //   {                                              \
-//    logd("[debug] {}: {}", WT_LOGGER, fmt::format(m, args)); \
 //   } while (0)
 // #else
 // #define LOG_DEBUG_S(s, m)
@@ -526,29 +493,42 @@ namespace Wt
 // #endif
 
 // #define LOG_INFO_S(s, m) (s)->log("info") << WT_LOGGER << ": " << m
-// #define LOG_INFO(m, args...)                             \
+// #define LOG_INFO(m, ...)                             \
 //   do                                            \
-//   {                                             \
-//     logi("[info] {}: {}", WT_LOGGER, fmt::format(m, args));               \
+//   {                                            \
+//       logi("[info] {}: {}", WT_LOGGER, fmt::format(m, ##__VA_ARGS__));                   \
 //   } while (0)
 // #define LOG_WARN_S(s, m) (s)->log("warning") << WT_LOGGER << ": " << m
-// #define LOG_WARN(m, args...)                                 \
-//   do                                                \
-//   {                                                 \
-//      logw("[warning] {}: {}", WT_LOGGER, fmt::format(m, args));\
-//   } while (0)
+// #define LOG_WARN(m, args...) //fmtlog::FMTLOG(fmtlog::INF, "[info] ")
 // #define LOG_SECURE_S(s, m) (s)->log("secure") << WT_LOGGER << ": " << m
-// #define LOG_SECURE(m, args...)                             \
+// #define LOG_SECURE(m, ...)                             \
 //   do                                              \
 //   {                                               \
-//    logw("[secure] {}: {}", WT_LOGGER, fmt::format(m, args)); \
+//       logw("[secure] {}: {}", WT_LOGGER, fmt::format(m, ##__VA_ARGS__));                   \
 //   } while (0)
 // #define LOG_ERROR_S(s, m) (s)->log("error") << WT_LOGGER << ": " << m
-// #define LOG_ERROR(m, args...)                             \
+// #define LOG_ERROR(m, ...)                             \
 //   do                                             \
 //   {                                              \
-//    loge("[error] {}: {}", WT_LOGGER, fmt::format(m, args)); \
+//       loge("[error] {}: {}", WT_LOGGER, fmt::format(m, ##__VA_ARGS__));\
 //   } while (0)
+
+#ifdef WT_DEBUG_ENABLED
+#define LOG_DEBUG_S(s, m) (s)->log("debug") << WT_LOGGER << ": " << m
+#define LOG_DEBUG(m, ...) logd(m, ##__VA_ARGS__); 
+#else
+#define LOG_DEBUG_S(s, m)
+#define LOG_DEBUG(m, ...)
+#endif
+
+#define LOG_INFO_S(s, m) (s)->log("info") << WT_LOGGER << ": " << m
+#define LOG_INFO(m, ...) logi(m, ##__VA_ARGS__);
+#define LOG_WARN_S(s, m) (s)->log("warning") << WT_LOGGER << ": " << m
+#define LOG_WARN(m, ...) logw(m, ##__VA_ARGS__);
+#define LOG_SECURE_S(s, m) (s)->log("secure") << WT_LOGGER << ": " << m
+#define LOG_SECURE(m, ...) logs(m, ##__VA_ARGS__);
+#define LOG_ERROR_S(s, m) (s)->log("error") << WT_LOGGER << ": " << m
+#define LOG_ERROR(m, ...) loge(m, ##__VA_ARGS__);
 
 #else // WT_TARGET_JAVA
 

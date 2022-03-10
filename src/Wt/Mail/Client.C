@@ -530,7 +530,7 @@ namespace Wt
           }
           else if (!boost::iequals(authMethod, "none"))
           {
-            LOG_WARN("Unrecognized authentication method in 'smtp-auth-method' property: '" << authMethod << '\'');
+            LOG_WARN("Unrecognized authentication method in 'smtp-auth-method' property: '{}'", authMethod);
           }
         }
       }
@@ -568,7 +568,7 @@ namespace Wt
           }
           else if (!boost::iequals(encryptionMethod, "none"))
           {
-            LOG_WARN("Unrecognized encryption method in 'smtp-transport-encryption' property: '" << encryptionMethod << '\'');
+            LOG_WARN("Unrecognized encryption method in 'smtp-transport-encryption' property: '{}'", encryptionMethod);
           }
         }
       }

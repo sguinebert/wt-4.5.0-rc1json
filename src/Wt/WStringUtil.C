@@ -128,7 +128,7 @@ namespace Wt
       std::string result(pstr, pc - pstr);
 
       if (error)
-        LOG_WARN("narrow(): loss of detail: " << result);
+        LOG_WARN("narrow(): loss of detail: {}", result);
 
       std::free(pstr);
 

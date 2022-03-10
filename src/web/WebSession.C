@@ -2535,10 +2535,12 @@ void WebSession::notify(const WEvent& event)
 
           if (invalidAckId)
           {
-            if (!ackIdE)
+            if (!ackIdE){
               LOG_SECURE("missing ackId");
-            else
+            }
+            else{
               LOG_SECURE("invalid ackId");
+            }
             serveError(403, handler, "Forbidden");
             return;
           }

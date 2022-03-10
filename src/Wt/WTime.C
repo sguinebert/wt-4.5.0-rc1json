@@ -50,7 +50,7 @@ bool WTime::setHMS(int h, int m, int s, int ms)
     if (negative)
       time_ = -time_;
   } else {
-    LOG_WARN("Invalid time: " << h << ":" << m << ":" << s << "." << ms);
+    LOG_WARN("Invalid time: {}:{}:{}.{}", h, m, s, ms);
   }
 
   return valid_;

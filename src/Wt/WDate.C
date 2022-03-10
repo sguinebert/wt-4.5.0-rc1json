@@ -106,9 +106,7 @@ namespace Wt
     if (!ymd.ok())
     {
       if (!ymd.year().ok())
-        LOG_WARN("Invalid date: year not in range "
-                 << (int)ymd.year().min() << " .. "
-                 << (int)ymd.year().max());
+        LOG_WARN("Invalid date: year not in range {} .. {}", (int)ymd.year().min(), (int)ymd.year().max());
       if (!ymd.month().ok())
         LOG_WARN("Invalid date: month not in range 1 .. 12");
       if (!ymd.day().ok())

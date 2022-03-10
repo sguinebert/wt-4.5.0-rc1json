@@ -208,7 +208,7 @@ void SessionProcessManager::processDeadChildren(Wt::AsioWrapper::error_code ec)
 
   for (SessionProcessList::iterator it = processesToErase.begin();
 	   it != processesToErase.end(); ++it) {
-    LOG_WARN("Child process " << (*it)->processInfo().dwProcessId << " died before a session could be assigned");
+    LOG_WARN("Child process {} died before a session could be assigned", (*it)->processInfo().dwProcessId);
     (*it)->stop();
 	SessionProcessList::iterator it2 = std::find(pendingProcesses_.begin(), pendingProcesses_.end(), *it);
 	pendingProcesses_.erase(it2);
@@ -286,7 +286,7 @@ void SessionProcessManager::removeSessionForPid(pid_t cpid)
   for (SessionProcessList::iterator it = pendingProcesses_.begin();
        it != pendingProcesses_.end(); ++it) {
     if ((*it)->pid() == cpid) {
-      LOG_WARN("Child process " << cpid << " died before a session could be assigned");
+      LOG_WARN("Child process {} died before a session could be assigned", cpid);
       (*it)->stop();
       pendingProcesses_.erase(it);
       -- numSessions_;

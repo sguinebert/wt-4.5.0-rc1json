@@ -276,8 +276,7 @@ void WBoxLayout::setResizable(int index, bool enabled,
 			      const WLength& initialSize)
 {
   if (preferredImplementation() == LayoutImplementation::Flex) {
-    LOG_WARN("Resize handles are not supported for flex layout implementation, "
-             "using JavaScript implementation instead");
+    LOG_WARN("Resize handles are not supported for flex layout implementation, using JavaScript implementation instead");
     setPreferredImplementation(LayoutImplementation::JavaScript);
   }
 
