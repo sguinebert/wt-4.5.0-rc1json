@@ -669,25 +669,31 @@ WString& WString::arg(double value)
 
 WString& WString::arg(const Wt::WDate& value)
 {
-  fmt_args_.push_back(fmt::detail::make_arg<ctx>(fmt::gmtime(value.toTimePoint())));
+  tmarguments_.push_back(fmt::gmtime(value.toTimePoint()));
+  fmt_args_.push_back(fmt::detail::make_arg<ctx>(tmarguments_.back()));
   return *this;
 }
 
 WString& WString::arg(const Wt::WDateTime& value)
 {
-  fmt_args_.push_back(fmt::detail::make_arg<ctx>(fmt::gmtime(value.toTimePoint())));
+  tmarguments_.push_back(fmt::gmtime(value.toTimePoint()));
+  fmt_args_.push_back(fmt::detail::make_arg<ctx>(tmarguments_.back()));
   return *this;
 }
 
 WString& WString::arg(const std::time_t& value)
 {
-  fmt_args_.push_back(fmt::detail::make_arg<ctx>(fmt::gmtime(value)));
+  tmarguments_.push_back(fmt::gmtime(value));
+  fmt_args_.push_back(fmt::detail::make_arg<ctx>(tmarguments_.back()));
+  //fmt_args_.push_back(fmt::detail::make_arg<ctx>(fmt::gmtime(value)));
   return *this;
 }
 
 WString& WString::arg(const std::chrono::system_clock::time_point& value)
 {
-  fmt_args_.push_back(fmt::detail::make_arg<ctx>(fmt::gmtime(value)));
+  tmarguments_.push_back(fmt::gmtime(value));
+  fmt_args_.push_back(fmt::detail::make_arg<ctx>(tmarguments_.back()));
+  //fmt_args_.push_back(fmt::detail::make_arg<ctx>(fmt::gmtime(value)));
   return *this;
 }
 

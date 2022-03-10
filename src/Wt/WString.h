@@ -770,6 +770,7 @@ private:
   std::string utf8_;
   mutable std::string formatedUtf8_;
   std::vector<std::string> arguments_;
+  std::vector<std::tm> tmarguments_;
 
   using ctx = fmt::format_context;
   std::vector<fmt::basic_format_arg<ctx>> fmt_args_;
