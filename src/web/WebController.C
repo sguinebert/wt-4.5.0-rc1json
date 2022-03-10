@@ -110,8 +110,7 @@ void WebController::shutdown()
 
       running_ = false;
 
-      LOG_INFO_S(&server_, "shutdown: stopping " << sessions_.size()
-		 << " sessions.");
+      LOG_INFO_S(&server_, "shutdown: stopping {} sessions.", sessions_.size());
 
       for (SessionMap::iterator i = sessions_.begin(); i != sessions_.end();
 	   ++i)
@@ -457,7 +456,7 @@ bool WebController::requestDataReceived(WebRequest *request,
     try {
       cgi.parse(*request, CgiParser::ReadHeadersOnly);
     } catch (std::exception& e) {
-      LOG_ERROR_S(&server_, "could not parse request: " << e.what());
+      LOG_ERROR_S(&server_, "could not parse request: {}", e.what());
       return false;
     }
 
@@ -596,7 +595,7 @@ void WebController::handleRequest(WebRequest *request)
 	      ? CgiParser::ReadBodyAnyway
 	      : CgiParser::ReadDefault);
   } catch (std::exception& e) {
-    LOG_ERROR_S(&server_, "could not parse request: " << e.what());
+    LOG_ERROR_S(&server_, "could not parse request: {}", e.what());
 
     request->setContentType("text/html");
     request->out()
@@ -680,8 +679,7 @@ void WebController::handleRequest(WebRequest *request)
 	// it should be handled by the persistent session. We can distinguish
 	// using the type of the request
 	LOG_INFO_S(&server_, 
-		   "persistent session requested Id: " << sessionId << ", "
-		   << "persistent Id: " << singleSessionId_);
+		   "persistent session requested Id: {}, persistentId: {}", sessionId, singleSessionId_);
 
 	if (sessions_.empty() || strcmp(request->requestMethod(), "GET") == 0)
 	  sessionId = singleSessionId_;
@@ -700,8 +698,7 @@ void WebController::handleRequest(WebRequest *request)
         if (sessionTracking == Configuration::Combined &&
             i != sessions_.end() && !i->second->dead()) {
           if (!request->headerValue("Cookie")) {
-            LOG_ERROR_S(&server_, "Valid session id: " << sessionId << ", but "
-                        "no cookie received (expecting multi session cookie)");
+            LOG_ERROR_S(&server_, "Valid session id: {}, but no cookie received (expecting multi session cookie)", sessionId);
             request->setStatus(403);
             request->flush(WebResponse::ResponseState::ResponseDone);
 	    return;
@@ -749,7 +746,7 @@ void WebController::handleRequest(WebRequest *request)
 	sessions_[sessionId] = session;
 	++plainHtmlSessions_;
       } catch (std::exception& e) {
-	LOG_ERROR_S(&server_, "could not create new session: " << e.what());
+	LOG_ERROR_S(&server_, "could not create new session: {}", e.what());
 	request->flush(WebResponse::ResponseState::ResponseDone);
 	return;
       }

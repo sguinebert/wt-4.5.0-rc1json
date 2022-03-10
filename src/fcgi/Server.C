@@ -56,7 +56,7 @@ bool Server::bindUDStoStdin(const std::string& socketPath, Wt::WServer& server)
 {
   int s = socket(AF_UNIX, SOCK_STREAM, 0);
   if (s == -1) {
-    LOG_ERROR_S(&server, "fatal: socket(): " << (const char *)strerror(errno));
+    LOG_ERROR_S(&server, "fatal: socket(): {}", (const char *)strerror(errno));
     return false;
   }
 
@@ -70,19 +70,19 @@ bool Server::bindUDStoStdin(const std::string& socketPath, Wt::WServer& server)
     + strlen(local.sun_path) + 1;
 
   if (bind(s, (struct sockaddr *)& local, len) == -1) {
-    LOG_ERROR_S(&server, "fatal: bind(): " << (const char *)strerror(errno));
+    LOG_ERROR_S(&server, "fatal: bind(): {}", (const char *)strerror(errno));
     close(s);
     return false;
   }
 
   if (listen(s, 5) == -1) {
-    LOG_ERROR_S(&server, "fatal: listen(): " << (const char *)strerror(errno));
+    LOG_ERROR_S(&server, "fatal: listen(): {}", (const char *)strerror(errno));
     close(s);
     return false;
   }
 
   if (dup2(s, STDIN_FILENO) == -1) {
-    LOG_ERROR_S(&server, "fatal: dup2(): " << (const char *)strerror(errno));
+    LOG_ERROR_S(&server, "fatal: dup2(): {}", (const char *)strerror(errno));
     close(s);
     return false;
   }
@@ -160,14 +160,14 @@ void Server::spawnSharedProcess()
 {
   pid_t pid = fork();
   if (pid == -1) {
-    LOG_ERROR_S(&wt_, "fatal error: fork(): " << (const char *)strerror(errno));
+    LOG_ERROR_S(&wt_, "fatal error: fork(): {}", (const char *)strerror(errno));
     exit(1);
   } else if (pid == 0) {
     /* the child process */
     execChild(true, std::string());
     exit(1);
   } else {
-    LOG_INFO_S(&wt_, "spawned session process: pid = " << pid);
+    LOG_INFO_S(&wt_, "spawned session process: pid = {}", pid);
 #ifdef WT_THREADED
     std::unique_lock<std::recursive_mutex> sessionsLock(mutex_);
 #endif
@@ -221,7 +221,7 @@ void handleServerSigHup(int)
 
 void Server::handleSignal(const char *signal)
 {
-  LOG_INFO_S(&wt_, "shutdown (caught " << signal << ")");
+  LOG_INFO_S(&wt_, "shutdown (caught {})", signal);
 
   /* We need to kill all children */
   for (unsigned i = 0; i < sessionProcessPids_.size(); ++i)
@@ -241,7 +241,7 @@ void Server::doHandleSigChld()
   int stat;
 
   while ((cpid = waitpid(0, &stat, WNOHANG)) > 0) {
-    LOG_INFO_S(&wt_, "caught SIGCHLD: pid=" << cpid << ", stat=" << stat);
+    LOG_INFO_S(&wt_, "caught SIGCHLD: pid={}, stat={}", cpid, stat);
 
     Configuration& conf = wt_.configuration();
 
@@ -252,7 +252,7 @@ void Server::doHandleSigChld()
       for (SessionMap::iterator i = sessions_.begin(); i != sessions_.end();
 	   ++i) {
 	if (i->second->childPId() == cpid) {
-	  LOG_INFO_S(&wt_, "deleting session: " << i->second->sessionId());
+	  LOG_INFO_S(&wt_, "deleting session: {}", i->second->sessionId());
 
 	  unlink(socketPath(i->second->sessionId()).c_str());
 	  delete i->second;
@@ -310,7 +310,7 @@ int Server::connectToSession(const std::string& sessionId,
 {
   int s = socket(AF_UNIX, SOCK_STREAM, 0);
   if (s == -1) {
-    LOG_ERROR_S(&wt_, "fatal: socket(): " << (const char *)strerror(errno));
+    LOG_ERROR_S(&wt_, "fatal: socket(): {}", (const char *)strerror(errno));
     exit(1);
   }
 
@@ -329,9 +329,8 @@ int Server::connectToSession(const std::string& sessionId,
   }
 
   if (tries == maxTries) {
-    LOG_ERROR_S(&wt_, "connect(): " << (const char *)strerror(errno));
-    LOG_INFO_S(&wt_, "giving up on session: " << sessionId
-	     << " (" << socketPath << ")");
+    LOG_ERROR_S(&wt_, "connect(): {}", (const char *)strerror(errno));
+    LOG_INFO_S(&wt_, "giving up on session: {} ({})", sessionId, socketPath);
     close(s);
     unlink(socketPath.c_str());
 
@@ -352,8 +351,7 @@ void Server::checkConfig()
 
   if (test == NULL) {
     if (mkdir(conf.runDirectory().c_str(), 777) != 0) {
-      LOG_ERROR_S(&wt_, "fatal: cannot create run directory '"
-		<< conf.runDirectory() << "'");
+      LOG_ERROR_S(&wt_, "fatal: cannot create run directory '{}'", conf.runDirectory());
       exit(1);
     }
   } else {
@@ -376,17 +374,13 @@ int Server::run()
   socklen_t socklen = sizeof(clientname);
 
   if (signal(SIGCHLD, Wt::handleSigChld) == SIG_ERR) 
-    LOG_ERROR_S(&wt_, "cannot catch SIGCHLD: signal(): "
-		<< (const char *)strerror(errno));
+    LOG_ERROR_S(&wt_, "cannot catch SIGCHLD: signal(): {}", (const char *)strerror(errno));
   if (signal(SIGTERM, Wt::handleServerSigTerm) == SIG_ERR)
-    LOG_ERROR_S(&wt_, "cannot catch SIGTERM: signal(): "
-		<< (const char *)strerror(errno));
+    LOG_ERROR_S(&wt_, "cannot catch SIGTERM: signal(): {}", (const char *)strerror(errno));
   if (signal(SIGUSR1, Wt::handleServerSigUsr1) == SIG_ERR) 
-    LOG_ERROR_S(&wt_, "cannot catch SIGUSR1: signal(): "
-		<< (const char *)strerror(errno));
+    LOG_ERROR_S(&wt_, "cannot catch SIGUSR1: signal(): {}", (const char *)strerror(errno));
   if (signal(SIGHUP, Wt::handleServerSigHup) == SIG_ERR) 
-    LOG_ERROR_S(&wt_, "cannot catch SIGHUP: signal(): "
-		<< (const char *)strerror(errno));
+    LOG_ERROR_S(&wt_, "cannot catch SIGHUP: signal(): {}", (const char *)strerror(errno));
 
   if (args_.size() == 1 && boost::starts_with(args_[0], "--socket=")) {
     std::string socketName = args_[0].substr(9);
@@ -394,7 +388,7 @@ int Server::run()
     if (!bindUDStoStdin(socketName, wt_))
       return -1;
     LOG_INFO_S(&wt_,
-	       "reading FastCGI stream from socket '" << socketName << '\'');
+	       "reading FastCGI stream from socket '{}'", socketName);
   } else
     LOG_INFO_S(&wt_, "reading FastCGI stream from stdin");
 
@@ -405,7 +399,7 @@ int Server::run()
 			      &socklen);
 
     if (serverSocket < 0) {
-      LOG_ERROR_S(&wt_, "fatal: accept(): " << (const char *)strerror(errno));
+      LOG_ERROR_S(&wt_, "fatal: accept(): {}", (const char *)strerror(errno));
       exit (1);
     }
 
@@ -577,22 +571,20 @@ void Server::handleRequest(int serverSocket)
 	 * But not if we have already too many sessions running...
 	 */
 	if ((int)sessions_.size() > conf.maxNumSessions()) {
-	  LOG_ERROR_S(&wt_, "session limit reached (" << 
-		      conf.maxNumSessions() << ')');
+	  LOG_ERROR_S(&wt_, "session limit reached ({})", conf.maxNumSessions());
 	  break;
 	}
 
 	pid_t pid = fork();
 	if (pid == -1) {
-	  LOG_ERROR_S(&wt_, "fatal: fork(): " << (const char *)strerror(errno));
+	  LOG_ERROR_S(&wt_, "fatal: fork(): {}", (const char *)strerror(errno));
 	  exit(1);
 	} else if (pid == 0) {
 	  /* the child process */
 	  execChild(true, sessionId);
 	  exit(1);
 	} else {
-	  LOG_INFO_S(&wt_, "spawned dedicated process for " << sessionId
-		   << ": pid=" << pid);
+	  LOG_INFO_S(&wt_, "spawned dedicated process for {}: pid={}", sessionId, pid);
 	  {
 #ifdef WT_THREADED
 	    std::unique_lock<std::recursive_mutex> sessionsLock(mutex_);
@@ -631,9 +623,9 @@ void Server::handleRequest(int serverSocket)
 
 	      clientSocket = connectToSession("", path, 100);
 
-	      if (clientSocket == -1)
-		LOG_ERROR_S(&wt_, "session process " << pid <<
-			    " not responding ?");
+	      if (clientSocket == -1){
+		      LOG_ERROR_S(&wt_, "session process {} not responding ?", pid);
+        }
 
 	      break;
 	    }
@@ -652,9 +644,10 @@ void Server::handleRequest(int serverSocket)
      */
     for (unsigned i = 0; i < consumedRecords_.size(); ++i) {
       if (!writeToSocket(clientSocket, consumedRecords_[i]->plainText(),
-			 consumedRecords_[i]->plainTextLength())) {
-	LOG_ERROR_S(&wt_, "error writing to client");
-	return;
+                         consumedRecords_[i]->plainTextLength()))
+      {
+        LOG_ERROR_S(&wt_, "error writing to client");
+        return;
       }
 
       delete consumedRecords_[i];
@@ -674,8 +667,7 @@ void Server::handleRequest(int serverSocket)
       LOG_DEBUG_S(&wt_, "select()");
       if (select(FD_SETSIZE, &rfds, NULL, NULL, NULL) < 0) {
 	if (errno != EINTR)
-	  LOG_ERROR_S(&wt_, "fatal: select(): "
-		      << (const char *)strerror(errno));
+	  LOG_ERROR_S(&wt_, "fatal: select(): {}", (const char *)strerror(errno));
 
 	break;
       }

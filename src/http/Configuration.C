@@ -276,8 +276,7 @@ void Configuration::setOptions(const std::string &applicationPath,
         std::ios::in | std::ios::binary);
       if (cfgFile) {
         if (!silent_)
-          LOG_INFO_S(this, "reading wthttpd configuration from: "
-                     << configurationFile);
+          LOG_INFO_S(this, "reading wthttpd configuration from: {}", configurationFile);
         po::store(po::parse_config_file(cfgFile, all_options), vm);
       }
     }

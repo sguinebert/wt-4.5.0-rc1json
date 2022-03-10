@@ -334,7 +334,7 @@ int WRun(const std::string &applicationPath,
         // MacOSX + valgrind:
         // for (;;) { sleep(100); }
         int sig = WServer::waitForShutdown();
-        LOG_INFO_S(&server, "shutdown (signal = " << sig << ")");
+        LOG_INFO_S(&server, "shutdown (signal = {})", sig);
 #endif
         server.stop();
 
@@ -349,7 +349,7 @@ int WRun(const std::string &applicationPath,
 
       return 0;
     } catch (std::exception& e) {
-      LOG_INFO_S(&server, "fatal: " << e.what());
+      LOG_INFO_S(&server, "fatal: {}", e.what());
       return 1;
     }
   } catch (Wt::WServer::Exception& e) {
