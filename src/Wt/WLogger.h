@@ -514,7 +514,7 @@ namespace Wt
 //   } while (0)
 
 #ifdef WT_DEBUG_ENABLED
-#define LOG_DEBUG_S(s, m, ...) (s)->log("debug") << WT_LOGGER << ": " << m
+#define LOG_DEBUG_S(s, m, ...) logd(m, ##__VA_ARGS__);
 #define LOG_DEBUG(m, ...) logd(m, ##__VA_ARGS__); 
 #else
 #define LOG_DEBUG_S(s, m, ...)
