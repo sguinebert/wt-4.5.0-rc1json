@@ -117,11 +117,11 @@ void OAuthTokenEndpoint::handleRequest(const Http::Request &request, Http::Respo
     response.setStatus(400);
     response.out() << "{\"error\": \"invalid_request\"}" << std::endl;
     LOG_INFO("{\"error\": \"invalid_request\"}: code:{} clientId: {} clientSecret: {} grantType: {} redirectUri: {}",
-     (code ? *code : "NULL"), 
-     clientId,
-     (clientSecret.empty() ? "MISSING" : "NOT MISSING"),
-     (grantType ? *grantType : "NULL"),
-      (redirectUri ? *redirectUri : "NULL"));
+             (code ? *code : "NULL"),
+             clientId,
+             (clientSecret.empty() ? "MISSING" : "NOT MISSING"),
+             (grantType ? *grantType : "NULL"),
+             (redirectUri ? *redirectUri : "NULL"));
     return;
   }
   OAuthClient client = db_->idpClientFindWithId(clientId);
@@ -137,10 +137,10 @@ void OAuthTokenEndpoint::handleRequest(const Http::Request &request, Http::Respo
     }
     response.out() << "{\n\"error\": \"invalid_client\"\n}" << std::endl;
     LOG_INFO("{\"error\": \"invalid_client\"}:  id: {} client: {} secret: {} method: {}",
-      clientId,
-      (client.checkValid() ? "valid" : "not valid"),
-      (client.verifySecret(clientSecret) ? "correct" : "incorrect"),
-      (client.authMethod() != authMethod ? "no match" : "match"));
+             clientId,
+             (client.checkValid() ? "valid" : "not valid"),
+             (client.verifySecret(clientSecret) ? "correct" : "incorrect"),
+             (client.authMethod() != authMethod ? "no match" : "match"));
     return;
   }
   if (*grantType != GRANT_TYPE) {

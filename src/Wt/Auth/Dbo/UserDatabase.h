@@ -192,8 +192,7 @@ public:
     if (session_.find<AuthIdentityType>()
 	.where("\"identity\" = ?").bind(identity)
 	.where("\"provider\" = ?").bind(provider).resultList().size() != 0) {
-      Wt::log("error") << "cannot add identity " << provider
-		       << ":'" << identity << "': already exists";
+      loge("cannot add identity {}:'{}': already exists", provider, identity);
       return;
     }
 

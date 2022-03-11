@@ -124,9 +124,10 @@ IsapiRequest::IsapiRequest(LPEXTENSION_CONTROL_BLOCK ecb,
         }
       } else {
         int err = GetLastError();
-        if (server_->hasConfiguration())
-          server_->log("error")
-          << "ISAPI Synchronous Read failed with error " << err;
+        if (server_->hasConfiguration()){
+          //server_->log("error") << "ISAPI Synchronous Read failed with error " << err;
+          LOG_ERROR("ISAPI Synchronous Read failed with error {}", err);
+        }
         good_ = false; // TODO: retry on timeout?
         done = true;
       }
@@ -192,9 +193,10 @@ void IsapiRequest::processAsyncRead(DWORD cbIO, DWORD dwError, bool first)
           HSE_REQ_ASYNC_READ_CLIENT, (LPVOID)buffer_, &bufferSize_,
           (LPDWORD)&dwFlags)) {
       int err = GetLastError();
-      if (server_->hasConfiguration())
-        server_->log("error")
-          << "ISAPI Asynchronous Read scheduling failed with error " << err;
+      if (server_->hasConfiguration()){
+        //server_->log("error")  << "ISAPI Asynchronous Read scheduling failed with error " << err;
+        LOG_ERROR("ISAPI Asynchronous Read scheduling failed with error {}", err);
+      }
       good_ = false;
       in_->seekg(0);
       server_->pushRequest(this);
@@ -205,8 +207,8 @@ void IsapiRequest::processAsyncRead(DWORD cbIO, DWORD dwError, bool first)
   } else {
     // Nothing more to read, or error
     if (dwError) {
-      server_->log("error")
-        << "ISAPI Asynchronous Read failed with error " << dwError;
+      //server_->log("error") << "ISAPI Asynchronous Read failed with error " << dwError;
+      LOG_ERROR("ISAPI Asynchronous Read failed with error {}", dwError);
       good_ = false;
     }
     in_->seekg(0);
@@ -331,8 +333,8 @@ void IsapiRequest::writeSync()
         int err = GetLastError();
         err = err;
         abort();
-        server_->log("error")
-          << "ISAPI Synchronous Write failed with error " << err;
+        //server_->log("error") << "ISAPI Synchronous Write failed with error " << err;
+        LOG_ERROR("ISAPI Synchronous Write failed with error {}", err);
         getAsyncCallback()(Wt::WebWriteEvent::Error);
         return;
       }
@@ -348,8 +350,8 @@ void IsapiRequest::writeAsync(DWORD cbIO, DWORD dwError, bool first)
 {
   bool error = dwError != 0;
   if (dwError) {
-    server_->log("error")
-      << "ISAPI Asynchronous Write failed with error " << dwError;
+    //server_->log("error") << "ISAPI Asynchronous Write failed with error " << dwError;
+    LOG_ERROR("ISAPI Asynchronous Write failed with error {}", dwError);
   }
   if (first) {
     writeIndex_ = 0;
@@ -374,8 +376,8 @@ void IsapiRequest::writeAsync(DWORD cbIO, DWORD dwError, bool first)
       } else {
         error = true;
         int err = GetLastError();
-        server_->log("error")
-          << "ISAPI Asynchronous Write schedule failed with error " << err;
+        //server_->log("error") << "ISAPI Asynchronous Write schedule failed with error " << err;
+        LOG_ERROR("ISAPI Asynchronous Write schedule failed with error {}", err);
       }
     } else {
       // Everything is written, finish up
@@ -642,9 +644,8 @@ std::unique_ptr<WSslInfo> IsapiRequest::sslInfo(const Configuration &) const {
     if (error == ERROR_NO_DATA) {
       //do nothing, no certificate was found
     } else {
-      server_->log("error")
-        << "IsapiRequest::sslInfo(): Error " +
-           std::to_string(error);
+      //server_->log("error") << "IsapiRequest::sslInfo(): Error " + std::to_string(error);
+      LOG_ERROR("IsapiRequest::sslInfo(): Error {}", error);
     }
   }
 #endif

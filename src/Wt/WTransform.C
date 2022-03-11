@@ -613,7 +613,7 @@ namespace Wt
     }
     catch (std::exception &e)
     {
-      LOG_ERROR("Couldn't convert JSON to WTransform: {}", std::string(e.what()));
+      LOG_ERROR("Couldn't convert JSON to WTransform: {}", e.what());
     }
   }
 

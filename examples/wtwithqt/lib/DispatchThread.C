@@ -80,7 +80,7 @@ void DispatchThread::myExec()
 
   for (;;) {
     if (!newEvent_) {
-      log("debug") << "WQApplication: [thread] waiting for event";
+      logd("WQApplication: [thread] waiting for event");
       while (!newEvent_) {
         newEventCondition_.wait(lock);
       }
@@ -106,7 +106,7 @@ void DispatchThread::myPropagateEvent()
 
 void DispatchThread::signalDone()
 {
-  log("debug") << "WQApplication: [thread] signaling event done";
+  logd("WQApplication: [thread] signaling event done");
   {
     std::unique_lock<std::mutex> lock(doneMutex_);
     done_ = true;
@@ -156,20 +156,20 @@ void DispatchThread::resetException()
 
 void DispatchThread::doEvent()
 {
-  log("debug") << "WQApplication: [thread] handling event";
+  logd("WQApplication: [thread] handling event");
   app_->attachThread(true);
 
   try {
     app_->realNotify(*event_);
   } catch (std::exception& e) {
-    log("error") << "WQApplication: [thread] Caught exception: " << e.what();
+    loge("WQApplication: [thread] Caught exception: {}", e.what());
     exception_ = true;
   } catch (...) {
-    log("error") << "WQApplication: [thread] Caught exception";
+    loge("WQApplication: [thread] Caught exception");
     exception_ = true;
   }
   app_->attachThread(false);
-  log("debug") << "WQApplication: [thread] done handling event";
+  logd("WQApplication: [thread] done handling event");
 
   signalDone();
 }

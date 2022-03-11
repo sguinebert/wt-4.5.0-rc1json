@@ -22,7 +22,8 @@ namespace Impl {
 void unMarshal(const JavaScriptEvent &jse, int argi, std::string &s)
 {
   if ((unsigned)argi >= jse.userEventArgs.size()) {
-    Wt::log("error") << "JSignal: missing JavaScript argument:" << argi;
+    //Wt::log("error") << "JSignal: missing JavaScript argument:" << argi;
+    loge("JSignal: missing JavaScript argument:{}", argi);
     return;
   }
 
@@ -34,7 +35,8 @@ void unMarshal(const JavaScriptEvent &jse, int argi, std::string &s)
 
 void unMarshal(const JavaScriptEvent& jse, int argi, WString& s) {
   if ((unsigned)argi >= jse.userEventArgs.size()) {
-    Wt::log("error") << "JSignal: missing JavaScript argument:" << argi;
+    //Wt::log("error") << "JSignal: missing JavaScript argument:" << argi;
+    loge("JSignal: missing JavaScript argument:{}", argi);
     return;
   }
 
@@ -44,8 +46,8 @@ void unMarshal(const JavaScriptEvent& jse, int argi, WString& s) {
 
 void unMarshal(const JavaScriptEvent& jse, int argi, NoClass& nc) {
   if ((unsigned)argi < jse.userEventArgs.size()) {
-    Wt::log("error") << "JSignal: redundant JavaScript argument: '"
-		     << jse.userEventArgs[argi] << "'";
+    //Wt::log("error") << "JSignal: redundant JavaScript argument: '" << jse.userEventArgs[argi] << "'";
+    loge("JSignal: redundant JavaScript argument: '{}'", jse.userEventArgs[argi]);
   }
 }
 

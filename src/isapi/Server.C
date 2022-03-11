@@ -94,15 +94,15 @@ void IsapiServer::serverEntry() {
     main(1, &pDllPath);
     terminationMsg = mainReturnedReply;
     if (hasConfiguration())
-      log("fatal") << "ISAPI: main() returned";
+      loge("[fatal] ISAPI: main() returned");
   } catch (std::exception &e) {
     terminationMsg = uncaughtExceptionReply;
     if (hasConfiguration())
-      log("fatal") << "ISAPI: uncaught main() exception: " << e.what();
+      loge("[fatal] ISAPI: uncaught main() exception: {}", e.what());
   } catch(...) {
     terminationMsg = uncaughtExceptionReply;
     if (hasConfiguration())
-      log("fatal") << "ISAPI: unknown uncaught main() exception";
+      loge("[fatal] ISAPI: unknown uncaught main() exception");
   }
   setTerminated();
 }
@@ -159,7 +159,7 @@ void IsapiServer::setTerminated()
 void IsapiServer::shutdown()
 {
   if (hasConfiguration())
-    log("notice") << "ISAPI: shutdown requested...";
+    logi("[notice] ISAPI: shutdown requested...");
   {
     std::lock_guard<std::mutex> l(queueMutex_);
     server_->stop();
@@ -167,7 +167,7 @@ void IsapiServer::shutdown()
   if (serverThread_.joinable())
     serverThread_.join();
   if (hasConfiguration())
-    log("notice") << "ISAPI: shutdown completed...";
+    logi("[notice] ISAPI: shutdown completed...");
 }
 
 IsapiServer *IsapiServer::instance()
@@ -194,7 +194,7 @@ void IsapiServer::removeServer(WServer *server)
   std::lock_guard<std::mutex> l(queueMutex_);
   if (server_ != server) {
     if (hasConfiguration()) {
-      log("error") << "ISAPI internal error: removeServer() inconsistent";
+      loge("ISAPI internal error: removeServer() inconsistent");
     }
   }
   server_ = 0;

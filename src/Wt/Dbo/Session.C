@@ -295,8 +295,8 @@ namespace Wt
       std::string table = Impl::quoteSchemaDot(mapping->tableName);
 
       /*
-   * SqlInsert
-   */
+      * SqlInsert
+      */
       sql << "insert into \"" << table << "\" (";
 
       bool firstField = true;
@@ -380,8 +380,8 @@ namespace Wt
       mapping->statements.push_back(sql.str()); // SqlInsert
 
       /*
-   * SqlUpdate
-   */
+      * SqlUpdate
+      */
 
       sql.str("");
 

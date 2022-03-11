@@ -22,11 +22,11 @@ struct WServer::Impl {
     : running_(false)
   { }
 
-  void init(WServer *server, const std::string& applicationPath, const std::string& configurationFile)
+  void init(WServer *server, const std::string &applicationPath, const std::string &configurationFile)
   {
     if (!isapi::IsapiServer::instance()->addServer(server))
       throw Exception("WServer::WServer(): "
-		      "Only one simultaneous WServer supported");
+                      "Only one simultaneous WServer supported");
     server->instance_ = server;
 
     std::stringstream approotLog;
@@ -35,18 +35,21 @@ struct WServer::Impl {
       std::string inifile = applicationPath + ".ini";
       char buffer[1024];
       GetPrivateProfileString("isapi", "approot", "",
-	buffer, sizeof(buffer), inifile.c_str());
+                              buffer, sizeof(buffer), inifile.c_str());
       approot = buffer;
-      if (approot != "") {
-	approotLog << "ISAPI: read approot (" << approot
-	  << ") from ini file " << inifile;
+      if (approot != "")
+      {
+        approotLog << "ISAPI: read approot (" << approot
+                   << ") from ini file " << inifile;
       }
     }
 
     server->setAppRoot(approot);
     server->setConfiguration(configurationFile);
-    if (approotLog.str() != "") {
-      server->log("info") << approotLog.str();
+    if (approotLog.str() != "")
+    {
+      //server->log("info") << approotLog.str();
+      logi(approotLog.str());
     }
   }
 
@@ -117,7 +120,8 @@ void WServer::setServerConfiguration(const std::string &applicationName,
 bool WServer::start()
 {
   if (isRunning()) {
-    log("error") << "WServer::start() error: server already started!";
+    //log("error") << "WServer::start() error: server already started!";
+    loge("WServer::start() error: server already started!");
     return false;
   }
 
@@ -137,11 +141,11 @@ bool WServer::start()
     webMain = 0;
 
   } catch (std::exception& e) {
-    log("fatal") << "ISAPI server: caught unhandled exception: " << e.what();
+    loge("[fatal] ISAPI server: caught unhandled exception: {}", e.what());
 
     throw;
   } catch (...) {
-    log("fatal") << "ISAPI server: caught unknown, unhandled exception.";
+    loge("[fatal] ISAPI server: caught unknown, unhandled exception.");
     throw;
   }
 
@@ -161,7 +165,7 @@ int WServer::httpPort() const
 void WServer::stop()
 {
   if (!isRunning()) {
-    std::cerr << "WServer::stop() error: server not yet started!" << std::endl;
+    loge("WServer::stop() error: server not yet started!");
     return;
   }
   webMain->shutdown();
@@ -234,7 +238,7 @@ void WServer::run()
 
 void WServer::setSslPasswordCallback(const SslPasswordCallback& cb)
 {
-  log("info") << "setSslPasswordCallback(): has no effect in isapi connector";
+  logi("setSslPasswordCallback(): has no effect in isapi connector");
 }
 
 int WRun(int argc, char *argv[], ApplicationCreator createApplication)
@@ -249,7 +253,8 @@ int WRun(int argc, char *argv[], ApplicationCreator createApplication)
 
       return 0;
     } catch (std::exception& e) {
-      server.log("fatal") << e.what();
+      //server.log("fatal") << e.what();
+      loge("[fatal] {}", e.what());
       return 1;
     }
   } catch (Wt::WServer::Exception&) {
@@ -275,7 +280,8 @@ int WRun(const std::string &applicationName,
 
       return 0;
     } catch (std::exception& e) {
-      server.log("fatal") << e.what();
+      //server.log("fatal") << e.what();
+      loge("[fatal] {}", e.what());
       return 1;
     }
   } catch (Wt::WServer::Exception&) {

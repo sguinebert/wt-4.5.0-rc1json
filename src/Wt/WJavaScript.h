@@ -455,8 +455,7 @@ template <typename... A>
 void JSignal<A...>::connect(const std::string& function)
 {
   if (!canAutoLearn()) {
-    Wt::log("error") << "JSignal: connect(const std::string&): signal does "
-      "not collect JavaScript from slots";
+    loge("JSignal: connect(const std::string&): signal does not collect JavaScript from slots");
     return;
   }
 
@@ -467,8 +466,7 @@ template <typename... A>
 void JSignal<A...>::connect(const char *function)
 {
   if (!canAutoLearn()) {
-    Wt::log("error") << "JSignal: connect(const std::string&): signal does "
-      "not collect JavaScript from slots";
+    loge("JSignal: connect(const std::string&): signal does not collect JavaScript from slots");
     return;
   }
 
@@ -479,8 +477,7 @@ template <typename... A>
 void JSignal<A...>::connect(JSlot& slot)
 {
   if (!canAutoLearn()) {
-    Wt::log("error") << "JSignal: connect(JSlot): signal does not collect "
-      "JavaScript from slots";
+    loge("JSignal: connect(JSlot): signal does not collect JavaScript from slots");
     return;
   }
 
@@ -531,7 +528,7 @@ namespace Impl {
 template <typename T>
 void unMarshal(const JavaScriptEvent& jse, int argi, T& t) {
   if ((unsigned)argi >= jse.userEventArgs.size()) {
-    Wt::log("error") << "JSignal: missing JavaScript argument:" << argi;
+    loge("JSignal: missing JavaScript argument:{}", argi);
     return;
   }
 
@@ -542,9 +539,7 @@ void unMarshal(const JavaScriptEvent& jse, int argi, T& t) {
   ss.str(v);
   ss >> t;
   if (ss.fail())
-    Wt::log("error") << "JSignal: bad argument format: '"
-                     << jse.userEventArgs[argi] << "' for C++ type '"
-                     << typeid(T).name() << "'";
+    loge("JSignal: bad argument format: '{}' for C++ type '{}'", jse.userEventArgs[argi], typeid(T).name());
 }
 
 extern WT_API void unMarshal(const JavaScriptEvent &jse, int argi, std::string& s);

@@ -40,7 +40,7 @@ WQApplication::WQApplication(const WEnvironment& env, bool withEventLoop)
 
 void WQApplication::initialize()
 {
-  log("debug") << "WQApplication: initialize()";
+  logd("WQApplication: initialize()");
   WApplication::initialize();
 
   create();
@@ -48,7 +48,7 @@ void WQApplication::initialize()
 
 void WQApplication::finalize()
 {
-  log("debug") << "WQApplication: finalize()";
+  logd("WQApplication: finalize()");
   WApplication::finalize();
 
   destroy();
@@ -60,7 +60,7 @@ void WQApplication::finalize()
 void WQApplication::notify(const WEvent& e)
 {
   if (!thread_) {
-    log("debug") << "WQApplication: starting thread";
+    logd("WQApplication: starting thread");
     thread_ = std::make_unique<DispatchThread>(this, withEventLoop_);
     thread_->start();
     thread_->waitDone();
@@ -68,7 +68,7 @@ void WQApplication::notify(const WEvent& e)
 
   if (recursiveEvent_) {
     /* This could be from within a recursive event loop */
-    log("debug") << "WQApplication: notify() from within QThread";
+    logd("WQApplication: notify() from within QThread");
     realNotify(e);
     return;
   }
@@ -80,13 +80,12 @@ void WQApplication::notify(const WEvent& e)
      * thus we cannot communicate with the private thread when it's
      * blocked in a recursive event loop
      */
-    log("debug") << "WQApplication: notify() for resource during recursive "
-		 << "event, handling in thread pool.";
+    logd("WQApplication: notify() for resource during recursive event, handling in thread pool.");
     realNotify(e);
     return;
   }
 
-  log("debug") << "WQApplication: notifying thread";
+  logd("WQApplication: notifying thread");
   thread_->notify(e);
 
   if (thread_->exception()) {
@@ -95,7 +94,7 @@ void WQApplication::notify(const WEvent& e)
   }
 
   if (finalized_) {
-    log("debug") << "WQApplication: joining thread";
+    logd("WQApplication: joining thread");
     thread_->wait();
     thread_.reset();
   }
@@ -108,7 +107,7 @@ void WQApplication::realNotify(const WEvent& e)
 
 void WQApplication::waitForEvent()
 {
-  log("debug") << "WQApplication: [thread] waitForEvent()";
+  logd("WQApplication: [thread] waitForEvent()");
 
   recursiveEvent_ = true;
 
@@ -128,7 +127,7 @@ void WQApplication::waitForEvent()
     thread_->eventLock()->lock();
   recursiveEvent_ = false;
 
-  log("debug") << "WQApplication: [thread] returning from waitForEvent()";
+  logd("WQApplication: [thread] returning from waitForEvent()");
 }
 
 WString toWString(const QString& s)
