@@ -18,6 +18,7 @@
 #include <string_view>
 #include "fmt/format.h"
 #include "fmt/compile.h"
+#include "fmt/chrono.h"
 #include <chrono>
 
 

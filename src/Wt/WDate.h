@@ -436,16 +436,15 @@ private:
     ParseState();
   };
 
-  static bool parseLast(const std::string& v, unsigned& vi,
-			ParseState& state, const WString& format);
+  static bool parseLast(const std::string &v, unsigned &vi,
+                        ParseState &state, const WString &format);
 
-  static WDateTime::CharState handleSpecial(char c, const std::string& v,
-					    unsigned& vi, ParseState& parse,
-					    const WString& format);
+  static WDateTime::CharState handleSpecial(char c, const std::string &v,
+                                            unsigned &vi, ParseState &parse,
+                                            const WString &format);
 
-  bool writeSpecial(const std::string& f, unsigned& i, WStringStream& result,
-                    bool localized = true)
-    const;
+  bool writeSpecial(const std::string &f, unsigned &i, WStringStream &result,
+                    bool localized = true) const;
 
   static int parseShortMonthName(const std::string& v, unsigned& pos);
   static int parseLongMonthName(const std::string& v, unsigned& pos);

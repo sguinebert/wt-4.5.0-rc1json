@@ -503,15 +503,32 @@ namespace Wt
 
   WString WDateTime::toString() const
   {
-    return toString(defaultFormat());
+    return fmt::format("{:%c}", datetime_);
+    //return toString(defaultFormat());
   }
 
   WString WDateTime::toString(const WString &format, bool localized) const
   {
-    WDate d = date();
-    WTime t = time();
+    if(!isValid()) {
+      if (WApplication::instance())
+      {
+        return tr("Wt.WDateTime.null");
+      }
+      else
+      {
+        return WString::fromUTF8("Null");
+      }
+    }
 
-    return toString(&d, &t, format, localized, 0);
+    if(localized && WApplication::instance()) 
+      return fmt::format(WApplication::instance()->locale().stdlocale(), format.toUTF8(), datetime_);
+    else 
+      return fmt::format(format.toUTF8(), datetime_);
+
+    // WDate d = date();
+    // WTime t = time();
+
+    // return toString(&d, &t, format, localized, 0);
   }
 
   WString WDateTime::toString(const WDate *date, const WTime *time,

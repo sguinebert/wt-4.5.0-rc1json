@@ -120,7 +120,7 @@ namespace http
       setWriteTimeout(timeout);
 
       std::shared_ptr<TcpConnection> sft = std::static_pointer_cast<TcpConnection>(shared_from_this());
-      asio::async_write(socket_, buffers,
+      asio::async_write(socket_, boost::make_iterator_range(buffers.begin(), buffers.end()),// buffers,
                         strand_.wrap(std::bind(&TcpConnection::handleWriteResponse0,
                                                sft,
                                                reply,

@@ -657,11 +657,16 @@ namespace Wt
 
   WString WDate::toString() const
   {
-    return WDate::toString(defaultFormat());
+    return fmt::format("{:%a %b %e %Y}", toTimePoint());
+//    return WDate::toString(defaultFormat());
   }
 
   WString WDate::toString(const WString &format) const
   {
+    // if(localized && WApplication::instance()) 
+    //   return fmt::format(WApplication::instance()->locale().stdlocale(), format.toUTF8(), toTimePoint());
+    // else 
+    //   return fmt::format(format.toUTF8(), toTimePoint());
     return WDateTime::toString(this, nullptr, format, true, 0);
   }
 

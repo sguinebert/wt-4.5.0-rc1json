@@ -182,7 +182,7 @@ public:
    * This is the stl version of the locale that was set through the
    * constructor.
    */
-  std::locale stdlocale() { return std::locale(name_ + ".UTF8"); }
+  std::locale stdlocale() const { return std::locale(name_ + ".UTF8"); }
 
   /*! \brief Returns the current (user) locale.
    *
