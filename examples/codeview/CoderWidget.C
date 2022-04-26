@@ -127,7 +127,7 @@ void CoderWidget::changed(BufferEditorWidget *editor)
 
 void CoderWidget::sessionChanged()
 {
-  observerCount_->setText(WString("Observers: {1}")
+  observerCount_->setText(WString("Observers: {0}")
 			  .arg(session_->observerCount()));
   WApplication::instance()->triggerUpdate();
 }

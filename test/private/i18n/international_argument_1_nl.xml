@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <messages>
-  <message id="text">Geïnternationaliseerde tekst met een geïnternationaliseerd argument: {1}</message>
+  <message id="text">Geïnternationaliseerde tekst met een geïnternationaliseerd argument: {0}</message>
   <message id="hello">hallo</message>
 </messages>

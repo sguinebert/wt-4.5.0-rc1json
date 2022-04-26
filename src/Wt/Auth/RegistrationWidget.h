@@ -9,6 +9,7 @@
 
 #include <Wt/WTemplateFormView.h>
 #include <Wt/Auth/RegistrationModel.h>
+#include <Wt/WDialog.h>
 class RegistrationView;
 namespace Wt {
   namespace Auth {
@@ -101,12 +102,16 @@ protected:
   virtual std::unique_ptr<WWidget> createFormWidget
     (RegistrationModel::Field field) override;
 
+
+
 private:
   AuthWidget *authWidget_;
   std::unique_ptr<RegistrationModel> model_;
 
   bool created_;
   std::unique_ptr<Login> confirmPasswordLogin_;
+
+  std::unique_ptr<WDialog> isYouDialog_;
 
   void checkLoginName();
   void checkPassword();

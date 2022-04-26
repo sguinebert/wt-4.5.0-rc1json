@@ -461,9 +461,9 @@ int WEquidistantGridData::nbYPoints() const
 WString WEquidistantGridData::axisLabel(int u, Axis axis) const
 {
   if (axis == Axis::X3D) {
-    return WString("{1}").arg(XMinimum_ + u*deltaX_);
+    return WString("{0}").arg(XMinimum_ + u*deltaX_);
   } else if (axis == Axis::Y3D) {
-    return WString("{1}").arg(YMinimum_ + u*deltaY_);
+    return WString("{0}").arg(YMinimum_ + u*deltaY_);
   } else {
     throw WException("WEquidistantGridData: don't know this type of axis");
   }

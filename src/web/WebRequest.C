@@ -283,20 +283,24 @@ std::string WebRequest::parsePreferredAcceptValue(const char *str) const
 
   parse_info<> info = parse(str, valueListParser, space_p);
 
-  if (info.full) {
+  if (info.full)
+  {
     unsigned best = 0;
-    for (unsigned i = 1; i < values.size(); ++i) {
+    for (unsigned i = 1; i < values.size(); ++i)
+    {
       if (values[i].quality > values[best].quality)
-	best = i;
+        best = i;
     }
 
     if (best < values.size())
       return values[best].value;
     else
       return std::string();
-  } else {
+  }
+  else
+  {
     LOG_ERROR("Could not parse 'Accept-Language: " << str
-	      << "', stopped at: '" << info.stop << '\'');
+                                                   << "', stopped at: '" << info.stop << '\'');
     return std::string();
   }
 }

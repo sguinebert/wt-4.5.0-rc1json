@@ -388,7 +388,7 @@ std::string WString::toUTF8() const
       result = resolveKey(TextFormat::Plain);
 
     for (unsigned i = 0; i < impl_->arguments_.size(); ++i) {
-      std::string key = '{' + std::to_string(i+1) + '}';
+      std::string key = '{' + std::to_string(i) + '}';
       Wt::Utils::replace(result, key, impl_->arguments_[i].toUTF8());
     }
 
@@ -406,7 +406,7 @@ std::string WString::toXhtmlUTF8() const
       result = resolveKey(TextFormat::XHTML);
 
     for (unsigned i = 0; i < impl_->arguments_.size(); ++i) {
-      std::string key = '{' + std::to_string(i+1) + '}';
+      std::string key = '{' + std::to_string(i) + '}';
       Wt::Utils::replace(result, key, impl_->arguments_[i].toXhtmlUTF8());
     }
 

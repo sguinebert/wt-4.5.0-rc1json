@@ -66,9 +66,9 @@ namespace {
   WString axisName(Axis axis, int axisId)
   {
     if (axis == Axis::X) {
-      return Wt::utf8("X Axis {1}").arg(axisId + 1);
+      return Wt::utf8("X Axis {0}").arg(axisId + 1);
     } else {
-      return Wt::utf8("Y axis {1}").arg(axisId + 1);
+      return Wt::utf8("Y axis {0}").arg(axisId + 1);
     }
   }
 }

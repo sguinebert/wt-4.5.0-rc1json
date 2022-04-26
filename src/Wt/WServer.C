@@ -273,8 +273,7 @@ void WServer::addResource(WResource *resource, const std::string& path)
   if (success)
     resource->setInternalPath(path);
   else {
-    WString error(Wt::utf8("WServer::addResource() error: "
-	                   "a static resource was already deployed on path '{1}'"));
+    WString error(Wt::utf8("WServer::addResource() error: a static resource was already deployed on path '{0}'"));
     throw WServer::Exception(error.arg(path).toUTF8());
   }
 }

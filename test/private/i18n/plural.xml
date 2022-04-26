@@ -2,12 +2,12 @@
 <messages nplurals="2" 
           plural="n != 1">
   <message id="file">
-    <plural case="0">{1} file</plural>
-    <plural case="1">{1} files</plural>
+    <plural case="0">{0} file</plural>
+    <plural case="1">{0} files</plural>
   </message>
 
   <message id="programmer">
-        <plural case="0">{1} programmer</plural>
-        <plural case="1">{1} programmers</plural>
+        <plural case="0">{0} programmer</plural>
+        <plural case="1">{0} programmers</plural>
   </message>
 </messages>
