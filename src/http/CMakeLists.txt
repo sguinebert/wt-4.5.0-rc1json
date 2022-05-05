@@ -19,6 +19,7 @@ IF(CONNECTOR_HTTP)
   ENDIF (HAVE_STRNCASECMP)
 
   SET(libhttpsources
+    ../Wt/fmtlog.h ../Wt/fmtlog.cc
     Android.h Android.C
     Configuration.h Configuration.C
     Connection.h Connection.C

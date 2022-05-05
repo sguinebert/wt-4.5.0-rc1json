@@ -23,6 +23,7 @@
 #include <vector>
 
 #include "Wt/fmtlog.h"
+//#include "spdlog/spdlog.h"
 
 #if !defined(WT_DBO_LOGGER) || DOXYGEN_ONLY
 #define WT_LOGGER_API WT_API
@@ -465,6 +466,9 @@ namespace Wt
 
 } // namespace Wt
 
+
+#define LOG_ERROR(m, ...) loge(m, ##__VA_ARGS__);
+
 #endif // WT_TARGET_JAVA
 
 #ifdef WT_BUILDING
@@ -504,14 +508,15 @@ namespace Wt
 // #define LOG_SECURE(m, ...)                             \
 //   do                                              \
 //   {                                               \
-//       logw("[secure] {}: {}", WT_LOGGER, fmt::format(m, ##__VA_ARGS__));                   \
+//       LOG_WARN("[secure] {}: {}", WT_LOGGER, fmt::format(m, ##__VA_ARGS__));                   \
 //   } while (0)
 // #define LOG_ERROR_S(s, m) (s)->log("error") << WT_LOGGER << ": " << m
 // #define LOG_ERROR(m, ...)                             \
 //   do                                             \
 //   {                                              \
-//       loge("[error] {}: {}", WT_LOGGER, fmt::format(m, ##__VA_ARGS__));\
+//       LOG_ERROR("[error] {}: {}", WT_LOGGER, fmt::format(m, ##__VA_ARGS__));\
 //   } while (0)
+
 
 #ifdef WT_DEBUG_ENABLED
 #define LOG_DEBUG_S(s, m, ...) logd(m, ##__VA_ARGS__);
@@ -522,13 +527,13 @@ namespace Wt
 #endif
 
 #define LOG_INFO_S(s, m, ...) logi(m, ##__VA_ARGS__);
-#define LOG_INFO(m, ...) logi(m, ##__VA_ARGS__);
+#define LOG_INFO(m, ...) logi(m, ##__VA_ARGS__);//logi(m, ##__VA_ARGS__);
 #define LOG_WARN_S(s, m, ...) logw(m, ##__VA_ARGS__);
 #define LOG_WARN(m, ...) logw(m, ##__VA_ARGS__);
 #define LOG_SECURE_S(s, m, ...) logs(m, ##__VA_ARGS__);
 #define LOG_SECURE(m, ...) logs(m, ##__VA_ARGS__);
 #define LOG_ERROR_S(s, m, ...) loge(m, ##__VA_ARGS__);
-#define LOG_ERROR(m, ...) loge(m, ##__VA_ARGS__);
+
 
 #else // WT_TARGET_JAVA
 

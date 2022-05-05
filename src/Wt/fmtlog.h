@@ -39,9 +39,9 @@ SOFTWARE.
 #ifndef FMTLOG_BLOCK
 #define FMTLOG_BLOCK 0
 #endif
-#ifndef FMTLOG_HEADER_ONLY
-#define FMTLOG_HEADER_ONLY
-#endif
+// #ifndef FMTLOG_HEADER_ONLY
+// #define FMTLOG_HEADER_ONLY
+// #endif
 //Similarly, runtime log level filtering can be disabled by defining macro FMTLOG_NO_CHECK_LEVEL, which will increase performance and reduce generated code size a bit
 // #ifndef FMTLOG_NO_CHECK_LEVEL 
 // #define FMTLOG_NO_CHECK_LEVEL

@@ -192,7 +192,7 @@ public:
     if (session_.find<AuthIdentityType>()
 	.where("\"identity\" = ?").bind(identity)
 	.where("\"provider\" = ?").bind(provider).resultList().size() != 0) {
-      loge("cannot add identity {}:'{}': already exists", provider, identity);
+      LOG_ERROR("cannot add identity {}:'{}': already exists", provider, identity);
       return;
     }
 

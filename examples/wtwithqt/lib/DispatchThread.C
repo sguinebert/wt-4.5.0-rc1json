@@ -162,10 +162,10 @@ void DispatchThread::doEvent()
   try {
     app_->realNotify(*event_);
   } catch (std::exception& e) {
-    loge("WQApplication: [thread] Caught exception: {}", e.what());
+    LOG_ERROR("WQApplication: [thread] Caught exception: {}", e.what());
     exception_ = true;
   } catch (...) {
-    loge("WQApplication: [thread] Caught exception");
+    LOG_ERROR("WQApplication: [thread] Caught exception");
     exception_ = true;
   }
   app_->attachThread(false);

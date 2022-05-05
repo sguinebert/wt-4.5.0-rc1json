@@ -36,13 +36,13 @@ SOFTWARE.
 #include <unistd.h>
 #endif
 
-#ifdef WT_DBO_LOGGER 
-#define FMTLOG_HEAD "[{YmdHMSe}] {t} [{l}] {s} : "
-#elif WT_LOGGER
-#define FMTLOG_HEAD "[{YmdHMSe}] {t} [{l}] {s} : "
-#else
-#define FMTLOG_HEAD "[{YmdHMSe}] {t} [{l}] {s} : \"" 
-#endif
+// #ifdef WT_DBO_LOGGER 
+// #define FMTLOG_HEAD "[{YmdHMSe}] {t} [{l}] {s} : "
+// #elif WT_LOGGER
+// #define FMTLOG_HEAD "[{YmdHMSe}] {t} [{l}] {s} : "
+// #else
+#define FMTLOG_HEAD "[{YmdHMSe}] {t} [{l}] {s} : " 
+// #endif
 //"{HMSf} {s:<16} {l}[{t:<6}] "
 template<int ___ = 0>
 class fmtlogDetailT

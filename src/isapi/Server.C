@@ -94,15 +94,15 @@ void IsapiServer::serverEntry() {
     main(1, &pDllPath);
     terminationMsg = mainReturnedReply;
     if (hasConfiguration())
-      loge("[fatal] ISAPI: main() returned");
+      LOG_ERROR("[fatal] ISAPI: main() returned");
   } catch (std::exception &e) {
     terminationMsg = uncaughtExceptionReply;
     if (hasConfiguration())
-      loge("[fatal] ISAPI: uncaught main() exception: {}", e.what());
+      LOG_ERROR("[fatal] ISAPI: uncaught main() exception: {}", e.what());
   } catch(...) {
     terminationMsg = uncaughtExceptionReply;
     if (hasConfiguration())
-      loge("[fatal] ISAPI: unknown uncaught main() exception");
+      LOG_ERROR("[fatal] ISAPI: unknown uncaught main() exception");
   }
   setTerminated();
 }
@@ -194,7 +194,7 @@ void IsapiServer::removeServer(WServer *server)
   std::lock_guard<std::mutex> l(queueMutex_);
   if (server_ != server) {
     if (hasConfiguration()) {
-      loge("ISAPI internal error: removeServer() inconsistent");
+      LOG_ERROR("ISAPI internal error: removeServer() inconsistent");
     }
   }
   server_ = 0;

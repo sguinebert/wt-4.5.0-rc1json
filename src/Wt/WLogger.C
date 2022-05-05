@@ -369,7 +369,7 @@ namespace Wt
 
       if (ofs->is_open())
       {
-        LOG_INFO(fmt::format("Opened log file ({}).", path));
+        LOG_INFO("Opened log file ({}).", path);
         o_ = ofs;
         ownStream_ = true;
       }
@@ -518,6 +518,7 @@ namespace Wt
 
     WLogEntry log(const std::string &type)
     {
+      LOG_INFO("Opened log file ().");
 #ifdef WT_DBO_LOGGER
       if (customLogger_)
       {

@@ -121,7 +121,7 @@ bool WServer::start()
 {
   if (isRunning()) {
     //log("error") << "WServer::start() error: server already started!";
-    loge("WServer::start() error: server already started!");
+    LOG_ERROR("WServer::start() error: server already started!");
     return false;
   }
 
@@ -141,11 +141,11 @@ bool WServer::start()
     webMain = 0;
 
   } catch (std::exception& e) {
-    loge("[fatal] ISAPI server: caught unhandled exception: {}", e.what());
+    LOG_ERROR("[fatal] ISAPI server: caught unhandled exception: {}", e.what());
 
     throw;
   } catch (...) {
-    loge("[fatal] ISAPI server: caught unknown, unhandled exception.");
+    LOG_ERROR("[fatal] ISAPI server: caught unknown, unhandled exception.");
     throw;
   }
 
@@ -165,7 +165,7 @@ int WServer::httpPort() const
 void WServer::stop()
 {
   if (!isRunning()) {
-    loge("WServer::stop() error: server not yet started!");
+    LOG_ERROR("WServer::stop() error: server not yet started!");
     return;
   }
   webMain->shutdown();
@@ -254,7 +254,7 @@ int WRun(int argc, char *argv[], ApplicationCreator createApplication)
       return 0;
     } catch (std::exception& e) {
       //server.log("fatal") << e.what();
-      loge("[fatal] {}", e.what());
+      LOG_ERROR("[fatal] {}", e.what());
       return 1;
     }
   } catch (Wt::WServer::Exception&) {
@@ -281,7 +281,7 @@ int WRun(const std::string &applicationName,
       return 0;
     } catch (std::exception& e) {
       //server.log("fatal") << e.what();
-      loge("[fatal] {}", e.what());
+      LOG_ERROR("[fatal] {}", e.what());
       return 1;
     }
   } catch (Wt::WServer::Exception&) {

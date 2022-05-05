@@ -519,16 +519,16 @@ namespace Wt
         return WString::fromUTF8("Null");
       }
     }
-
+return tr("Wt.WDateTime.null");
     if(localized && WApplication::instance()) 
       return fmt::format(WApplication::instance()->locale().stdlocale(), format.toUTF8(), datetime_);
     else 
       return fmt::format(format.toUTF8(), datetime_);
 
-    // WDate d = date();
-    // WTime t = time();
+    WDate d = date();
+    WTime t = time();
 
-    // return toString(&d, &t, format, localized, 0);
+    return toString(&d, &t, format, localized, 0);
   }
 
   WString WDateTime::toString(const WDate *date, const WTime *time,

@@ -160,7 +160,7 @@ inline bool sql_value_traits<WTime, void>
     int h = -1, m = -1, s = -1, ms = -1;
     Impl::msecsToHMS(t, h, m, s, ms);
     if (!v.setHMS(h, m, s, ms)) {
-      logw("Dbo/WtSqlTraits: WTime can only hold durations < 24h");
+      LOG_WARN("Dbo/WtSqlTraits: WTime can only hold durations < 24h");
       return true;
     } else
       return false;
