@@ -15,6 +15,13 @@
 #include <iosfwd>
 #include <locale>
 
+#include <string_view>
+#include "fmt/format.h"
+#include "fmt/compile.h"
+#include "fmt/args.h"
+#include <chrono>
+
+
 namespace Wt {
 
 /*! \class WString Wt/WString.h Wt/WString.h
@@ -72,6 +79,7 @@ namespace Wt {
  */
 class WT_API WString
 {
+  class Impl;
 public:
   /*! \brief Sets the encoding for
    *         \link Wt::CharEncoding::Default CharEncoding::Default\endlink
@@ -377,6 +385,10 @@ public:
    */
   std::string toUTF8() const;
 
+  std::string_view view() { if(formatedUtf8_.empty()) toUTF8(); return std::string_view(formatedUtf8_); }
+
+  std::string_view xhtmlView() { if(formatedUtf8_.empty()) toXhtmlUTF8(); return std::string_view(formatedUtf8_); }
+
   /*! \brief Returns the value as a UTF-8 encoded XHTML string.
    *
    * For a localized string, returns the current localized value. If
@@ -512,13 +524,23 @@ public:
    *
    * \sa tr()
    */
-  bool literal() const { return !impl_ || impl_->key_.empty(); }
+  bool literal() const; 
 
   /*! \brief Returns the key for a localized string.
    *
    * When the string is literal, the result is undefined.
    */
   const std::string key() const;
+
+  WString& arg(const Wt::WDate& value);
+
+  WString& arg(const Wt::WDateTime& value);
+
+  WString& arg(const std::time_t& value);
+
+  WString& arg(const std::chrono::system_clock::time_point& value);
+
+  void clear();
 
   /*! \brief Substitutes the next positional argument with a string value.
    *
@@ -605,6 +627,9 @@ public:
    * the shop.</tt>"
    */
   WString& arg(const std::string& value,
+	       CharEncoding encoding = CharEncoding::Default);
+
+  WString& arg(const std::string&& value,
 	       CharEncoding encoding = CharEncoding::Default);
 
   /*! \brief Substitutes the next positional argument with a string value.
@@ -700,7 +725,8 @@ public:
 
   /*! \brief Returns the list of arguments
    */
-  const std::vector<WString>& args() const;
+  //const std::vector<WString>& args() const;
+  const bool args() { return fmt_args_.empty(); }
 
   /*! \brief Refreshes the string.
    *
@@ -738,23 +764,23 @@ public:
   static void checkUTF8Encoding(std::string& value);
 
 private:
+
   WString(const char *key, bool, ::uint64_t n = -1);
 
   std::string utf8_;
+  fmt::dynamic_format_arg_store<fmt::format_context> fmt_args_;
+  mutable std::string formatedUtf8_;
+  
+  // std::vector<std::string> arguments_;
+  // std::vector<std::tm> tmarguments_;
+
+  //using ctx = fmt::format_context;
+  //std::vector<fmt::basic_format_arg<ctx>> fmt_args_;
+  
 
   std::string resolveKey(TextFormat format) const;
 
   void makeLiteral();
-
-  struct Impl {
-    std::string key_;
-    std::vector<WString> arguments_;
-    ::int64_t n_;
-
-    Impl();
-  };
-
-  static std::vector<WString> stArguments_;
 
   void createImpl();
 
@@ -998,5 +1024,13 @@ WString WString::tr(const char *key) { }
 #endif
 
 }
+
+template <> struct fmt::formatter<Wt::WString>: formatter<std::string> {
+  // parse is inherited from formatter<string_view>.
+  template <typename FormatContext>
+  auto format(Wt::WString wstring, FormatContext& ctx) {
+    return formatter<std::string>::format(wstring.toUTF8(), ctx);
+  }
+};
 
 #endif // WSTRING_H_

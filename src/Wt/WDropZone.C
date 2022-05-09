@@ -90,15 +90,28 @@ private:
     File *currentFile_;
 };
 
-WDropZone::WDropZone() : WDropZone("", "")
+WDropZone::WDropZone(const std::string& title) : WDropZone("", "", "", title)
 {}
 
-WDropZone::WDropZone(const std::string& javaScriptFilter, const std::string& javaScriptTransform, std::string mimetypes, unsigned filesize, unsigned maxfiles)
+// WDropZone::WDropZone(const std::string& title, const std::string& mimetypes, bool uploadMultiple, unsigned filesize, unsigned maxfiles, bool disablePreviews) 
+// : WDropZone("", "", "", title, mimetypes, uploadMultiple, filesize, maxfiles, disablePreviews)
+// {}
+
+WDropZone::WDropZone(const std::string& javaScriptFilter, 
+                     const std::string& javaScriptTransform, 
+                     const std::string& totaluploadprogress, 
+                     const std::string& title, 
+                     std::string mimetypes, 
+                     bool uploadMultiple, 
+                     unsigned filesize, 
+                     unsigned maxfiles, 
+                     bool disablePreviews)
     : uploadWorkerResource_(nullptr),
     resource_(nullptr),
     currentFileIdx_(0),
     maxfilesize_(filesize),
     maxfiles_(maxfiles),
+    uploadMultiple_(uploadMultiple),
     jsFilterFn_(javaScriptFilter),
     jsTransformFn_(javaScriptTransform),
     chunkSize_(0),
@@ -106,6 +119,7 @@ WDropZone::WDropZone(const std::string& javaScriptFilter, const std::string& jav
     hoverStyleClass_("Wt-dropzone-hover"),
     acceptDrops_(true),
     acceptAttributes_(mimetypes),
+    title_(title),
     dropIndicationEnabled_(false),
     globalDropEnabled_(false),
     dropSignal_(this, "dropsignal"),
@@ -115,7 +129,8 @@ WDropZone::WDropZone(const std::string& javaScriptFilter, const std::string& jav
     uploadFinished_(this, "uploadfinished"),
     doneSending_(this, "donesending"),
     jsFilterNotSupported_(this, "filternotsupported"),
-    updatesEnabled_(false)
+    updatesEnabled_(false),
+    disablePreviews_(disablePreviews)
 {
     WApplication *app = WApplication::instance();
     if (!app->environment().ajax())
@@ -138,6 +153,9 @@ WDropZone::WDropZone(const std::string& javaScriptFilter, const std::string& jav
     if(maxfiles_){
         optionmaxfiles_ = "maxFiles:" + std::to_string(maxfiles_) +",";
     }
+    if(totaluploadprogress.empty()) {
+        totaluploadprogress_ = totaluploadprogress;
+    }
 
     setup();
 }
@@ -151,6 +169,23 @@ void WDropZone::enableAjax()
     repaint();
 
     WContainerWidget::enableAjax();
+}
+void WDropZone::resetUrl()
+{
+    if(resource_) {
+        doJavaScript(this->jsRef() + ".newurl('"+ resource_->generateUrl() +"');");
+    }
+}
+void WDropZone::enable() {
+    doJavaScript(this->jsRef() + ".enable();");
+}
+
+void WDropZone::disable() {
+    doJavaScript(this->jsRef() + ".disable();");
+}
+
+void WDropZone::clearDropZone() {
+    doJavaScript(this->jsRef() + ".clearDropZone();");
 }
 
 void WDropZone::setup()
@@ -176,11 +211,17 @@ void WDropZone::setup()
                                                                              optionmaxfiles_ +
                                                                              optionAcceptedFiles_ +
                                                                             "autoProcessQueue: false,"
+                                                                            "uploadMultiple:" + std::to_string(uploadMultiple_) + ","
+                                                                            "dictDefaultMessage: '" + title_ + "'," //Drop files here to upload
+                                                                            "disablePreviews: "+ std::to_string(disablePreviews_) + ","
                                                                            + jsFilterFn_ +
                                                                             jsTransformFn_ +
 
                                                                             "init: function () {"
                                                                                   "var myDropzone = this;"
+                                                                                //   "myDropzone.options.paramName = function(n) {" //for multiple files per request
+                                                                                //         "return myDropzone.files[n].upload.uuid;"
+                                                                                //   "};"
                                                                                   "Element.prototype.processFiles = function() {"
                                                                                         "myDropzone.processQueue();"
                                                                                   "};"
@@ -198,11 +239,25 @@ void WDropZone::setup()
                                                                                   "};"
                                                                                   "Element.prototype.clearDropZone = function() {"
                                                                                       "myDropzone.removeAllFiles(true);"
-                                                                                  "};"
+                                                                                  "};" 
                                                                                   "Element.prototype.cancelUpload = function(uuid) {"
                                                                                       //"console.log(myDropzone.getRejectedFiles());"
-                                                                                      //"myDropzone.removeAllFiles(true);"
+                                                                                      "for (var i = 0; i < myDropzone.files.length; i++)"
+                                                                                        "if(myDropzone.files[i].upload.uuid == uuid){"
+                                                                                            "myDropzone.removeFile(myDropzone.files[i]);"
+                                                                                            "return;"
+                                                                                        "}"
                                                                                   "};"
+                                                                                  "Element.prototype.newurl = function(url) {"
+                                                                                      "myDropzone.options.url=url;"
+                                                                                  "};" 
+                                                                                  "Element.prototype.enable = function(url) {"
+                                                                                      "myDropzone.enable();"
+                                                                                  "};"
+                                                                                  "Element.prototype.disable = function() {"
+                                                                                      "myDropzone.disable();"
+                                                                                  "};"
+                                                                                  
 
 //                                                                                  "transformFile: function transformFile(file, done) "{
 //                                                                                        "zip = new JSZip();"
@@ -262,8 +317,20 @@ void WDropZone::setup()
                                                                                 "this.on('queuecomplete', () => {"
                                                                                     //"Wt.emit(" + this->jsRef() + ", 'filetoolarge', file.size);"
                                                                                 "});"
-                                                                                "this.on('totaluploadprogress', () => {"
+                                                                                "this.on('totaluploadprogress', (progress) => {"
                                                                                     //"Wt.emit(" + this->jsRef() + ", 'filetoolarge', file.size);"
+                                                                                    //"console.log('totaluploadprogress', upprogress);"
+                                                                                    // "var allProgress = 0;"
+                                                                                    // "var allFilesBytes = 0;"
+                                                                                    // "var allSentBytes = 0;"
+                                                                                    // "for(var a=0;a<this.files.length;a++) {"
+                                                                                    //     "allFilesBytes = allFilesBytes + this.files[a].size;"
+                                                                                    //     "allSentBytes = allSentBytes + this.files[a].upload.bytesSent;"
+                                                                                    //     "allProgress = (allSentBytes / allFilesBytes) * 100;"
+                                                                                    // "}"
+                                                                                    // "window.nanobar.go(allProgress);"
+                                                        
+                                                                                    //+ totaluploadprogress_ +
                                                                                 "});"
                                                                                 "this.on('sending', function (file, xhr, formData) {"
                                                                                     "formData.append('file-id', file.upload.uuid);"
@@ -389,7 +456,7 @@ void WDropZone::handleTooLarge(::uint64_t size)
 void WDropZone::handleErrorUpload(std::string uuid, std::string error)
 {
     for (unsigned i = 0; i < uploads_.size(); i++) {
-        if(uploads_[i]->id() == uuid)
+        if(uploads_[i]->uploadId() == uuid)
             uploadFailed_.emit(uploads_[i], error);
     }
 }
@@ -432,11 +499,11 @@ void WDropZone::proceedToNextFile()
 
 void WDropZone::emitUploaded(std::string id)
 {
-    for (unsigned i=0; i < currentFileIdx_ && i < uploads_.size(); i++) {
+    for (unsigned i=0; i < uploads_.size(); i++) { //i < currentFileIdx_ &&
         File *f = uploads_[i];
         if (f->uploadId() == id) {
-            f->uploaded().emit();
-            uploaded().emit(f);
+            //f->uploaded().emit();
+            uploaded_.emit(f);
         }
     }
 }

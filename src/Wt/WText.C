@@ -49,7 +49,7 @@ bool WText::RichText::setFormat(TextFormat newFormat)
 bool WText::RichText::checkWellFormed()
 {
   if (format == TextFormat::XHTML && 
-      (text.literal() || !text.args().empty())) {
+      (text.literal() || !text.args())) {
     return removeScript(text);
   } else
     return true;

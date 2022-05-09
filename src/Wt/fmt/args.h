@@ -145,6 +145,8 @@ class dynamic_format_arg_store
  public:
   constexpr dynamic_format_arg_store() = default;
 
+  bool empty() const { return data_.empty(); }
+
   /**
     \rst
     Adds an argument into the dynamic store for later passing to a formatting

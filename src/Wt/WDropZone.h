@@ -56,7 +56,7 @@ public:
      * This is also signalled using the WFileDropWidget
      * \link WFileDropWidget::uploaded uploaded() \endlink signal.
      */
-        Signal<>& uploaded() { return uploaded_; }
+        //Signal<>& uploaded() { return uploaded_; }
 
         void setFilterEnabled(bool enabled);
         bool filterEnabled() { return filterEnabled_; }
@@ -65,7 +65,7 @@ public:
 
         // Wt internal
         File(const std::string& id, const std::string& fileName, const std::string& type, ::uint64_t size, ::uint64_t chunkSize);
-        std::string uploadId() const { return id_; }
+        const std::string& uploadId() const { return id_; }
         void handleIncomingData(const Http::UploadedFile& file, bool last);
         void cancel();
         bool cancelled() const;
@@ -91,8 +91,16 @@ public:
     };
 
 public:
-    WDropZone();
-    WDropZone(const std::string& javaScriptFilter, const std::string& javaScriptTransform, std::string mimetypes = "", unsigned filesize = 256, unsigned maxfiles = 0);
+    WDropZone(const std::string& title = "Drop files here to upload");
+    WDropZone(const std::string& javaScriptFilter, 
+              const std::string& javaScriptTransform, 
+              const std::string& totaluploadprogress, 
+              const std::string& title, 
+              std::string mimetypes = "", 
+              bool uploadMultiple = false,
+              unsigned filesize = 256, 
+              unsigned maxfiles = 0, 
+              bool disablePreviews = false);
 
     ~WDropZone();
     /*! \brief Returns the vector of uploads managed by this widget.
@@ -230,6 +238,14 @@ public:
    */
     Signal<File*, std::string>& uploadFailed() { return uploadFailed_; }
 
+    void resetUrl();
+
+    void enable();
+
+    void disable();
+
+    void clearDropZone();
+
 protected:
     virtual std::string renderRemoveJs(bool recursive) override;
     virtual void enableAjax() override;
@@ -257,9 +273,10 @@ private:
     std::unique_ptr<WDropZoneResource> resource_;
     unsigned currentFileIdx_;
     unsigned maxfilesize_, maxfiles_; // maxfilesize in MegaOctets (Mo)
+    bool uploadMultiple_;
 
     static const std::string WORKER_JS;
-    std::string jsFilterFn_, jsTransformFn_, optionfilesize_, optionmaxfiles_, optionAcceptedFiles_;
+    std::string jsFilterFn_, jsTransformFn_, optionfilesize_, optionmaxfiles_, optionAcceptedFiles_, totaluploadprogress_;
     std::vector<std::string> jsFilterImports_;
     ::uint64_t chunkSize_;
     bool filterSupported_;
@@ -267,8 +284,10 @@ private:
     std::string hoverStyleClass_;
     bool acceptDrops_;
     std::string acceptAttributes_;
+    std::string title_;
     bool dropIndicationEnabled_;
     bool globalDropEnabled_;
+    bool disablePreviews_;
 
     JSignal<std::string> dropSignal_;
     JSignal<int> requestSend_;

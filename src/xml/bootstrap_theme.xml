@@ -2,50 +2,50 @@
 <messages xmlns:if="Wt.WTemplate.conditions">
   <message id="Wt.Auth.field">
     <![CDATA[
-    ${<if:{1}>}
+    ${{<if:{0}>}}
     <div class="control-group">
-      <label for="${id:{1}}" class="control-label">
-        ${tr:Wt.Auth.{1}}
+      <label for="${{id:{0}}}" class="control-label">
+        ${{tr:Wt.Auth.{0}}}
       </label>
       <div class="controls">
-	${{1}} <span class="help-inline">${{1}-info}</span>
+	${{{0}}} <span class="help-inline">${{{0}-info}}</span>
       </div>
     </div>
-    ${</if:{1}>}
+    ${{</if:{0}>}}
     ]]>
   </message>
 
   <message id="Wt.Auth.field2">
     <![CDATA[
-    ${<if:{1}>}
+    ${{<if:{0}>}}
     <div class="control-group">
-      <label for="${id:{1}}" class="control-label">
-        ${{2}}
+      <label for="${{id:{0}}}" class="control-label">
+        ${{{1}}}
       </label>
       <div class="controls">
-	${{1}} <span class="help-inline">
-	  ${{1}-info}
+	${{{0}}} <span class="help-inline">
+	  ${{{0}-info}}
 	</span>
       </div>
     </div>
-    ${</if:{1}>}
+    ${{</if:{0}>}}
     ]]>
   </message>
 
   <message id="Wt.Auth.field3">
     <![CDATA[
-    ${<if:{1}>}
+    ${{<if:{0}>}}
     <div class="control-group">
-      <label for="${id:{1}}" class="control-label">
-        ${{2}}
+      <label for="${{id:{0}}}" class="control-label">
+        ${{{1}}}
       </label>
       <div class="controls">
-	${{1}} <span class="help-inline">
-	  ${{1}-info} ${{3} class="btn-link"}
+	${{{0}}} <span class="help-inline">
+	  ${{{0}-info}} ${{{2} class="btn-link"}}
 	</span>
       </div>
     </div>
-    ${</if:{1}>}
+    ${{</if:{0}>}}
     ]]>
   </message>
 

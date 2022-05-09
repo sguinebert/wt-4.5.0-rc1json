@@ -1759,6 +1759,7 @@ void WebSession::handleRequest(Handler& handler)
 
     } catch (std::exception& e) {
       LOG_ERROR("fatal error: " << e.what());
+      //std::terminate();
 
 #ifdef WT_TARGET_JAVA
       e.printStackTrace();

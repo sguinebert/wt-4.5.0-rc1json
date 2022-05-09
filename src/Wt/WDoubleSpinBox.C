@@ -171,7 +171,7 @@ WValidator::Result WDoubleSpinBox::validateRange() const
   Wt::Utils::replace(badRangeText, "{2}", "{2}" + suffix().toUTF8());
   validator.setInvalidTooLargeText(WString(badRangeText));
   validator.setInvalidTooSmallText(WString(badRangeText));
-  return validator.validate(WString("{1}").arg(value_));
+  return validator.validate(WString("{0}").arg(value_));
 }
 
 void WDoubleSpinBox::render(WFlags<RenderFlag> flags)

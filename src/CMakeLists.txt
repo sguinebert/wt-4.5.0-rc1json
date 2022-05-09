@@ -130,6 +130,7 @@ Wt/WDefaultLoadingIndicator.h Wt/WDefaultLoadingIndicator.C
 Wt/WDialog.h Wt/WDialog.C
 Wt/WDoubleSpinBox.h Wt/WDoubleSpinBox.C
 Wt/WDoubleValidator.h Wt/WDoubleValidator.C
+Wt/WDropZone.h Wt/WDropZone.C
 Wt/WEnvironment.h Wt/WEnvironment.C
 Wt/WEvent.h Wt/WEvent.C
 Wt/WException.h Wt/WException.C
