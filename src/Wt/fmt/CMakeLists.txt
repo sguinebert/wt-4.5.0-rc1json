@@ -3,6 +3,7 @@ INSTALL(FILES
   chrono.h
   color.h
   compile.h
+  core.h
   format-inl.h
   format.h
   locale.h
