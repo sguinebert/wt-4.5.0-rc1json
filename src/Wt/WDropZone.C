@@ -22,8 +22,8 @@ class WDropZone::WDropZoneResource final : public WResource
 public:
     WDropZoneResource(WDropZone *fileDropWidget, File *file)
         : WResource(),
-        parent_(fileDropWidget),
-        currentFile_(file)
+        parent_(fileDropWidget)
+        //, currentFile_(file)
     {
         setUploadProgress(true);
     }
@@ -33,7 +33,7 @@ public:
         beingDeleted();
     }
 
-    void setCurrentFile(File *file) { currentFile_ = file; }
+    //void setCurrentFile(File *file) { currentFile_ = file; }
 
 protected:
     virtual void handleRequest(const Http::Request &request,
@@ -47,47 +47,64 @@ protected:
      *     before any application-code is called by the finished upload.
      *   - only Wt-code is executed within this lock
      */
-        WApplication::UpdateLock lock(WApplication::instance());
+      //  WApplication::UpdateLock lock(WApplication::instance());
 #endif // WT_TARGET_JAVA
 
-        const std::string *fileId = request.getParameter("file-id");
-        if (fileId == 0 || (*fileId).empty()) {
-            response.setStatus(404);
-            return;
-        }
-        bool validId = parent_->incomingIdCheck(*fileId);
-        if (!validId) {
-            response.setStatus(404);
-            return;
-        }
+        // const std::string *fileId = request.getParameter("file-id");
+        // if (fileId == 0 || (*fileId).empty()) {
+        //     response.setStatus(404);
+        //     return;
+        // }
+        // bool validId = parent_->incomingIdCheck(*fileId);
+        // if (!validId) {
+        //     response.setStatus(404);
+        //     return;
+        // }
 
+        std::vector<std::string> uuids;
         std::vector<Http::UploadedFile> files;
-        Utils::find(request.uploadedFiles(), "file", files);
+        for(auto &[uuid, file] : request.uploadedFiles()) {
+            std::cout << "received uuid : " << uuid << std::endl;
+            uuids.push_back(uuid);
+            files.push_back(file);
+        }
+        
+        //Utils::find(request.uploadedFiles(), "file", files);
         if (files.empty()) {
             response.setStatus(404);
             return;
         }
 
         // check is js filter was used
-        const std::string *filtFlag = request.getParameter("filtered");
-        currentFile_->setIsFiltered((filtFlag != 0) && ((*filtFlag) == "true"));
+        //const std::string *filtFlag = request.getParameter("filtered");
+        //currentFile_->setIsFiltered((filtFlag != 0) && ((*filtFlag) == "true"));
+        
+
+        for(unsigned i(0); i < uuids.size(); i++) {
+            auto currentFile = parent_->incomingIdCheck(uuids[i]);
+            if (!currentFile) {
+                response.setStatus(404);
+                return;
+            }
+            currentFile->handleIncomingData(files[i], false);
+        }
 
         // add data to currentFile_
-        const std::string *lastFlag = request.getParameter("last");
-        bool isLast = (lastFlag == 0) || // if not present, assume not chunked
-                      (lastFlag != 0 && (*lastFlag) == "true");
-        currentFile_->handleIncomingData(files[0], isLast);
+        // const std::string *lastFlag = request.getParameter("last");
+        // bool isLast = (lastFlag == 0) || // if not present, assume not chunked
+        //               (lastFlag != 0 && (*lastFlag) == "true");
+        // currentFile_->handleIncomingData(files[0], isLast);
 
-        if (isLast) {
-            parent_->proceedToNextFile();
-        }
+        // if (isLast) {
+        //     parent_->proceedToNextFile();
+        // }
 
         response.setMimeType("text/plain"); // else firefox complains
     }
 
 private:
     WDropZone *parent_;
-    File *currentFile_;
+    //File *currentFile_;
 };
 
 WDropZone::WDropZone(const std::string& title) : WDropZone("", "", "", title)
@@ -219,9 +236,10 @@ void WDropZone::setup()
 
                                                                             "init: function () {"
                                                                                   "var myDropzone = this;"
-                                                                                //   "myDropzone.options.paramName = function(n) {" //for multiple files per request
-                                                                                //         "return myDropzone.files[n].upload.uuid;"
-                                                                                //   "};"
+                                                                                  "myDropzone.options.paramName = function(n) {" //for multiple files per request
+                                                                                        //"console.log('myDropzone.files[n].upload.uuid', n, myDropzone.files[n].upload.uuid);"
+                                                                                        "return n;"
+                                                                                  "};"
                                                                                   "Element.prototype.processFiles = function() {"
                                                                                         "myDropzone.processQueue();"
                                                                                   "};"
@@ -332,9 +350,9 @@ void WDropZone::setup()
                                                         
                                                                                     //+ totaluploadprogress_ +
                                                                                 "});"
-                                                                                "this.on('sending', function (file, xhr, formData) {"
-                                                                                    "formData.append('file-id', file.upload.uuid);"
-                                                                                "});"
+                                                                                // "this.on('sending', function (file, xhr, formData) {"
+                                                                                //     "formData.append('file-id', file.upload.uuid);"
+                                                                                // "});"
                                                                             "}"
                                                                         "});");
 
@@ -508,16 +526,17 @@ void WDropZone::emitUploaded(std::string id)
     }
 }
 
-bool WDropZone::incomingIdCheck(const std::string& id)
+Wt::WDropZone::File* WDropZone::incomingIdCheck(const std::string& id)
 {
     for (unsigned i = 0; i < uploads_.size(); i++) {
+        //std::cout << "incomingIdCheck : " <<  uploads_[i]->uploadId() << " - " << id << std::endl;
         if (uploads_[i]->uploadId() == id)
         {
-            resource_->setCurrentFile(uploads_[i]);
-            return true;
+            //resource_->setCurrentFile(uploads_[i]);
+            return uploads_[i];
         }
     }
-    return false;
+    return nullptr;
 }
 
 void WDropZone::cancelUpload(File *file)
@@ -751,9 +770,9 @@ void WDropZone::disableJavaScriptFilter() {
 
 const Http::UploadedFile &WDropZone::File::uploadedFile() const
 {
-    if (!uploadFinished_)
-        throw WException("Can not access uploaded files before upload is done.");
-    else
+    // if (!uploadFinished_)
+    //     throw WException("Can not access uploaded files before upload is done.");
+    // else
         return uploadedFile_;
 }
 

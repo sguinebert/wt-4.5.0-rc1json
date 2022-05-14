@@ -266,7 +266,7 @@ private:
 
     // Functions for handling incoming requests
     void proceedToNextFile();
-    bool incomingIdCheck(const std::string& id);
+    File* incomingIdCheck(const std::string& id);
 
     Wt::WMemoryResource *uploadWorkerResource_;
     class WDropZoneResource;

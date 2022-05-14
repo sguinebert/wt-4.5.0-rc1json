@@ -260,6 +260,7 @@ private:
   JSignal<WMouseEvent> onMouseWentUp_;
   JSignal<> onFocusIn_;
   JSignal<> onFocusOut_;
+  JSlot setReadMode_;
   int version_;
   bool contentChanged_;
   std::map<std::string, cpp17::any> configurationSettings_;

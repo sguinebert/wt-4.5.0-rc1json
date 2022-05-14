@@ -98,7 +98,9 @@ void WTextEdit::init()
     setConfigurationSetting("theme_advanced_toolbar_align",
 			    std::string("left"));
   }
-
+    
+  setReadMode_.setJavaScript("function(e) {var txt="+ this->jsRef() + "; if(txt)txt.ed.setMode( e ? 'readonly' : 'design');}");
+  
   onChange_.connect(this, &WTextEdit::propagateOnChange);
   onClick_.connect(this, &WTextEdit::propagateOnClick);
   onDoubleClick_.connect(this, &WTextEdit::propagateOnDoubleClick);
@@ -246,10 +248,10 @@ void WTextEdit::setReadOnly(bool readOnly)
 {
   WTextArea::setReadOnly(readOnly);
 
-  if (readOnly)
-    setConfigurationSetting("readonly", std::string("1"));
-  else
-    setConfigurationSetting("readonly", cpp17::any());
+  //if (readOnly) 
+  //  setConfigurationSetting("readonly", std::string("1"));
+  //else
+    setReadMode_.exec(std::to_string(readOnly)); //setConfigurationSetting("readonly", cpp17::any());
 }
 
 void WTextEdit::propagateSetEnabled(bool enabled)
@@ -304,9 +306,15 @@ bool WTextEdit::serialize(std::stringstream& ss, std::map<std::string, cpp17::an
 
     first = false;
 
-    ss << it->first << ": "
-      << Impl::asJSLiteral(it->second, TextFormat::UnsafeXHTML);
+      ss << it->first << ": "
+        <<  Impl::asJSLiteral(it->second, TextFormat::UnsafeXHTML);
   }
+  if(isReadOnly()) {
+    if (!first)
+      ss << ',';
+    ss << "setup: function(ed) { ed.setMode('readonly') }";
+  }
+  std::cout << "set : " << ss.str() << std::endl;
   return first;
 }
 void WTextEdit::updateDom(DomElement& element, bool all)
