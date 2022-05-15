@@ -314,7 +314,6 @@ bool WTextEdit::serialize(std::stringstream& ss, std::map<std::string, cpp17::an
       ss << ',';
     ss << "setup: function(ed) { ed.setMode('readonly') }";
   }
-  std::cout << "set : " << ss.str() << std::endl;
   return first;
 }
 void WTextEdit::updateDom(DomElement& element, bool all)
