@@ -227,6 +227,27 @@ WPoint ImageUtils::getSize(const std::vector<unsigned char>& header)
     int width = toUnsigned(header[7]) << 8 | toUnsigned(header[6]);
     int height = toUnsigned(header[9]) << 8 | toUnsigned(header[8]);
     return WPoint(width, height);
+  } else if (mimeType == "image/jpeg") {
+     int size = header.size(), i = 0;
+     if(header[i] == 0xFF && header[i + 1] == 0xD8 && header[i + 2] == 0xFF && header[i + 3] == 0xE0) 
+     {
+     i += 4;
+     /* Check for null terminated JFIF */
+          if(header[i + 2] == 'J' && header[i + 3] == 'F' && header[i + 4] == 'I' && header[i + 5] == 'F' && header[i + 6] == 0x00) {
+              while(i < size) {
+                  i++;
+                  if(header[i] == 0xFF){
+                      if(header[i+1] == 0xC0) {
+                          int height = header[i + 5]*256 + header[i + 6];
+                          int width = header[i + 7]*256 + header[i + 8];
+                          //std::cout << width << " - " << height << std::endl;
+                          return WPoint(width, height);
+                      }
+                  }
+              }
+          }
+      } 
+    return WPoint();
   } else
     return WPoint();
 }

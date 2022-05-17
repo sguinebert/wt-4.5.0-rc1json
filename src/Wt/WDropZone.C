@@ -64,7 +64,7 @@ protected:
         std::vector<std::string> uuids;
         std::vector<Http::UploadedFile> files;
         for(auto &[uuid, file] : request.uploadedFiles()) {
-            std::cout << "received uuid : " << uuid << std::endl;
+            //std::cout << "received uuid : " << uuid << std::endl;
             uuids.push_back(uuid);
             files.push_back(file);
         }
