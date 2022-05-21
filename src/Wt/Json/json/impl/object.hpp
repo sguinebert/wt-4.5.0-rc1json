@@ -362,36 +362,37 @@ auto
 Object::
 get(string_view key) -> Value*
 {
-    auto vsc = splitSV(key);
-    Value* jv = if_contains(vsc[0]);
-    for(unsigned i(1); i < vsc.size(); i++)
-    {
-        if(!jv)
-            return nullptr;
-        if(auto o = jv->if_object())
-            jv = o->if_contains(vsc[i]);
-        else
-            return nullptr;
-    }
-    return jv;
+    // auto vsc = splitSV(key);
+    // Value* jv = if_contains(key);
+    // for(unsigned i(1); i < vsc.size(); i++)
+    // {
+    //     if(!jv)
+    //         return nullptr;
+    //     if(auto o = jv->if_object())
+    //         jv = o->if_contains(vsc[i]);
+    //     else
+    //         return nullptr;
+    // }
+    return if_contains(key);
 }
 
 auto
 Object::
 get(string_view key) const -> Value const*
 {
-    auto vsc = splitSV(key);
-    const Value* jv = if_contains(vsc[0]);
-    for(unsigned i(1); i < vsc.size(); i++)
-    {
-        if(!jv)
-            return nullptr;
-        if(auto o = jv->if_object())
-            jv = o->if_contains(vsc[i]);
-        else
-            return nullptr;
-    }
-    return jv;
+    // auto vsc = splitSV(key);
+    // const Value* jv = if_contains(vsc[0]);
+    // for(unsigned i(1); i < vsc.size(); i++)
+    // {
+    //     if(!jv)
+    //         return nullptr;
+    //     if(auto o = jv->if_object())
+    //         jv = o->if_contains(vsc[i]);
+    //     else
+    //         return nullptr;
+    // }
+    // return jv;
+    return if_contains(key);
 }
 //----------------------------------------------------------
 
@@ -414,7 +415,7 @@ insert_or_assign(
         std::pair<iterator, bool>
 {
     reserve(size() + 1);
-    auto const result = find_impl(key);
+    auto const result = detail::find_in_object(*this, key);
     if(result.first)
     {
         Value(std::forward<M>(m),
@@ -436,7 +437,7 @@ emplace(
         std::pair<iterator, bool>
 {
     reserve(size() + 1);
-    auto const result = find_impl(key);
+    auto const result = detail::find_in_object(*this, key);
     if(result.first)
         return { result.first, false };
     key_value_pair kv(key,

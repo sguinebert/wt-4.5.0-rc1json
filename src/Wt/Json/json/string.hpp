@@ -2919,7 +2919,7 @@ struct hash< ::Wt::Json::string >
     operator()(::Wt::Json::string const& js) const noexcept
     {
         return ::Wt::Json::detail::digest(
-            js.data(), js.size(), salt_);
+            js.begin(), js.end(), salt_);
     }
 
 private:

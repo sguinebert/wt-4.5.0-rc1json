@@ -10,7 +10,7 @@
 #ifndef BOOST_JSON_STRING_VIEW_HPP
 #define BOOST_JSON_STRING_VIEW_HPP
 
-#include <boost/json/detail/config.hpp>
+#include "detail/config.hpp"
 #ifndef BOOST_JSON_STANDALONE
 # include <boost/utility/string_view.hpp>
 # ifndef BOOST_NO_CXX17_HDR_STRING_VIEW

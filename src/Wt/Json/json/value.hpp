@@ -53,6 +53,7 @@ BOOST_JSON_NS_BEGIN
 */
 class WT_API Value
 {
+    struct source_location{};
 #ifndef BOOST_JSON_DOCS
     using scalar = detail::scalar;
 
@@ -3281,6 +3282,76 @@ public:
     {
         return as_array().at(pos);
     }
+
+    /** Access an element via JSON Pointer.
+
+        This function is used to access a (potentially nested)
+        element of the value using a JSON Pointer string.
+
+        @par Complexity
+        Linear in the sizes of `ptr` and underlying array, object, or string.
+
+        @par Exception Safety
+        Strong guarantee.
+
+        @param ptr JSON Pointer string.
+
+        @return reference to the element identified by `ptr`.
+
+        @throw system_error if an error occurs.
+
+        @see
+        <a href="https://datatracker.ietf.org/doc/html/rfc6901">
+            RFC 6901 - JavaScript Object Notation (JSON) Pointer</a>
+    */
+/** @{ */
+    BOOST_JSON_DECL
+    Value const&
+    at_pointer(string_view ptr) const;
+
+    BOOST_JSON_DECL
+    Value&
+    at_pointer(string_view ptr);
+/** @} */
+
+    /** Access an element via JSON Pointer.
+
+        This function is used to access a (potentially nested)
+        element of the value using a JSON Pointer string.
+
+        @par Complexity
+        Linear in the sizes of `ptr` and underlying array, object, or string.
+
+        @par Exception Safety
+        No-throw guarantee.
+
+        @param ptr JSON Pointer string.
+
+        @param ec Set to the error, if any occurred.
+
+        @return pointer to the element identified by `ptr`.
+
+        @see
+        <a href="https://datatracker.ietf.org/doc/html/rfc6901">
+            RFC 6901 - JavaScript Object Notation (JSON) Pointer</a>
+    */
+/** @{ */
+    BOOST_JSON_DECL
+    Value const*
+    find_pointer(string_view ptr, error_code& ec) const noexcept;
+
+    BOOST_JSON_DECL
+    Value*
+    find_pointer(string_view ptr, error_code& ec) noexcept;
+
+    // BOOST_JSON_DECL
+    // Value const*
+    // find_pointer(string_view ptr, std::error_code& ec) const noexcept;
+
+    // BOOST_JSON_DECL
+    // Value*
+    // find_pointer(string_view ptr, std::error_code& ec) noexcept;
+/** @} */
 
 
     Value const*

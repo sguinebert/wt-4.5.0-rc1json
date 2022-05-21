@@ -36,6 +36,7 @@ in a translation unit of the program.
 #include "impl/object.ipp"
 #include "impl/parse.ipp"
 #include "impl/parser.ipp"
+#include "impl/pointer.ipp"
 #include "impl/serialize.ipp"
 #include "impl/serializer.ipp"
 #include "impl/static_resource.ipp"

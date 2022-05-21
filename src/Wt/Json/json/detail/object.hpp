@@ -15,6 +15,7 @@
 
 BOOST_JSON_NS_BEGIN
 
+class Object;
 class Value;
 class key_value_pair;
 
@@ -72,6 +73,19 @@ public:
         return data;
     }
 };
+
+template<class CharRange>
+std::pair<key_value_pair*, std::size_t>
+find_in_object(
+    Object const& obj,
+    CharRange key) noexcept;
+
+extern template
+BOOST_JSON_DECL
+std::pair<key_value_pair*, std::size_t>
+find_in_object<string_view>(
+    Object const&,
+    string_view key) noexcept;
 
 } // detail
 BOOST_JSON_NS_END
