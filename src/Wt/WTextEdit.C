@@ -99,7 +99,7 @@ void WTextEdit::init()
 			    std::string("left"));
   }
     
-  setReadMode_.setJavaScript("function(e) {var txt="+ this->jsRef() + "; if(txt)txt.ed.setMode( e ? 'readonly' : 'design');}");
+  setReadMode_.setJavaScript("function(e) {var txt="+ this->jsRef() + "; if(txt&&txt.ed)txt.ed.setMode( e ? 'readonly' : 'design');}");
   
   onChange_.connect(this, &WTextEdit::propagateOnChange);
   onClick_.connect(this, &WTextEdit::propagateOnClick);
