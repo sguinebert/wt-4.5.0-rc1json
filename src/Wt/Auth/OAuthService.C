@@ -472,8 +472,8 @@ OAuthAccessToken OAuthProcess::parseUrlEncodedToken(const Http::Message& respons
 OAuthAccessToken OAuthProcess::parseJsonToken(const Http::Message& response)
 {
   /* OAuth 2.0 style */
-  Json::Object root;
-  Json::ParseError pe;
+  Wt::Json::Object root;
+  Wt::Json::ParseError pe;
 
 #ifndef WT_TARGET_JAVA
   bool ok = Json::parse(response.body(), root, pe);
@@ -493,7 +493,7 @@ OAuthAccessToken OAuthProcess::parseJsonToken(const Http::Message& response)
     if (response.status() == 200) {
       try {
 	std::string accessToken = root["access_token"].get_string("");
-	int secs = root["access_token"].get_int64(-1);// root.get("expires_in").orIfNull(-1);
+	int secs = root["expires_in"].get_int64(-1);// root.get("expires_in").orIfNull(-1);
 	WDateTime expires;
 	if (secs > 0)
 	  expires = WDateTime::currentDateTime().addSecs(secs);
